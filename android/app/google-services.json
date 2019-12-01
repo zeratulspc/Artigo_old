@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "89780619014",
+    "firebase_url": "https://nextor-4669c.firebaseio.com",
+    "project_id": "nextor-4669c",
+    "storage_bucket": "nextor-4669c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:89780619014:android:f31f8c8b8b7d56e91b8087",
+        "android_client_info": {
+          "package_name": "nextor.nextor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "89780619014-0kpgjk2ie1o40ioflvbv7sm38t5n1sfv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgYNftWzlzE1iw0Fp5aNVi9unMI8JJnLM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "89780619014-0kpgjk2ie1o40ioflvbv7sm38t5n1sfv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
