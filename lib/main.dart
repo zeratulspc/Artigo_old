@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:nextor/page/login.dart';
 
 void main() => runApp(MyApp());
-
+//Color(0xFF5f4b8b),
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Nextor Community',
       theme: ThemeData(
-        primaryColor: Color(0xFF5f4b8b),
+        primaryColor: Colors.deepPurple,
+        accentColor: Colors.deepPurpleAccent,
       ),
       home: LoginPage(),
     );

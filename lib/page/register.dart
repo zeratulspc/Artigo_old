@@ -11,7 +11,8 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final loginKey = GlobalKey<FormState>();
-
+//TODO 회원가입 Design
+//TODO 회원가입 FNC
   @override
   Widget build(BuildContext context) {
     return Scaffold(

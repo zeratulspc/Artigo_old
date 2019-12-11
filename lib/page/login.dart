@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
                     //TODO 텍스트필드 디자인
                     TextFormField(),
                     TextFormField(),
-                    //TODO 로그인, 회원가입 FNC
+                    //TODO 로그인 FNC
                     RaisedButton(
                       child: Text("로그인"),
                       onPressed: () {
