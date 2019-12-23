@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+
+import 'package:nextor/page/postBoard.dart';
+import 'package:nextor/page/todoBoard.dart';
+import 'package:nextor/page/dataBoard.dart';
+import 'package:nextor/page/settings.dart';
+import 'package:nextor/page/profile.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -7,90 +13,70 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final loginKey = GlobalKey<FormState>();
+  PageController _pageController;
+  int _page = 0;
 //TODO Home Design
 //TODO Home FNC
+
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  void navigateToPage(int page) {
+    _pageController.animateToPage(page,
+        duration: Duration(milliseconds: 300), curve: Curves.ease);
+  }
+
+  void onPageChanged(int page) {
+    setState(() {
+      this._page = page;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-        // Important: Remove any padding from the ListView.
-        padding: EdgeInsets.zero,
+      appBar: AppBar(title: Text("Nextor"),),
+      body: PageView(
         children: <Widget>[
-          DrawerHeader(
-            child: Text('Drawer Header'),
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
+          PostBoard(),
+          TodoBoard(),
+          DataBoard(),
+          Profile(),
+          Settings(),
+        ],
+        controller: _pageController,
+        onPageChanged: onPageChanged,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message),
+            title: Text("게시판"),
           ),
-          ListTile(
-            title: Text('Item 1'),
-            onTap: () {
-              // Update the state of the app.
-              // ...
-            },
+          BottomNavigationBarItem(
+            icon: Icon(Icons.check_box),
+            title: Text("할 일"),
           ),
-          ListTile(
-            title: Text('Item 2'),
-            onTap: () {
-              // Update the state of the app.
-              // ...
-            },
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            title: Text("통계보드"),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            title: Text("프로필"),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dehaze),
+            title: Text("설정"),
           ),
         ],
+        onTap: navigateToPage,
+        currentIndex: _page,
       ),
-      ),
-      appBar: AppBar(
-        elevation: 0.0,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-
-            },
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-              Stack(
-                children: <Widget>[
-                  ClipPath(
-                    clipper: WaveClipperOne(),
-                    child: Container(color: Theme.of(context).primaryColor,
-                      width: screenSize.width,
-                      height: 200,
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(left: 30),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text("안녕하세요,",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 32.0,
-                          ),
-                        ),
-                        Text("김민재!", //TODO USERNAME
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 32.0,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                  )
-                ],
-              )
-            ],
-        ),
-      )
     );
   }
 }

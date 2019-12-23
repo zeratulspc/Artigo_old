@@ -12,9 +12,6 @@ class _TodoBoardState extends State<TodoBoard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("TODOBoard"),
-      ),
     );
   }
 }

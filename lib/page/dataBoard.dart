@@ -12,9 +12,6 @@ class _DataBoardState extends State<DataBoard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("DataBoard"),
-      ),
     );
   }
 }

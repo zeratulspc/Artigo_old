@@ -9,9 +9,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      builder: (context, child) {
+        return ScrollConfiguration(
+          behavior: RemoveGrow(),
+          child: child,
+        );
+      },
       title: 'Nextor Community',
       theme: ThemeData(
         primaryColor: Colors.deepPurple,
+        primarySwatch: Colors.deepPurple,
         accentColor: Colors.deepPurpleAccent,
       ),
       home: LoginPage(),
@@ -19,19 +26,12 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MainPage extends StatefulWidget {
+
+
+class RemoveGrow extends ScrollBehavior {
   @override
-  _MainPageState createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-
-      )
-    );
+  Widget buildViewportChrome(
+      BuildContext context, Widget child, AxisDirection axisDirection) {
+    return child;
   }
 }
