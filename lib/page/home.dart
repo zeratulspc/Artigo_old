@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'package:nextor/page/postBoard.dart';
+import 'package:nextor/page/postList.dart';
 import 'package:nextor/page/todoBoard.dart';
 import 'package:nextor/page/dataBoard.dart';
 import 'package:nextor/page/settings.dart';
 import 'package:nextor/page/profile.dart';
 
+//temp
+import 'package:nextor/fnc/postDB.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,6 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  PostDBFNC postDBFNC;
   PageController _pageController;
   int _page = 0;
 //TODO Home Design
@@ -21,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    postDBFNC = PostDBFNC();
   }
 
   void navigateToPage(int page) {
@@ -38,10 +42,21 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(title: Text("Nextor"),),
+      appBar: AppBar(
+        title: Text("Nextor"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () async {
+              String key = await postDBFNC.createPost(Post(title: "TEST", body: "ABCDQ", date: "QASA"));
+              print(key);
+            },
+          )
+        ],
+      ),
       body: PageView(
         children: <Widget>[
-          PostBoard(),
+          PostList(),
           TodoBoard(),
           DataBoard(),
           Profile(),
