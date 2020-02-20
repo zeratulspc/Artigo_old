@@ -1,7 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:nextor/fnc/like.dart';
 
-class PostDBFNC { //TODO FireStore 대신 RealTime DB 사용하기.
+class PostDBFNC {
   final postDBRef = FirebaseDatabase.instance.reference().child("Posts");
 
   Future<String> createPost(Post post) async {

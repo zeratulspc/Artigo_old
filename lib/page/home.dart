@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var screenSize = MediaQuery.of(context).size;
+    var screenSize = MediaQuery.of(context).size; //TODO screenSize 이용
     return Scaffold(
       appBar: AppBar(
         title: Text("Nextor"),
@@ -48,10 +48,10 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () async {
-              String key = await postDBFNC.createPost(Post(title: "TEST", body: "ABCDQ", date: "QASA"));
+              String key = await postDBFNC.createPost(Post(title: "TITLE", body: "BODY", date: DateTime.now().toIso8601String(), userId: "userID"));
               print(key);
             },
-          )
+          ),
         ],
       ),
       body: PageView(
