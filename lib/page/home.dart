@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:nextor/page/postList.dart';
-import 'package:nextor/page/todoBoard.dart';
-import 'package:nextor/page/dataBoard.dart';
+import 'package:nextor/page/post/postList.dart';
+import 'package:nextor/page/todo/todoBoard.dart';
+import 'package:nextor/page/data/dataBoard.dart';
 import 'package:nextor/page/settings.dart';
-import 'package:nextor/page/profile.dart';
+import 'package:nextor/page/profile/profile.dart';
 
 //temp
 import 'package:nextor/fnc/postDB.dart';
@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
 //TODO Home Design
 //TODO Home FNC
 
-  void initState() {
+  void initState() { //TODO 사용자 확인
     super.initState();
     _pageController = PageController();
     postDBFNC = PostDBFNC();
@@ -42,18 +42,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size; //TODO screenSize 이용
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Nextor"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () async {
-              String key = await postDBFNC.createPost(Post(title: "TITLE", body: "BODY", date: DateTime.now().toIso8601String(), userId: "userID"));
-              print(key);
-            },
-          ),
-        ],
-      ),
       body: PageView(
         children: <Widget>[
           PostList(),
@@ -70,7 +58,7 @@ class _HomePageState extends State<HomePage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.message),
-            title: Text("게시판"),
+            title: Text("게시글"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.check_box),

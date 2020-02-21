@@ -8,6 +8,7 @@ class PostCard extends StatelessWidget { //TODO 아이템 항목 수정
       {Key key,
         @required this.animation,
         this.onTap,
+        this.onLongPress,
         @required this.item,})
       : assert(animation != null),
         assert(item != null),
@@ -15,6 +16,7 @@ class PostCard extends StatelessWidget { //TODO 아이템 항목 수정
 
   final Animation<double> animation;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
   final Post item;
 
   @override
@@ -28,8 +30,9 @@ class PostCard extends StatelessWidget { //TODO 아이템 항목 수정
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: SizedBox(
-            height: 128.0,
+          onLongPress: onLongPress,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 1.0),
             child: Card(
               child: ListTile(
                 contentPadding: EdgeInsets.symmetric(vertical: 3.0, horizontal: 15.0),
@@ -40,7 +43,7 @@ class PostCard extends StatelessWidget { //TODO 아이템 항목 수정
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          Text(item.userId),
+                          Text(item.userUID),
                           SizedBox(width: 5,),
                           Text(DateTime.now().day == date.day && DateTime.now().month == date.month && DateTime.now().year == date.year ?
                           "${date.hour} : ${date.minute > 10 ? date.minute : "0"+date.minute.toString() }" : "${date.year}.${date.month}.${date.day}",),
@@ -59,7 +62,7 @@ class PostCard extends StatelessWidget { //TODO 아이템 항목 수정
                   ),),
               ),
             ),
-          ),
+          )
         ),
       ),
     );

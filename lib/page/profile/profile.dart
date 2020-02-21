@@ -13,6 +13,12 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("프로필"),
+      ),
+      body: Center(
+        child: Text("작업중..."),
+      ),
     );
   }
 }

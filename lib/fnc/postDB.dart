@@ -26,18 +26,18 @@ class Post {
   String key;
   String title;
   String body;
-  String userId;
+  String userUID;
   String date;
   List<Attach> attach;
   List<Like> like;
 
-  Post({this.key,this.title, this.body, this.userId, this.date, this.attach, this.like});
+  Post({this.key,this.title, this.body, this.userUID, this.date, this.attach, this.like});
 
   Post.fromSnapShot(DataSnapshot snapshot)
       :key = snapshot.key,
         title = snapshot.value["title"],
         body = snapshot.value["body"],
-        userId = snapshot.value["userId"],
+        userUID = snapshot.value["userId"],
         attach = snapshot.value["attach"],
         like = snapshot.value["like"],
         date = snapshot.value["date"];
@@ -47,7 +47,7 @@ class Post {
       "key" : key,
       "title" : title,
       "body" : body,
-      "userId" : userId,
+      "userId" : userUID,
       "date" : date,
       "attach" : attach,
       "like" : like

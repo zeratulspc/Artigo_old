@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:nextor/page/login.dart';
+import 'package:nextor/page/auth/login.dart';
 
 void main() => runApp(MyApp());
-//Color(0xFF5f4b8b),
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
       },
       title: 'Nextor Community',
       theme: ThemeData(
-        primaryColor: Colors.deepPurple,
-        primarySwatch: Colors.deepPurple,
-        accentColor: Colors.deepPurpleAccent,
+        primaryColor: Colors.orange[800],
+        primarySwatch: Colors.orange,
+        accentColor: Colors.orangeAccent,
       ),
       home: LoginPage(),
     );
