@@ -23,6 +23,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
+  connectivity: 0.4.8+1 # 인터넷 연결상태 확인용
   package_info: 0.4.0+10 # 버전 확인용
   page_transition: 1.1.5 # 페이지 트렌지션
   sticky_headers: 0.1.8+1 # 리스트 사이에 Header 삽입
