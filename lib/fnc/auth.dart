@@ -9,7 +9,7 @@ class AuthDBFNC {
   String errorKr(String code) {
     switch(code){
       case "ERROR_INVALID_EMAIL":
-        return "이메일 주소가 잘못되었습니다.";
+        return "잘못된 이메일 형식입니다.";
         break;
       case "ERROR_EMAIL_NOT_FOUND":
         return "이메일이 존재하지 않습니다.";
@@ -18,7 +18,7 @@ class AuthDBFNC {
         return "이미 존재하는 이메일 주소입니다.";
         break;
       case "ERROR_USER_NOT_FOUND":
-        return "존재하지 않는 아이디입니다.";
+        return "존재하지 않는 사용자입니다.";
         break;
       case "ERROR_WEAK_PASSWORD":
         return "비밀번호는 6글자 이상으로 지정해야 합니다.";
@@ -30,7 +30,7 @@ class AuthDBFNC {
         return "잠시 후에 시도하세요";
         break;
       case "ERROR_WRONG_PASSWORD":
-        return "아이디 혹은 비밀번호가 틀렸습니다.";
+        return "비밀번호가 틀렸습니다.";
         break;
       case "ERROR_EMAIL_ALREADY_IN_USE":
         return "이미 존재하는 아이디입니다.";
@@ -40,11 +40,16 @@ class AuthDBFNC {
     }
   }
 
-  Future createUser({String email, String password}) async {
-    await auth.createUserWithEmailAndPassword(email: email, password: password);
+  Future<AuthResult> createUser({String email, String password}) async {
+    try {
+      return await auth.createUserWithEmailAndPassword(email: email, password: password);
+    } catch (e) {
+      throw AuthException(e.code, e.message);
+    }
   }
 
-  Future createUserInfo({FirebaseUser user, String username, String description, String registerDate}) async {
+
+  Future createUserInfo({FirebaseUser user, String username, String description, String registerDate, String role}) async {
     UserUpdateInfo updateInfo = UserUpdateInfo();
     updateInfo.displayName = username;
     await user.updateProfile(updateInfo);
@@ -112,7 +117,7 @@ class User {
   String description;
   String registerDate;
   String recentLoginDate;
-  String role; //TODO Role 정의
+  String role; // GUEST, MEMBER, ADMIN
   String token;
 
 

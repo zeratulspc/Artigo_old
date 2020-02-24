@@ -108,11 +108,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   // 애니메이션 관련 변수
   // 관련자료 : https://youtu.be/KEUKRT9Xsls
-
+  //TODO 에니메이션 개선
   bool _bigger = true;
-  AnimationController buttonAnimationController;
-  Animation<double> buttonAnimation;
-  CurvedAnimation curvedAnimation;
 
   // initState
 
@@ -189,6 +186,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       borderSide: BorderSide(color: Colors.red),
                       borderRadius: BorderRadius.circular(25.7),
                     ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(25.7),
+                    ),
                   ),
                   validator: (String email) {
                     if(email.length == 0)
@@ -220,6 +221,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(25.7),
                     ),
                     errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(25.7),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
                       borderRadius: BorderRadius.circular(25.7),
                     ),
@@ -305,6 +310,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
               //TODO 회원가입 페이지 팝업
             },
           )
