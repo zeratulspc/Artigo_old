@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:nextor/page/auth/login.dart';
 import 'package:nextor/page/home.dart';
+import 'package:nextor/page/splash.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         accentColor: Colors.orangeAccent,
       ),
-      home: LoginPage(),
+      home: SplashScreen(),
     );
   }
 }

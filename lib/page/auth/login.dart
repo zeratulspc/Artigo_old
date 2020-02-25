@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:connectivity/connectivity.dart';
 
+import 'package:nextor/fnc/preferencesData.dart';
 import 'package:nextor/fnc/auth.dart';
-import 'package:nextor/page/home.dart';
 import 'package:nextor/page/auth/register.dart';
 
 class LoginPage extends StatefulWidget {
@@ -20,19 +20,14 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   String password;
 
   // 로그인 정보 기억 관련 변수, 함수
-  bool isRemember;
   bool isAutoLogin;
 
-  void _rememberChanged(bool value) {
-    setState(() {
-      // TODO 정보 기억하기
-    });
-  }
 
   void _autoLoginChanged(bool value) {
     setState(() {
-      // TODO 자동로그인
+      isAutoLogin = value;
     });
+    setAutoLogin(value);
   }
 
   // 로그인 함수
@@ -44,7 +39,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       var connectivityResult = await (Connectivity().checkConnectivity()); // 인터넷 연결상태 확인
       if(connectivityResult != ConnectivityResult.none) { // 만약 인터넷 연결상태가 양호하면
         authDBFNC.loginUser(email: email, password: password).then((_) {
-              //TODO if isRemember || isAutoLogin == true 일때 SharedPreference 에 Email, password 저장
+              if(isAutoLogin) {
+                setEmail(email);
+                setPassword(password);
+              }
               Navigator.pop(context);
               Navigator.of(context).pushReplacementNamed('/home');
             }
@@ -268,9 +266,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Checkbox(value: isRemember??false, onChanged: _rememberChanged),
-                  Text("계정정보 저장", style: TextStyle(color: Colors.grey[800]),),
-                  SizedBox(width: 3,),
                   Checkbox(value: isAutoLogin??false, onChanged: _autoLoginChanged),
                   Text("자동 로그인", style: TextStyle(color: Colors.grey[800]),)
                 ],
