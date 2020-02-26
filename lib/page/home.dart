@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nextor/page/post/postList.dart';
 import 'package:nextor/page/todo/todoBoard.dart';
 import 'package:nextor/page/data/dataBoard.dart';
-import 'package:nextor/page/settings.dart';
+import 'package:nextor/page/settings/settings.dart';
 import 'package:nextor/page/profile/profile.dart';
 
 //temp

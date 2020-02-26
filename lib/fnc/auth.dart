@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 
 class AuthDBFNC {
   final userDBRef = FirebaseDatabase.instance.reference().child("Users");
@@ -87,7 +88,6 @@ class AuthDBFNC {
     await currentUser.delete();
   }
 
-
   Future<AuthResult> loginUser({String email, String password}) async {
     try {
       AuthResult result = await auth.signInWithEmailAndPassword(email: email, password: password);
@@ -106,6 +106,10 @@ class AuthDBFNC {
   Future<User> getUserInfo(String uid) async { // uid 를 입력한 유저의 정보 가져오기
     User user = User.fromSnapShot(await userDBRef.child(uid).once());
     return user;
+  }
+
+  Future logout() async {
+    await auth.signOut();
   }
 
 }
