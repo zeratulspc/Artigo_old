@@ -38,7 +38,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       showLoading(context);
       var connectivityResult = await (Connectivity().checkConnectivity()); // 인터넷 연결상태 확인
       if(connectivityResult != ConnectivityResult.none) { // 만약 인터넷 연결상태가 양호하면
-        authDBFNC.loginUser(email: email, password: password).then((_) {
+        authDBFNC.loginUser(email: email, password: password).then((user) {
+          authDBFNC.updateUserRecentLoginDate(uid: user.user.uid, recentLoginDate: DateTime.now().toIso8601String());
               if(isAutoLogin) {
                 setEmail(email);
                 setPassword(password);

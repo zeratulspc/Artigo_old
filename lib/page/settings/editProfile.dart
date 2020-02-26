@@ -55,7 +55,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 child: Text("수정", style: TextStyle(color: Colors.indigoAccent),),
-                onPressed: (){},
+                onPressed: (){
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => TextFieldPage(object: "userName", uid: currentUser.uid, item: userName,)
+                  ));
+                },
               )
             ),
             Padding(
@@ -71,7 +75,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   child: Text("수정", style: TextStyle(color: Colors.indigoAccent),),
-                  onPressed: (){},
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => TextFieldPage(object: "description", uid: currentUser.uid, item: description,)
+                    ));
+                  },
                 )
             ),
             Padding(
@@ -84,6 +92,109 @@ class EditProfilePageState extends State<EditProfilePage> {
 
           ],
         ),
+      ),
+    );
+  }
+}
+
+class TextFieldPage extends StatefulWidget {
+  final String object;
+  final String uid;
+  final String item;
+  TextFieldPage({this.object, this.uid, this.item});
+
+  @override
+  TextFieldPageState createState() => TextFieldPageState(object: object, uid: uid, item: item);
+}
+
+class TextFieldPageState extends State<TextFieldPage> {
+  final editProfileFormKey = GlobalKey<FormState>();
+  AuthDBFNC authDBFNC = AuthDBFNC();
+
+  final String object;
+  final String uid;
+  String item;
+  TextFieldPageState({this.object, this.uid, this.item});
+
+  String objectToInfo(String object) {
+    switch(object) {
+      case "userName":
+        return "닉네임";
+        break;
+      case "description":
+        return "한줄소개";
+        break;
+      default:
+        return "정보";
+        break;
+    }
+  }
+
+  objectToFnc(String object) {
+    switch(object) {
+      case "userName":
+        authDBFNC.updateUserName(uid: uid, userName: item);
+        break;
+      case "description":
+        authDBFNC.updateUserDescription(uid: uid, description: item);
+        break;
+      default:
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 1,
+        backgroundColor: Colors.white,
+        title: Text("${objectToInfo(object)} 수정", style: TextStyle(color: Colors.black),),
+        actions: <Widget>[
+          FlatButton(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            child: Text("저장", style: TextStyle(color: Colors.black),),
+            onPressed: (){
+              var form = editProfileFormKey.currentState;
+              form.save();
+              if(form.validate()) {
+                objectToFnc(object);
+                Navigator.pop(context);
+              }
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Form(
+          key: editProfileFormKey,
+          child: Column(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.fromLTRB(
+                    10, 10, 10, 1
+                ),
+                height: 90,
+                child: TextFormField(
+                  initialValue: item,
+                  onSaved: (value) => item = value,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: objectToInfo(object),
+                    fillColor: Colors.grey[300],
+                    filled: true,),
+                  validator: (String name) {
+                    if (name.length == 0)
+                      return '${objectToInfo(object)}을 입력해주세요.';
+                    else
+                      return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+        )
       ),
     );
   }

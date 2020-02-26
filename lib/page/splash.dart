@@ -19,7 +19,10 @@ class SplashScreenState extends State<SplashScreen> {
       if(_isAutoLogin) {
         getEmail().then((_email) => getPassword().then((_password) =>
             authDBFNC.loginUser(email: _email, password: _password).then(
-                    (_) => Navigator.of(context).pushReplacementNamed('/home')).catchError((e) {
+                    (user) {
+                      authDBFNC.updateUserRecentLoginDate(uid: user.user.uid, recentLoginDate: DateTime.now().toIso8601String());
+                      Navigator.of(context).pushReplacementNamed('/home');
+                    }).catchError((e) {
               Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
             })));
       } else {

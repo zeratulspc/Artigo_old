@@ -64,9 +64,14 @@ class AuthDBFNC {
     });
   }
 
-  Future updateUserInfo({String uid, String userName, String description}) async {
+  Future updateUserName({String uid, String userName}) async {
     await userDBRef.child(uid).update({
       "userName" : userName,
+    });
+  }
+
+  Future updateUserDescription({String uid, String description}) async {
+    await userDBRef.child(uid).update({
       "description" : description,
     });
   }
@@ -88,7 +93,7 @@ class AuthDBFNC {
     await currentUser.delete();
   }
 
-  Future<AuthResult> loginUser({String email, String password}) async {
+  Future<AuthResult> loginUser({String email, String password, String loginDate}) async {
     try {
       AuthResult result = await auth.signInWithEmailAndPassword(email: email, password: password);
       return result;
@@ -122,7 +127,7 @@ class User {
   String registerDate;
   String recentLoginDate;
   String role; // GUEST, MEMBER, ADMIN
-  String token;
+  String token; //TODO FCM
 
 
   User({this.key,this.userName, this.email, this.registerDate, this.recentLoginDate, this.role, this.token});
