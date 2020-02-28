@@ -121,7 +121,7 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.0,
+        elevation: 1,
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(
           color: Colors.black, //change your color here
@@ -152,7 +152,20 @@ class _SettingsState extends State<Settings> {
             title: Text("회원 정보 수정"),
             trailing: Icon(Icons.arrow_forward_ios),
             onTap: () {
-              Navigator.pushNamed(context, '/editProfile');
+              Navigator.push(context, MaterialPageRoute(
+                builder: (_) => EditProfilePage(callback: () {
+                  authDBFNC.getUserInfo(currentUser.uid).then(
+                          (data) {
+                        setState(() {
+                          userName = data.userName;
+                          description = data.description;
+                          userRole = data.role;
+                          email = data.email;
+                        });
+                      }
+                  );
+                },)
+              ));
             },
           ),
           Divider(color: Colors.grey,),

@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nextor/fnc/auth.dart';
 
 class EditProfilePage extends StatefulWidget {
+  final Function() callback;
+  EditProfilePage({this.callback});
+
   @override
   EditProfilePageState createState() => EditProfilePageState();
 }
@@ -50,6 +53,28 @@ class EditProfilePageState extends State<EditProfilePage> {
         child: Column(
           children: <Widget>[
             ListTile(
+                title: Text("프로필 사진", style: TextStyle(fontWeight: FontWeight.bold),),
+                trailing: FlatButton(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  child: Text("수정", style: TextStyle(color: Colors.indigoAccent),),
+                  onPressed: (){
+                  },
+                )
+            ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
+              child: Container(
+                width: 300,
+                height: 300,
+                color: Colors.deepOrange,
+                child: Center(
+                  child: Text("작업중입니다.", style: TextStyle(color: Colors.white, fontSize: 32),),
+                ),
+              ),
+            ),
+            Divider(),
+            ListTile(
               title: Text("닉네임", style: TextStyle(fontWeight: FontWeight.bold),),
               trailing: FlatButton(
                 splashColor: Colors.transparent,
@@ -57,7 +82,19 @@ class EditProfilePageState extends State<EditProfilePage> {
                 child: Text("수정", style: TextStyle(color: Colors.indigoAccent),),
                 onPressed: (){
                   Navigator.push(context, MaterialPageRoute(
-                    builder: (_) => TextFieldPage(object: "userName", uid: currentUser.uid, item: userName,)
+                    builder: (_) => TextFieldPage(object: "userName", uid: currentUser.uid, item: userName,
+                    callback: () { // Reload
+                      authDBFNC.getUserInfo(currentUser.uid).then(
+                              (data) {
+                            setState(() {
+                              userName = data.userName;
+                              description = data.description;
+                              email = data.email;
+                            });
+                          }
+                      );
+                      this.widget.callback();
+                    },)
                   ));
                 },
               )
@@ -77,7 +114,20 @@ class EditProfilePageState extends State<EditProfilePage> {
                   child: Text("수정", style: TextStyle(color: Colors.indigoAccent),),
                   onPressed: (){
                     Navigator.push(context, MaterialPageRoute(
-                        builder: (_) => TextFieldPage(object: "description", uid: currentUser.uid, item: description,)
+                        builder: (_) => TextFieldPage(object: "description", uid: currentUser.uid, item: description,
+                          callback: () { // Reload
+                            authDBFNC.getUserInfo(currentUser.uid).then(
+                                    (data) {
+                                  setState(() {
+                                    userName = data.userName;
+                                    description = data.description;
+                                    email = data.email;
+                                  });
+                                }
+                            );
+                            this.widget.callback();
+                          },
+                        )
                     ));
                   },
                 )
@@ -98,10 +148,11 @@ class EditProfilePageState extends State<EditProfilePage> {
 }
 
 class TextFieldPage extends StatefulWidget {
+  final Function() callback;
   final String object;
   final String uid;
   final String item;
-  TextFieldPage({this.object, this.uid, this.item});
+  TextFieldPage({this.object, this.uid, this.item, this.callback});
 
   @override
   TextFieldPageState createState() => TextFieldPageState(object: object, uid: uid, item: item);
@@ -160,6 +211,7 @@ class TextFieldPageState extends State<TextFieldPage> {
               form.save();
               if(form.validate()) {
                 objectToFnc(object);
+                this.widget.callback();
                 Navigator.pop(context);
               }
             },
