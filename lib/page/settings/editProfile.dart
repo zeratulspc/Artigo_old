@@ -1,5 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_crop/image_crop.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import 'package:nextor/fnc/auth.dart';
 
@@ -21,6 +26,8 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   //TODO 프로필 사진
   //TODO 커버 사진
+  File profileImage;
+  File coverImage;
 
   @override
   void initState() {
@@ -41,6 +48,31 @@ class EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
+  getImageFile(ImageSource source) async {
+    //Clicking or Picking from Gallery
+    var image = await ImagePicker.pickImage(source: source);
+    //Cropping the image;
+    File croppedFile = await ImageCropper.cropImage(
+      sourcePath: image.path,
+      aspectRatio: CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+      compressQuality: 50,
+      maxWidth: 512,
+      maxHeight: 512,
+      compressFormat: ImageCompressFormat.jpg,
+      androidUiSettings: AndroidUiSettings(
+        toolbarTitle: 'Cropper',
+        toolbarColor: Colors.deepOrange,
+        toolbarWidgetColor: Colors.white,
+      )
+    );
+
+
+    setState(() {
+      profileImage = croppedFile;
+      print(croppedFile.lengthSync());
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,18 +91,21 @@ class EditProfilePageState extends State<EditProfilePage> {
                   highlightColor: Colors.transparent,
                   child: Text("수정", style: TextStyle(color: Colors.indigoAccent),),
                   onPressed: (){
+                    getImageFile(ImageSource.gallery);
                   },
                 )
             ),
             Padding(
               padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
-              child: Container(
-                width: 300,
-                height: 300,
-                color: Colors.deepOrange,
-                child: Center(
-                  child: Text("작업중입니다.", style: TextStyle(color: Colors.white, fontSize: 32),),
-                ),
+              child: profileImage == null ?
+              Image.asset(
+                'assets/user.png',
+                width: 200,
+                height: 200,
+              ) : Image.file(
+                profileImage,
+                width: 200,
+                height: 200,
               ),
             ),
             Divider(),

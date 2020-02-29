@@ -11,7 +11,7 @@ description: 넥스터 커뮤니티 앱
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.0.9 # 버전명 표기할 것!
+version: 0.0.10 # 버전명 표기할 것!
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -29,6 +29,11 @@ dependencies:
   sticky_headers: 0.1.8+1 # 리스트 사이에 Header 삽입
   shimmer: 1.0.1 # 게시글 로딩 시 에니메이션
   shared_preferences: 0.5.6+2 # 기기 DB https://pub.dev/packages/shared_preferences
+
+  image_picker: 0.6.3+4 # 이미지 선택
+  image_cropper: 1.2.1 # 이미지 자르기
+  flutter_image_compress: 0.6.5+1 # 이미지 압축
+  image_crop: 0.3.2 # 이미지 자르기
 
   firebase_core: 0.4.4 # https://pub.dev/packages/firebase_core
   firebase_auth: 0.15.4 # https://pub.dev/packages/firebase_auth
@@ -51,7 +56,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
+    - assets/user.png
+    - assets/ver1.png
+    - assets/ver2.png
     - assets/ver3.png
+    - assets/ver4.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #  - images/a_dot_burr.jpeg
