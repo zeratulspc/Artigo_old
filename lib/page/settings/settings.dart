@@ -29,12 +29,14 @@ class _SettingsState extends State<Settings> {
               currentUser = data;
               authDBFNC.getUserInfo(currentUser.uid).then(
                       (data) {
-                    setState(() {
-                      userName = data.userName;
-                      description = data.description;
-                      userRole = data.role;
-                      email = data.email;
-                    });
+                    if(this.mounted) {
+                      setState(() {
+                        userName = data.userName;
+                        description = data.description;
+                        userRole = data.role;
+                        email = data.email;
+                      });
+                    }
                   }
               );
         }
@@ -138,15 +140,18 @@ class _SettingsState extends State<Settings> {
           ),
           ListTile(
             title: Text("닉네임"),
-            trailing: Text("${userName??"없음"}"),
+            trailing: Text("${userName??"없음"}", overflow: TextOverflow.ellipsis, maxLines: 1, textAlign: TextAlign.right,),
           ),
           ListTile(
             title: Text("한줄소개"),
-            trailing: Text("${description??"없음"}"),
+            trailing: Container(
+              width: 200,
+              child: Text("${description??"없음"}", overflow: TextOverflow.ellipsis, maxLines: 1, textAlign: TextAlign.right,),
+            ),
           ),
           ListTile(
             title: Text("이메일 주소"),
-            trailing: Text("${email??"없음"}"),
+            trailing: Text("${email??"없음"}", overflow: TextOverflow.ellipsis, maxLines: 1, textAlign: TextAlign.right,),
           ),
           ListTile(
             title: Text("회원 정보 수정"),

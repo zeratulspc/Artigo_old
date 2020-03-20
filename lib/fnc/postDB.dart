@@ -1,4 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/like.dart';
 
 class PostDBFNC {
@@ -24,31 +25,29 @@ class PostDBFNC {
 
 class Post {
   String key;
-  String title;
   String body;
-  String userUID;
-  String date;
+  String userUID; //TODO 유저 정보를 auth.dart 에 포함되있는 User 객체 사용
+  String uploadDate;
+  bool isEdited;
   List<Attach> attach;
   List<Like> like;
 
-  Post({this.key,this.title, this.body, this.userUID, this.date, this.attach, this.like});
+  Post({this.key, this.body, this.userUID, this.uploadDate, this.attach, this.like});
 
   Post.fromSnapShot(DataSnapshot snapshot)
       :key = snapshot.key,
-        title = snapshot.value["title"],
         body = snapshot.value["body"],
         userUID = snapshot.value["userId"],
         attach = snapshot.value["attach"],
         like = snapshot.value["like"],
-        date = snapshot.value["date"];
+        uploadDate = snapshot.value["date"];
 
   toMap() {
     return {
       "key" : key,
-      "title" : title,
       "body" : body,
       "userId" : userUID,
-      "date" : date,
+      "date" : uploadDate,
       "attach" : attach,
       "like" : like
     };
@@ -60,5 +59,6 @@ class Attach {
   String id; // Md5Hash
   String fileName;
   String filePath;
+  String description;
   String userId;
 }

@@ -21,7 +21,7 @@ class PostCard extends StatelessWidget { //TODO 아이템 항목 수정
 
   @override
   Widget build(BuildContext context) {
-    DateTime date = DateTime.parse(item.date);
+    DateTime date = DateTime.parse(item.uploadDate);
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: SizeTransition(
@@ -36,7 +36,7 @@ class PostCard extends StatelessWidget { //TODO 아이템 항목 수정
             child: Card(
               child: ListTile(
                 contentPadding: EdgeInsets.symmetric(vertical: 3.0, horizontal: 15.0),
-                title: Text(item.title, maxLines: 1,
+                title: Text(item.userUID, maxLines: 1,
                   style: TextStyle(fontSize: 18),),
                 subtitle: Padding(padding: EdgeInsets.only(top: 5.0),
                   child: Column(

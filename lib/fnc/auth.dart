@@ -1,14 +1,20 @@
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import 'dart:io';
+
+import 'package:path/path.dart';
+
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthDBFNC {
   final userDBRef = FirebaseDatabase.instance.reference().child("Users");
+  final userStorageRef = FirebaseStorage.instance.ref().child("UserStorages");
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   // 에러 메세지 한글화
   String errorKr(String code) {
-    switch(code){
+    switch (code) {
       case "ERROR_INVALID_EMAIL":
         return "잘못된 이메일 형식입니다.";
         break;
@@ -41,6 +47,24 @@ class AuthDBFNC {
     }
   }
 
+  // 권한 한글화
+  String roleKr(String role) {
+    switch (role) {
+      case "ADMIN":
+        return "관리자";
+        break;
+      case "MEMBER":
+        return "회원";
+        break;
+      case "GUEST":
+        return "손님";
+        break;
+      default :
+        return "기타";
+    }
+  }
+
+  // 생성하기
   Future<AuthResult> createUser({String email, String password}) async {
     try {
       return await auth.createUserWithEmailAndPassword(email: email, password: password);
@@ -63,6 +87,8 @@ class AuthDBFNC {
       "role": "MEMBER",
     });
   }
+
+  // 수정
 
   Future updateUserName({String uid, String userName}) async {
     await userDBRef.child(uid).update({
@@ -88,10 +114,29 @@ class AuthDBFNC {
     await userDBRef.child(uid).update({"recentLoginDate" : recentLoginDate,});
   }
 
+  // 프로필 사진 관련
+  Future<bool> uploadUserProfileImage({String uid, File profileImage}) async {
+    StorageUploadTask task = userStorageRef.child(uid).child("profileImage").child(basename(profileImage.path)).putFile(profileImage);
+    String imageURL = await(await task.onComplete.catchError((_) {return false;})).ref.getDownloadURL();
+    await updateUserProfileImage(uid: uid, profileImageURL: imageURL);
+    return true;
+  }
+
+  Future updateUserProfileImage({String uid, String profileImageURL,}) async {
+    await userDBRef.child(uid).update({"profileImageURL" : profileImageURL,});
+  }
+
+  //TODO 커버사진
+
+  // 삭제
+
   Future deleteUser({FirebaseUser currentUser}) async {
     await userDBRef.child(currentUser.uid).remove();
     await currentUser.delete();
   }
+
+
+  // Auth
 
   Future<AuthResult> loginUser({String email, String password, String loginDate}) async {
     try {
@@ -121,11 +166,12 @@ class AuthDBFNC {
 
 class User {
   String key; // KEY == UID
-  String userName;
+  String userName; // 닉네임
   String email; // 로그인 할때 이용, 변경불가
-  String description;
-  String registerDate;
-  String recentLoginDate;
+  String description; // 한줄소개
+  String registerDate; // 가입날짜
+  String recentLoginDate; // 최근 로그인 날짜
+  String profileImageURL; // 프로필사진 FireStorage URL
   String role; // GUEST, MEMBER, ADMIN
   String token; //TODO FCM
 
@@ -139,6 +185,7 @@ class User {
         description = snapshot.value["description"],
         registerDate = snapshot.value["registerDate"],
         recentLoginDate = snapshot.value["recentLoginDate"],
+        profileImageURL = snapshot.value["profileImageURL"],
         role = snapshot.value["role"],
         token = snapshot.value["token"];
 
@@ -150,6 +197,7 @@ class User {
       "description" : description,
       "registerDate" : registerDate,
       "recentLoginDate" : recentLoginDate,
+      "profileImageURL" : profileImageURL,
       "role" : role,
       "token" : token
     };

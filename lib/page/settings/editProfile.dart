@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:image_crop/image_crop.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/page/basicDialogs.dart';
 
 class EditProfilePage extends StatefulWidget {
   final Function() callback;
@@ -17,17 +16,16 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
-
+  BasicDialogs basicDialogs = BasicDialogs();
   AuthDBFNC authDBFNC = AuthDBFNC();
   FirebaseUser currentUser;
   String userName;
   String description;
   String email;
 
-  //TODO 프로필 사진
   //TODO 커버 사진
-  File profileImage;
-  File coverImage;
+  String profileImageURL;
+  //File coverImage;
 
   @override
   void initState() {
@@ -41,6 +39,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                   userName = data.userName;
                   description = data.description;
                   email = data.email;
+                  profileImageURL = data.profileImageURL;
                 });
               }
           );
@@ -48,29 +47,46 @@ class EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  getImageFile(ImageSource source) async {
-    //Clicking or Picking from Gallery
-    var image = await ImagePicker.pickImage(source: source);
-    //Cropping the image;
-    File croppedFile = await ImageCropper.cropImage(
-      sourcePath: image.path,
-      aspectRatio: CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
-      compressQuality: 50,
-      maxWidth: 512,
-      maxHeight: 512,
-      compressFormat: ImageCompressFormat.jpg,
-      androidUiSettings: AndroidUiSettings(
-        toolbarTitle: 'Cropper',
-        toolbarColor: Colors.deepOrange,
-        toolbarWidgetColor: Colors.white,
-      )
-    );
-
-
-    setState(() {
-      profileImage = croppedFile;
-      print(croppedFile.lengthSync());
-    });
+  Future<bool> getImageFile(ImageSource source) async {
+    File image = await ImagePicker.pickImage(source: source);
+    if(image != null) {
+      File croppedImage = await ImageCropper.cropImage(
+          sourcePath: image.path,
+          aspectRatio: CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+          compressQuality: 50,
+          maxWidth: 512,
+          maxHeight: 512,
+          compressFormat: ImageCompressFormat.jpg,
+          androidUiSettings: AndroidUiSettings(
+            toolbarTitle: '이미지 자르기',
+            toolbarColor: Theme.of(context).primaryColor,
+            toolbarWidgetColor: Colors.white,
+          )
+      );
+      if(croppedImage != null) {
+        basicDialogs.showLoading(context, "프로필 사진 업로드 중");
+        if(await authDBFNC.uploadUserProfileImage(uid: currentUser.uid, profileImage: croppedImage)) {
+          return await authDBFNC.getUserInfo(currentUser.uid).then(
+                  (data) {
+                setState(() {
+                  userName = data.userName;
+                  description = data.description;
+                  email = data.email;
+                  profileImageURL = data.profileImageURL;
+                });
+                Navigator.pop(context);
+                return true;
+              }
+          );
+        } else { //TODO 업로드에 실패했을 경우
+          return false;
+        }
+      } else { //TODO 이미지 자르기에서 되돌아간 경우
+        return false;
+      }
+    } else { //TODO 파일을 선택하지 않았을 경우.
+      return false;
+    }
   }
 
   @override
@@ -97,15 +113,28 @@ class EditProfilePageState extends State<EditProfilePage> {
             ),
             Padding(
               padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
-              child: profileImage == null ?
-              Image.asset(
-                'assets/user.png',
+              child: profileImageURL == null ?
+              Container(width: 200, height: 200,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ) : Image.network(
+                profileImageURL,
                 width: 200,
                 height: 200,
-              ) : Image.file(
-                profileImage,
-                width: 200,
-                height: 200,
+                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
+                  if(loadingProgress == null) return child;
+                  return Container(width: 200, height: 200,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes
+                            : null,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             Divider(),
@@ -195,12 +224,12 @@ class TextFieldPage extends StatefulWidget {
 
 class TextFieldPageState extends State<TextFieldPage> {
   final editProfileFormKey = GlobalKey<FormState>();
-  AuthDBFNC authDBFNC = AuthDBFNC();
-
   final String object;
   final String uid;
   String item;
   TextFieldPageState({this.object, this.uid, this.item});
+
+  AuthDBFNC authDBFNC = AuthDBFNC();
 
   String objectToInfo(String object) {
     switch(object) {
@@ -229,6 +258,54 @@ class TextFieldPageState extends State<TextFieldPage> {
     }
   }
 
+  void confirmDialog(BuildContext context, String object) {
+    String contentText;
+    String titleText;
+    switch(object) {
+      case "userName":
+        contentText = "닉네임을 수정하시겠습니까?";
+        titleText = "닉네임";
+        break;
+      case "description":
+        contentText = "한줄소개를 수정하시겠습니까?";
+        titleText = "한줄소개";
+        break;
+      default:
+        contentText = "정보를 수정하시겠습니까?";
+        titleText = "정보";
+        break;
+    }
+    showDialog(context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("$titleText 수정"),
+          content: Text(contentText),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("취소"),
+              onPressed: (){
+                Navigator.pop(context); // dialog pop
+              },
+            ),
+            FlatButton(
+              child: Text("확인"),
+              onPressed: (){
+                var form = editProfileFormKey.currentState;
+                form.save();
+                if(form.validate()) {
+                  objectToFnc(object);
+                  this.widget.callback();
+                  Navigator.pop(context); // 컨펌 다이알로그 팝
+                  Navigator.pop(context); // 페이지 팝
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -241,14 +318,8 @@ class TextFieldPageState extends State<TextFieldPage> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             child: Text("저장", style: TextStyle(color: Colors.black),),
-            onPressed: (){
-              var form = editProfileFormKey.currentState;
-              form.save();
-              if(form.validate()) {
-                objectToFnc(object);
-                this.widget.callback();
-                Navigator.pop(context);
-              }
+            onPressed: () {
+              confirmDialog(context,object);
             },
           ),
         ],

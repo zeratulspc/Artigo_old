@@ -34,7 +34,7 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () async { //TODO 게시글 작성 페이지로 이동
-              String key = await postDBFNC.createPost(Post(title: "TITLE", body: "BODY", date: DateTime.now().toIso8601String(), userUID: "userID"));
+              String key = await postDBFNC.createPost(Post(body: "BODY", uploadDate: DateTime.now().toIso8601String(), userUID: "userID"));
               print(key);
             },
           ),

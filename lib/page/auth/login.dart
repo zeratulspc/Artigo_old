@@ -5,6 +5,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:nextor/fnc/preferencesData.dart';
 import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/page/auth/register.dart';
+import 'package:nextor/page/basicDialogs.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,6 +13,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
+
+  // 다이알로그 변수
+  BasicDialogs basicDialogs = BasicDialogs();
 
   // 로그인 관련 변수
   final AuthDBFNC authDBFNC = AuthDBFNC();
@@ -35,21 +39,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     final form = loginKey.currentState;
     form.save();
     if(form.validate()) {
-      showLoading(context);
+      basicDialogs.showLoading(context, "로그인 중");
       var connectivityResult = await (Connectivity().checkConnectivity()); // 인터넷 연결상태 확인
       if(connectivityResult != ConnectivityResult.none) { // 만약 인터넷 연결상태가 양호하면
         authDBFNC.loginUser(email: email, password: password).then((user) {
           authDBFNC.updateUserRecentLoginDate(uid: user.user.uid, recentLoginDate: DateTime.now().toIso8601String());
-              if(isAutoLogin) {
+              if(isAutoLogin??false) {
                 setEmail(email);
                 setPassword(password);
               }
               Navigator.pop(context);
               Navigator.of(context).pushReplacementNamed('/home');
             }
-        ).catchError((e) {
+        ).catchError((error) {
           Navigator.pop(context);
-          _errorDialog(context, e.message, e.code);
+          _errorDialog(context, error.message);
+
         });
       } else { // 만약 인터넷이 연결되지 않으면
         Navigator.pop(context);
@@ -74,7 +79,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }
   }
 
-  Future _errorDialog(BuildContext context, _message, code) {
+  Future _errorDialog(BuildContext context, code) {
     return showDialog(
       builder: (context) {
         return AlertDialog(
@@ -93,17 +98,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       context: context,
     );
   }
-
-  // 로딩 다이알로그
-  void showLoading(BuildContext context) {
-    showDialog(context: context,
-      barrierDismissible: false,
-      builder: (context) => bodyProgress,
-    );
-  }
-  var bodyProgress = Center(
-    child: CircularProgressIndicator(),
-  );
 
   // 애니메이션 관련 변수
   // 관련자료 : https://youtu.be/KEUKRT9Xsls
