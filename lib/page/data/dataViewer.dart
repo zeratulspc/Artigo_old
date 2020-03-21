@@ -7,8 +7,7 @@ class DataViewer extends StatefulWidget {
 }
 
 class _DataViewerState extends State<DataViewer> {
-//TODO dataViewer Design
-//TODO dataViewer FNC
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

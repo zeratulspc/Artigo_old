@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:path/path.dart';
@@ -11,6 +12,8 @@ class AuthDBFNC {
   final userDBRef = FirebaseDatabase.instance.reference().child("Users");
   final userStorageRef = FirebaseStorage.instance.ref().child("UserStorages");
   final FirebaseAuth auth = FirebaseAuth.instance;
+
+  //TODO 이메일 인증
 
   // 에러 메세지 한글화
   String errorKr(String code) {
@@ -177,6 +180,17 @@ class User {
 
 
   User({this.key,this.userName, this.email, this.registerDate, this.recentLoginDate, this.role, this.token});
+
+  User.fromLinkedHashMap(LinkedHashMap linkedHashMap)
+      :key = linkedHashMap["key"],
+        userName = linkedHashMap["userName"],
+        email = linkedHashMap["email"],
+        description = linkedHashMap["description"],
+        registerDate = linkedHashMap["registerDate"],
+        recentLoginDate = linkedHashMap["recentLoginDate"],
+        profileImageURL = linkedHashMap["profileImageURL"],
+        role = linkedHashMap["role"],
+        token = linkedHashMap["token"];
 
   User.fromSnapShot(DataSnapshot snapshot)
       :key = snapshot.key,

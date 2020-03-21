@@ -4,6 +4,7 @@ import 'package:package_info/package_info.dart';
 
 import 'package:nextor/fnc/preferencesData.dart';
 import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/versionCheck.dart';
 
 import 'package:nextor/page/settings/editProfile.dart';
 
@@ -13,6 +14,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  VersionCheck versionCheck = VersionCheck();
   AuthDBFNC authDBFNC = AuthDBFNC();
   FirebaseUser currentUser;
   String userName;
@@ -65,7 +67,7 @@ class _SettingsState extends State<Settings> {
                   Navigator.of(context).pop();
                 }),
             FlatButton(
-                child: Text('네'),
+                child: Text('확인'),
                 onPressed: () {
                   Navigator.of(context).pop();
                   authDBFNC.logout().then((_) {
@@ -99,7 +101,7 @@ class _SettingsState extends State<Settings> {
                   Navigator.of(context).pop();
                 }),
             FlatButton(
-                child: Text('네'),
+                child: Text('확인'),
                 onPressed: () {
                   Navigator.of(context).pop();
                   authDBFNC.deleteUser(currentUser: currentUser);
@@ -203,6 +205,11 @@ class _SettingsState extends State<Settings> {
           ListTile(
             title: Text("권한"),
             trailing: Text("${userRole??"없음"}"),
+            onTap: (){
+              if(userRole == "ADMIN") { //TODO 어드민 콘솔 열기
+                versionCheck.updateVersion();//버전 업데이트
+              }
+            },
           ),
         ],
       ),

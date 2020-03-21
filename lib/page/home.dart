@@ -4,7 +4,7 @@ import 'package:nextor/page/post/postList.dart';
 import 'package:nextor/page/todo/todoBoard.dart';
 import 'package:nextor/page/data/dataBoard.dart';
 import 'package:nextor/page/settings/settings.dart';
-import 'package:nextor/page/profile/profile.dart';
+import 'package:nextor/page/profile/myProfile.dart';
 
 //temp
 import 'package:nextor/fnc/postDB.dart';
@@ -44,10 +44,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: PageView(
         children: <Widget>[
-          PostList(),
+          PostList(navigateToMyProfile: () {
+            navigateToPage(3);
+          },),
           TodoBoard(),
           DataBoard(),
-          Profile(),
+          MyProfile(),
           Settings(),
         ],
         controller: _pageController,

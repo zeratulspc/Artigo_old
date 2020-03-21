@@ -3,12 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:nextor/fnc/auth.dart';
 
-class Profile extends StatefulWidget {
+class MyProfile extends StatefulWidget { // 내 프로필 페이지
   @override
-  _ProfileState createState() => _ProfileState();
+  _MyProfileState createState() => _MyProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _MyProfileState extends State<MyProfile> {
   AuthDBFNC authDBFNC = AuthDBFNC();
   FirebaseUser currentUser;
   String userName;

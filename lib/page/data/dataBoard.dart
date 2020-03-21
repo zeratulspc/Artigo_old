@@ -7,8 +7,8 @@ class DataBoard extends StatefulWidget {
 }
 
 class _DataBoardState extends State<DataBoard> {
-//TODO dataBoard Design
-//TODO dataBoard FNC
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

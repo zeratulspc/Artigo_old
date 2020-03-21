@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/like.dart';
@@ -26,18 +28,18 @@ class PostDBFNC {
 class Post {
   String key;
   String body;
-  String userUID; //TODO 유저 정보를 auth.dart 에 포함되있는 User 객체 사용
+  String upLoaderUID; //TODO 유저 정보를 auth.dart 에 포함되있는 User 객체 사용
   String uploadDate;
   bool isEdited;
   List<Attach> attach;
   List<Like> like;
 
-  Post({this.key, this.body, this.userUID, this.uploadDate, this.attach, this.like});
+  Post({this.key, this.body, this.upLoaderUID, this.uploadDate, this.attach, this.like});
 
   Post.fromSnapShot(DataSnapshot snapshot)
       :key = snapshot.key,
         body = snapshot.value["body"],
-        userUID = snapshot.value["userId"],
+        upLoaderUID = snapshot.value["upLoaderUID"],
         attach = snapshot.value["attach"],
         like = snapshot.value["like"],
         uploadDate = snapshot.value["date"];
@@ -46,7 +48,7 @@ class Post {
     return {
       "key" : key,
       "body" : body,
-      "userId" : userUID,
+      "upLoaderUID" : upLoaderUID,
       "date" : uploadDate,
       "attach" : attach,
       "like" : like
