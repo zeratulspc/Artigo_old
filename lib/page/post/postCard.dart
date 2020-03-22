@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/auth.dart';
+import 'package:shimmer/shimmer.dart';
 
 
 class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
-  const PostCard(
+  PostCard(
       {Key key,
         @required this.animation,
         this.onTap,
@@ -119,6 +120,126 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
             ),
           )
         ),
+      ),
+    );
+  }
+}
+
+class PostCardSkeleton extends StatelessWidget {
+  PostCardSkeleton(
+      {Key key,
+        @required this.animation,
+        this.postSizeCase
+      })
+      : assert(animation != null),
+        super(key: key);
+
+  final Animation<double> animation;
+  final int periodDuration = 2000;
+  final int postSizeCase;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: SizeTransition(
+        axis: Axis.vertical,
+        sizeFactor: animation,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 1.0),
+          child: Card(
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(vertical: 3.0, horizontal: 15.0),
+              title: Row(
+                children: <Widget>[
+                  Shimmer.fromColors(
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(80),
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          color: Colors.grey[400],
+                        )
+                    ),
+                    baseColor: Colors.grey[400],
+                    highlightColor: Colors.grey[300],
+                    period: Duration(milliseconds: periodDuration),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Shimmer.fromColors(
+                            child: Container(
+                              margin: EdgeInsets.symmetric(vertical: 5),
+                              decoration: BoxDecoration(color: Colors.grey[400],borderRadius: BorderRadius.all(Radius.circular(15))),
+                              height: 15,
+                              width: 100,
+                            ),
+                            baseColor: Colors.grey[400],
+                            highlightColor: Colors.grey[200],
+                            period: Duration(milliseconds: periodDuration),
+                        ),
+                        Shimmer.fromColors(
+                          child: Container(
+                            margin: EdgeInsets.symmetric(vertical: 5),
+                            decoration: BoxDecoration(color: Colors.grey[400],borderRadius: BorderRadius.all(Radius.circular(15))),
+                            height: 15,
+                            width: 200,
+                          ),
+                          baseColor: Colors.grey[400],
+                          highlightColor: Colors.grey[200],
+                          period: Duration(milliseconds: periodDuration),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              subtitle: Padding(padding: EdgeInsets.only(top: 5.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Shimmer.fromColors(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        decoration: BoxDecoration(color: Colors.grey[400],borderRadius: BorderRadius.all(Radius.circular(15))),
+                        height: 15,
+                        width: 300,
+                      ),
+                      baseColor: Colors.grey[400],
+                      highlightColor: Colors.grey[200],
+                      period: Duration(milliseconds: periodDuration),
+                    ),
+                    postSizeCase > 1 ? Shimmer.fromColors(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        decoration: BoxDecoration(color: Colors.grey[400],borderRadius: BorderRadius.all(Radius.circular(15))),
+                        height: 15,
+                        width: 300,
+                      ),
+                      baseColor: Colors.grey[400],
+                      highlightColor: Colors.grey[200],
+                      period: Duration(milliseconds: periodDuration),
+                    ) : SizedBox(),
+                    postSizeCase > 1 ? Shimmer.fromColors(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        height: 15,
+                        width: 200,
+                        decoration: BoxDecoration(color: Colors.grey[400],borderRadius: BorderRadius.all(Radius.circular(15))),
+                      ),
+                      baseColor: Colors.grey[400],
+                      highlightColor: Colors.grey[200],
+                      period: Duration(milliseconds: periodDuration),
+                    ) : SizedBox(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        )
       ),
     );
   }

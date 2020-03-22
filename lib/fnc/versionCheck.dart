@@ -14,25 +14,24 @@ class VersionCheck {
     versionDBRef.child("CurrentVersion").set(version.toMap());
   }
 
-  Future<bool> checkVersion() async {
+  Future<Version> checkVersion() async {
     Version currentVersion = await getVersion();
-
     Version serverVersion = Version.fromSnapshot(await versionDBRef.child("CurrentVersion").once());
     if(currentVersion.versionName == serverVersion.versionName) {
-      return true;
+      return Version(versionName: serverVersion.versionName, isValid: true);
     } else {
-      return false;
+      return Version(versionName: serverVersion.versionName, isValid: false);
     }
   }
-
 }
 
 class Version {
   String key;
   final String versionName; // 버전명
   final String updateDate; // 업데이트 날짜
+  bool isValid;
 
-  Version({this.versionName, this.updateDate});
+  Version({this.versionName, this.updateDate, this.isValid});
 
   Version.fromSnapshot(DataSnapshot snapshot)
     :key = snapshot.key,

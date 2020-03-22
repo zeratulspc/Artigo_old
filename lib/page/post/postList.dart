@@ -85,9 +85,14 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
                     },
                   );
                 } else if(asyncSnapshot.hasError){
-                  return Text("Error!");
+                  return Text("Error!"); //TODO 에러
                 } else {
-                  return Text("유저 값 기다리는 중"); //TODO 로딩 디자인
+                  if(post.body.length <= 30) { // 글자수가 30보다 작을 경우
+                    return PostCardSkeleton(animation: animation, postSizeCase: 1,);
+                  } else {
+                    return PostCardSkeleton(animation: animation, postSizeCase: 2,);
+                  }
+
                 }
               },
               future: authDBFNC.getUserInfo(post.upLoaderUID),

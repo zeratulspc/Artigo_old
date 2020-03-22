@@ -4,6 +4,7 @@ import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/preferencesData.dart';
 import 'package:nextor/fnc/versionCheck.dart';
 import 'package:nextor/page/auth/login.dart';
+import 'package:nextor/page/basicDialogs.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -11,6 +12,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
+  BasicDialogs basicDialogs = BasicDialogs();
   AuthDBFNC authDBFNC = AuthDBFNC();
   VersionCheck versionCheck = VersionCheck();
   
@@ -18,7 +20,7 @@ class SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     versionCheck.checkVersion().then((isValidVersion){
-      if(isValidVersion) {
+      if(isValidVersion.isValid) {
         getAutoLogin().then((_isAutoLogin) {
           if(_isAutoLogin) {
             getEmail().then((_email) => getPassword().then((_password) =>
@@ -34,7 +36,8 @@ class SplashScreenState extends State<SplashScreen> {
           }
         });
       } else { //TODO 버전이 맞지 않을 경우
-
+        basicDialogs.dialogWithYes(context, "버전이 올바르지 않습니다",
+            "앱을 업데이트 해주세요, 현재 사용가능한 버전은 [${isValidVersion.versionName}] 입니다.");
       }
     });
 
