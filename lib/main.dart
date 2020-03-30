@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
 import 'package:nextor/page/auth/login.dart';
 import 'package:nextor/page/home.dart';
@@ -20,7 +21,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //FlutterStatusbarcolor.setStatusBarColor(Colors.white);
+    //FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       routes: routes,
       builder: (context, child) {
         return ScrollConfiguration(
@@ -30,9 +34,10 @@ class MyApp extends StatelessWidget {
       },
       title: 'Nextor Community',
       theme: ThemeData(
-        primaryColor: Colors.orange[700],
-        primarySwatch: Colors.orange,
-        accentColor: Colors.orangeAccent,
+        scaffoldBackgroundColor: Colors.grey[300],
+        primaryColor: Colors.green,
+        primarySwatch: Colors.green,
+        accentColor: Colors.greenAccent,
       ),
       home: SplashScreen(),
     );

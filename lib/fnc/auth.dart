@@ -178,7 +178,6 @@ class User {
   String role; // GUEST, MEMBER, ADMIN
   String token; //TODO FCM
 
-
   User({this.key,this.userName, this.email, this.registerDate, this.recentLoginDate, this.role, this.token});
 
   User.fromLinkedHashMap(LinkedHashMap linkedHashMap)

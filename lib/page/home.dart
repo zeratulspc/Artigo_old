@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:nextor/page/post/postList.dart';
@@ -14,73 +15,101 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  PostDBFNC postDBFNC;
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  PostDBFNC postDBFNC = PostDBFNC();
+  ScrollController scrollController;
   PageController _pageController;
+  TabController _tabController;
   int _page = 0;
+  bool isPageCanChanged = true;
 //TODO Home Design
 //TODO Home FNC
 
   void initState() { //TODO 사용자 확인
     super.initState();
     _pageController = PageController();
-    postDBFNC = PostDBFNC();
-  }
-
-  void navigateToPage(int page) {
-    _pageController.animateToPage(page,
-        duration: Duration(milliseconds: 300), curve: Curves.ease);
-  }
-
-  void onPageChanged(int page) {
-    setState(() {
-      this._page = page;
+    _tabController = TabController(
+      length: 5,
+      vsync: this
+    );
+    scrollController = ScrollController();
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        onPageChange(index: _tabController.index, p: _pageController);
+      }
     });
   }
+
+
+  onPageChange({int index , PageController p}) async {
+    if(p != null) {
+      isPageCanChanged = false;
+      await _pageController.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.ease);
+      isPageCanChanged = true;
+    } else {
+    _tabController.animateTo(index);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size; //TODO screenSize 이용
     return Scaffold(
-      body: PageView(
-        children: <Widget>[
-          PostList(navigateToMyProfile: () {
-            navigateToPage(3);
-          },),
-          TodoBoard(),
-          DataBoard(),
-          MyProfile(),
-          Settings(),
-        ],
-        controller: _pageController,
-        onPageChanged: onPageChanged,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message),
-            title: Text("게시글"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.check_box),
-            title: Text("할 일"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            title: Text("통계보드"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            title: Text("프로필"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dehaze),
-            title: Text("설정"),
-          ),
-        ],
-        onTap: navigateToPage,
-        currentIndex: _page,
+      body: NestedScrollView(
+        physics: NeverScrollableScrollPhysics(),
+        controller: scrollController,
+        dragStartBehavior: DragStartBehavior.down,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) { //TODO appbar physics 끄기
+          return <Widget> [
+            SliverAppBar( //TODO Appbar 움직임 재구현
+              backgroundColor: Colors.white,
+              floating: true,
+              pinned: true,
+              snap: true,
+              title: Text("NEXTOR", style: TextStyle(color: Colors.black, fontFamily: "Montserrat"),), //TODO 검색 기능 및 메신저 기능
+              bottom: TabBar(
+                controller: _tabController,
+                  labelColor: Theme.of(context).primaryColor,
+                  indicatorColor: Theme.of(context).accentColor,
+                  unselectedLabelColor: Colors.grey,
+                  tabs: <Tab>[
+                    Tab(icon: Icon(Icons.home)),
+                    Tab(icon: Icon(Icons.check_box)),
+                    Tab(icon: Icon(Icons.dashboard)),
+                    Tab(icon: Icon(Icons.person)),
+                    Tab(icon: Icon(Icons.settings)),
+                  ]
+              ),
+              actions: <Widget>[
+                IconButton(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  icon: Icon(Icons.search),
+                  color: Colors.black87,
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ];
+        },
+        body: PageView(
+          children: <Widget>[
+            PostList(navigateToMyProfile: () {
+              onPageChange(index: 3);
+            }, scrollController: scrollController,),
+            TodoBoard(),
+            DataBoard(),
+            MyProfile(),
+            Settings(scrollController: scrollController,),
+          ],
+          controller: _pageController,
+          onPageChanged: (index){
+            if(isPageCanChanged){
+              onPageChange(index: index);
+            }
+          },
+        ),
       ),
     );
   }

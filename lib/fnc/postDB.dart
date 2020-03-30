@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/comment.dart';
 import 'package:nextor/fnc/like.dart';
 
 class PostDBFNC {
@@ -28,28 +29,29 @@ class PostDBFNC {
 class Post {
   String key;
   String body;
-  String upLoaderUID; //TODO 유저 정보를 auth.dart 에 포함되있는 User 객체 사용
+  String uploaderUID; //TODO 유저 정보를 auth.dart 에 포함되있는 User 객체 사용
   String uploadDate;
   bool isEdited;
-  List<Attach> attach;
-  List<Like> like;
+  LinkedHashMap<dynamic, dynamic> attach;
+  LinkedHashMap<dynamic, dynamic> like;
+  LinkedHashMap<dynamic, dynamic> comment;
 
-  Post({this.key, this.body, this.upLoaderUID, this.uploadDate, this.attach, this.like});
+  Post({this.key, this.body, this.uploaderUID, this.uploadDate, this.attach, this.like, this.comment});
 
   Post.fromSnapShot(DataSnapshot snapshot)
       :key = snapshot.key,
         body = snapshot.value["body"],
-        upLoaderUID = snapshot.value["upLoaderUID"],
+        uploaderUID = snapshot.value["uploaderUID"],
         attach = snapshot.value["attach"],
         like = snapshot.value["like"],
-        uploadDate = snapshot.value["date"];
+        uploadDate = snapshot.value["uploadDate"];
 
   toMap() {
     return {
       "key" : key,
       "body" : body,
-      "upLoaderUID" : upLoaderUID,
-      "date" : uploadDate,
+      "uploaderUID" : uploaderUID,
+      "uploadDate" : uploadDate,
       "attach" : attach,
       "like" : like
     };
@@ -58,9 +60,19 @@ class Post {
 }
 
 class Attach {
+  String key;
   String id; // Md5Hash
   String fileName;
   String filePath;
   String description;
-  String userId;
+  String uploaderUID;
+
+  Attach.fromLinkedHashMap(LinkedHashMap linkedHashMap)
+    :key = linkedHashMap["key"],
+      id = linkedHashMap["id"],
+      fileName = linkedHashMap["fileName"],
+      filePath = linkedHashMap["filePath"],
+      description = linkedHashMap["description"],
+      uploaderUID = linkedHashMap["uploaderUID"];
+
 }

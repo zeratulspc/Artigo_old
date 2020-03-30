@@ -93,119 +93,123 @@ class EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
         elevation: 1,
         backgroundColor: Colors.white,
         title: Text("프로필 수정", style: TextStyle(color: Colors.black),),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            ListTile(
-                title: Text("프로필 사진", style: TextStyle(fontWeight: FontWeight.bold),),
-                trailing: FlatButton(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  child: Text("수정", style: TextStyle(color: Colors.indigoAccent),),
-                  onPressed: (){
-                    getImageFile(ImageSource.gallery);
-                  },
-                )
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
-              child: profileImageURL == null ?
-              Container(width: 200, height: 200,
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ) : Image.network(
-                profileImageURL,
-                width: 200,
-                height: 200,
-                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
-                  if(loadingProgress == null) return child;
-                  return Container(width: 200, height: 200,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes
-                            : null,
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                  title: Text("프로필 사진", style: TextStyle(fontWeight: FontWeight.bold),),
+                  trailing: FlatButton(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    child: Text("수정", style: TextStyle(color: Theme.of(context).accentColor),),
+                    onPressed: (){
+                      getImageFile(ImageSource.gallery);
+                    },
+                  )
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
+                child: profileImageURL == null ?
+                Container(width: 200, height: 200,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ) : Image.network(
+                  profileImageURL,
+                  width: 200,
+                  height: 200,
+                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
+                    if(loadingProgress == null) return child;
+                    return Container(width: 200, height: 200,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes
+                              : null,
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Divider(),
-            ListTile(
-              title: Text("닉네임", style: TextStyle(fontWeight: FontWeight.bold),),
-              trailing: FlatButton(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                child: Text("수정", style: TextStyle(color: Colors.indigoAccent),),
-                onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (_) => TextFieldPage(object: "userName", uid: currentUser.uid, item: userName,
-                    callback: () { // Reload
-                      authDBFNC.getUserInfo(currentUser.uid).then(
-                              (data) {
-                            setState(() {
-                              userName = data.userName;
-                              description = data.description;
-                              email = data.email;
-                            });
-                          }
-                      );
-                      this.widget.callback();
-                    },)
-                  ));
-                },
-              )
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
-              child: Center(
-                child: Text(userName??"불러오는 중...", style: TextStyle(color: Colors.grey[700]),),
-              ),
-            ),
-            Divider(),
-            ListTile(
-                title: Text("한줄 소개", style: TextStyle(fontWeight: FontWeight.bold),),
-                trailing: FlatButton(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  child: Text("수정", style: TextStyle(color: Colors.indigoAccent),),
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (_) => TextFieldPage(object: "description", uid: currentUser.uid, item: description,
-                          callback: () { // Reload
-                            authDBFNC.getUserInfo(currentUser.uid).then(
-                                    (data) {
-                                  setState(() {
-                                    userName = data.userName;
-                                    description = data.description;
-                                    email = data.email;
-                                  });
-                                }
-                            );
-                            this.widget.callback();
-                          },
-                        )
-                    ));
+                    );
                   },
-                )
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
-              child: Center(
-                child: Text(description??"불러오는 중...", style: TextStyle(color: Colors.grey[700]),),
+                ),
               ),
-            ),
-            Divider(),
+              Divider(),
+              ListTile(
+                  title: Text("닉네임", style: TextStyle(fontWeight: FontWeight.bold),),
+                  trailing: FlatButton(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    child: Text("수정", style: TextStyle(color: Theme.of(context).accentColor),),
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => TextFieldPage(object: "userName", uid: currentUser.uid, item: userName,
+                            callback: () { // Reload
+                              authDBFNC.getUserInfo(currentUser.uid).then(
+                                      (data) {
+                                    setState(() {
+                                      userName = data.userName;
+                                      description = data.description;
+                                      email = data.email;
+                                    });
+                                  }
+                              );
+                              this.widget.callback();
+                            },)
+                      ));
+                    },
+                  )
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
+                child: Center(
+                  child: Text(userName??"불러오는 중...", style: TextStyle(color: Colors.grey[700]),),
+                ),
+              ),
+              Divider(),
+              ListTile(
+                  title: Text("한줄 소개", style: TextStyle(fontWeight: FontWeight.bold),),
+                  trailing: FlatButton(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    child: Text("수정", style: TextStyle(color: Theme.of(context).accentColor),),
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => TextFieldPage(object: "description", uid: currentUser.uid, item: description,
+                            callback: () { // Reload
+                              authDBFNC.getUserInfo(currentUser.uid).then(
+                                      (data) {
+                                    setState(() {
+                                      userName = data.userName;
+                                      description = data.description;
+                                      email = data.email;
+                                    });
+                                  }
+                              );
+                              this.widget.callback();
+                            },
+                          )
+                      ));
+                    },
+                  )
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
+                child: Center(
+                  child: Text(description??"불러오는 중...", style: TextStyle(color: Colors.grey[700]),),
+                ),
+              ),
+              Divider(),
 
-          ],
-        ),
+            ],
+          ),
+        )
       ),
     );
   }
