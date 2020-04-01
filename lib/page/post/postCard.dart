@@ -1,20 +1,21 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
 
 import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/like.dart';
 import 'package:nextor/fnc/auth.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:nextor/page/post/postDetail.dart';
 
 
 class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
   PostCard(
       {Key key,
         @required this.animation,
-        this.onTap,
         this.navigateToMyProfile,
         this.currentUser,
-        this.upLoader,
+        this.uploader,
         this.moreOption,
         this.screenSize,
         this.likeToPost,
@@ -25,17 +26,53 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
         super(key: key);
 
   final Animation<double> animation;
-  final VoidCallback onTap;
   final VoidCallback navigateToMyProfile;
   final Function moreOption; //TODO 변수명 수정
   final Function likeToPost;
   final Function dislikeToPost;
   final Post item;
-  final User upLoader;
+  final User uploader;
   final Size screenSize;
   final FirebaseUser currentUser;
 
   bool notNull(Object o) => o != null;
+
+  List<StaggeredTile> tileForm(int imageCount) {
+    switch(imageCount){
+      case 1:
+        return [
+          StaggeredTile.count(3, 2),
+        ];
+        break;
+      case 2:
+        return [
+          StaggeredTile.count(3, 1),
+          StaggeredTile.count(3, 1),
+        ];
+        break;
+      case 3:
+        return [
+          StaggeredTile.count(2, 2),
+          StaggeredTile.count(1, 1),
+          StaggeredTile.count(1, 1),
+        ];
+        break;
+      default:
+        if(imageCount >= 3) {
+          return [
+            StaggeredTile.count(2, 2),
+            StaggeredTile.count(1, 1),
+            StaggeredTile.count(1, 1),
+          ];
+        } else {
+          return [
+            StaggeredTile.count(3, 2),
+          ];
+        }
+        break;
+
+    }
+  }
 
 
   @override
@@ -48,7 +85,6 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
         sizeFactor: animation,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: onTap,
           child: Padding(
             padding: EdgeInsets.only(bottom: 3),
             child: Container(
@@ -70,11 +106,11 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                                   color: Colors.grey[400],
                                 )
                             ),
-                            upLoader.profileImageURL != null ?
+                            uploader.profileImageURL != null ?
                             ClipRRect(
                               borderRadius: BorderRadius.circular(80),
                               child: Image.network(
-                                upLoader.profileImageURL,
+                                uploader.profileImageURL,
                                 height: 40.0,
                                 width: 40.0,
                               ),
@@ -94,9 +130,9 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               InkWell(
-                                child: Text(upLoader.userName??"", maxLines: 1,
+                                child: Text(uploader.userName??"", maxLines: 1,
                                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
-                                onTap: currentUser.uid == upLoader.key ? navigateToMyProfile : (){
+                                onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
                                   //TODO 유저 프로필 페이지로 네비게이트
                                 },
                               ),
@@ -114,25 +150,54 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                       onPressed: moreOption,
                     ),
                   ),
-                  Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    child: Column(
-                      children: <Widget>[
-                        Row( //TODO 사진 보는 영역(GridView), 댓글 및 좋아요 영역 추가
-                          mainAxisAlignment: MainAxisAlignment.start,
+                  Container(
+                    child: InkWell(
+                      child: Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                        child: Column(
                           children: <Widget>[
-                            Expanded(child: Text(item.body, maxLines: 7, //TODO 더보기 구현
-                              style: TextStyle(fontSize: 18.0), //TODO 사진 있을때는 fontsize 16
-                              textAlign: TextAlign.left,
-                              overflow: TextOverflow.ellipsis,),)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Expanded(child: Text(item.body, maxLines: 7,
+                                  style: TextStyle(fontSize: 18.0), //TODO 사진 있을때는 fontsize 16
+                                  textAlign: TextAlign.left,
+                                  overflow: TextOverflow.ellipsis,),)
+                              ],
+                            ),
                           ],
                         ),
-                      ],
+                      ),
+                      onTap: (){ //TODO 오른쪽에서 왼쪽으로
+                        Navigator.push(context,
+                            PageTransition(
+                              type: PageTransitionType.rightToLeftWithFade,
+                              child: PostDetail(item: item, uploader: uploader, currentUser: currentUser,),)
+                        );
+                      },
                     ),
                   ),
-                  //
-                  // 여기에
-                  // 사진첩 기능
-                  //
+                  item.attach != null ? Container(
+                    width: screenSize.width-40,
+                    height: screenSize.height/2.75,
+                    margin: EdgeInsets.all(20),
+                    child: StaggeredGridView.count(
+                      physics: NeverScrollableScrollPhysics(),
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 4.0,
+                      crossAxisSpacing: 4.0,
+                      staggeredTiles:tileForm(item.attach.length),
+                      children: List<Widget>.generate(item.attach.length, (index){
+                        return Container(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(item.attach["-M3qVp6JtOIFTveW-ugX"]["filePath"]), //TODO 요거 수정하기....
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ) : null,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -200,12 +265,12 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                               Text("댓글 달기",style: Theme.of(context).textTheme.subtitle,)
                             ],
                           ),
-                          onPressed: (){},
+                          onPressed: (){}, //TODO 댓글창 열기
                         ),
                       )
                     ],
                   )
-                ],
+                ].where(notNull).toList(),
               )
             ),
           )

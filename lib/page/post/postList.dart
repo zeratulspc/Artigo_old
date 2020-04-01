@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
+
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/postDB.dart';
@@ -82,12 +83,6 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: (){
-          postDBFNC.createPost(Post(body: "BODY", uploadDate: DateTime.now().toIso8601String(), uploaderUID: currentUser.uid));
-        },
-      ),
       body: Container(
         child: FirebaseAnimatedList(//TODO 10개씩만 로딩
           query: postDBFNC.postDBRef,
@@ -111,10 +106,7 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
                     screenSize: screenSize,
                     item: post,
                     navigateToMyProfile: this.widget.navigateToMyProfile,
-                    onTap: () {
-                      print("tap");
-                    },
-                    upLoader: asyncSnapshot.data,
+                    uploader: asyncSnapshot.data,
                     currentUser: currentUser,
                     moreOption: (){
                       if(currentUser.uid == post.uploaderUID)

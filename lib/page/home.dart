@@ -1,7 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'package:page_transition/page_transition.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:nextor/fnc/auth.dart';
+
 import 'package:nextor/page/post/postList.dart';
+import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/todo/todoBoard.dart';
 import 'package:nextor/page/data/dataBoard.dart';
 import 'package:nextor/page/settings/settings.dart';
@@ -17,13 +22,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   PostDBFNC postDBFNC = PostDBFNC();
+  AuthDBFNC authDBFNC = AuthDBFNC();
   ScrollController scrollController;
   PageController _pageController;
   TabController _tabController;
   int _page = 0;
   bool isPageCanChanged = true;
-//TODO Home Design
-//TODO Home FNC
+
+  FirebaseUser currentUser;
+  User currentUserInfo;
 
   void initState() { //TODO 사용자 확인
     super.initState();
@@ -38,6 +45,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         onPageChange(index: _tabController.index, p: _pageController);
       }
     });
+    if(this.mounted) {
+      authDBFNC.getUser().then((_currentUser){
+        if(this.mounted) {
+          setState(() {
+            currentUser = _currentUser;
+          });
+        }
+        authDBFNC.getUserInfo(currentUser.uid).then((userInfo){
+          if(this.mounted) {
+            setState(() {
+              currentUserInfo = userInfo;
+            });
+          }
+        });
+      });
+    }
   }
 
 
@@ -88,6 +111,23 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   icon: Icon(Icons.search),
                   color: Colors.black87,
                   onPressed: () {},
+                ),
+                IconButton(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  icon: Icon(Icons.edit),
+                  color: Colors.black87,
+                  onPressed: () {
+                    Navigator.push(context,
+                        PageTransition(
+                          type: PageTransitionType.downToUp,
+                          child: EditPost(
+                            postCase: 1,
+                            currentUser: currentUser,
+                            uploader: currentUserInfo,
+                          ),)
+                    );
+                  },
                 ),
               ],
             ),
