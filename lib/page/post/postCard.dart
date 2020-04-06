@@ -177,26 +177,48 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                     ),
                   ),
                   item.attach != null ? Container(
-                    width: screenSize.width-40,
-                    height: screenSize.height/2.75,
-                    margin: EdgeInsets.all(20),
-                    child: StaggeredGridView.count(
-                      physics: NeverScrollableScrollPhysics(),
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 4.0,
-                      crossAxisSpacing: 4.0,
-                      staggeredTiles:tileForm(item.attach.length),
-                      children: List<Widget>.generate(item.attach.length, (index){
-                        return Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(item.attach["-M3qVp6JtOIFTveW-ugX"]["filePath"]), //TODO 요거 수정하기....
+                    width: screenSize.width,
+                    height: screenSize.width < screenSize.height ? screenSize.height/2.5 : screenSize.width/1.5,
+                    child: Stack(
+                      children: <Widget>[
+                        StaggeredGridView.count(
+                          physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.all(0),
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 4.0,
+                          crossAxisSpacing: 4.0,
+                          staggeredTiles:tileForm(item.attach.length),
+                          children: List<Widget>.generate(item.attach.length, (index){
+                            return Container(
+                              child: Image.network(
+                                item.attach[index]["filePath"],
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          }),
+                        ),
+                        item.attach.length > 3 ?
+                        StaggeredGridView.count(
+                          physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.all(0),
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 4.0,
+                          crossAxisSpacing: 4.0,
+                          staggeredTiles:tileForm(item.attach.length),
+                          children: <Widget>[
+                            Container(),
+                            Container(),
+                            Container(
+                              color: Colors.black.withOpacity(0.6),
+                              child: Center(
+                                child: Text("${item.attach.length -3}+",
+                                style: TextStyle(color: Colors.white, fontSize: 24),),
+                              ),
                             ),
-                          ),
-                        );
-                      }),
-                    ),
+                          ],
+                        ) : null,
+                      ].where(notNull).toList(),
+                    )
                   ) : null,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

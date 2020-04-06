@@ -19,18 +19,24 @@ class PostDBFNC {
     return key;
   }
 
-  Future addPhoto(Attach attach, String postKey) async {
+  Future addPhoto(Attach attach, String postKey, int index) async {
+    attach.fileName = basename(attach.tempPhoto.path);
     final StorageUploadTask task =
-    fireBaseStorageRef.child(postKey).child(basename(attach.tempPhoto.path)).putFile(attach.tempPhoto);
+    fireBaseStorageRef.child(postKey).child(basename(attach.fileName)).putFile(attach.tempPhoto);
     await task.onComplete;
     String imageUrl = await(await task.onComplete).ref.getDownloadURL();
-    attach.key = postDBRef.child(postKey).child("attach").push().key;
     attach.filePath = imageUrl;
-    await postDBRef.child(postKey).child("attach").child(attach.key).set(attach.toMap());
+    await postDBRef.child(postKey).child("attach").child(index.toString()).set(attach.toMap());
   }
 
   Future updatePost(String key, Post post) async {
     await postDBRef.child(key).set(post.toMap());
+  }
+
+  Future deletePostStorage(String key, List<dynamic> attach) async {
+    for(int i = 0; i < attach.length; i++) {
+      await fireBaseStorageRef.child(key).child(attach[i]["fileName"]).delete();
+    }
   }
 
   Future deletePost(String key) async {
@@ -46,10 +52,10 @@ class PostDBFNC {
 class Post {
   String key;
   String body;
-  String uploaderUID; //TODO 유저 정보를 auth.dart 에 포함되있는 User 객체 사용
+  String uploaderUID;
   String uploadDate;
   bool isEdited;
-  LinkedHashMap<dynamic, dynamic> attach;
+  List<dynamic> attach;
   LinkedHashMap<dynamic, dynamic> like;
   LinkedHashMap<dynamic, dynamic> comment;
 
@@ -84,6 +90,8 @@ class Attach {
   String description;
   String uploaderUID;
   String uploadDate;
+  LinkedHashMap<dynamic, dynamic> like;
+  LinkedHashMap<dynamic, dynamic> comment;
   File tempPhoto;
 
   Attach({this.fileName, this.filePath, this.description, this.uploaderUID, this.tempPhoto, this.uploadDate});

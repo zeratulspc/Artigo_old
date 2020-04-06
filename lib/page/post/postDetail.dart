@@ -32,6 +32,14 @@ class _PostDetailState extends State<PostDetail> {
     likeDBFNC.dislikeToPost(widget.item.key, widget.currentUser.uid);
     refreshPost();
   }
+  likeToAttach(int index) {
+    likeDBFNC.likeToAttach(widget.item.key, widget.currentUser.uid, index);
+    refreshPost();
+  }
+  dislikeToAttach(int index) {
+    likeDBFNC.dislikeToAttach(widget.item.key, widget.currentUser.uid, index);
+    refreshPost();
+  }
   refreshPost() {
     postDBFNC.getPost(widget.item.key).then((data){
       setState(() {
@@ -57,7 +65,7 @@ class _PostDetailState extends State<PostDetail> {
         child: Column(
           children: <Widget>[
             Container(
-              margin: EdgeInsets.symmetric(vertical: 5),
+              margin: EdgeInsets.only(top: 5),
               color: Colors.white,
               width: screenSize.width,
               child: Column(
@@ -103,12 +111,8 @@ class _PostDetailState extends State<PostDetail> {
                                 child: Text(widget.uploader.userName??"", maxLines: 1,
                                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
                                 onTap: widget.currentUser.uid == widget.uploader.key ?
-                                    (){
-
-                                } :
-                                    (){
-                                  //TODO 유저 프로필 페이지로 네비게이트
-                                },
+                                    (){} :
+                                    (){},//TODO 유저 프로필 페이지로 네비게이트
                               ),
                               Text(DateTime.now().day == date.day && DateTime.now().month == date.month && DateTime.now().year == date.year ?
                               "${date.hour} : ${date.minute >= 10 ? date.minute : "0"+date.minute.toString() }" : "${date.year}.${date.month}.${date.day}",
@@ -141,10 +145,6 @@ class _PostDetailState extends State<PostDetail> {
                       ),
                     ),
                   ),
-                  //
-                  // 여기에
-                  // 사진첩 기능
-                  //
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -214,14 +214,107 @@ class _PostDetailState extends State<PostDetail> {
                           ),
                           onPressed: (){}, //TODO 댓글창 열기
                         ),
-                      )
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
-
-          ],
+            item.attach != null ? Column(
+              children: List<Widget>.generate(item.attach.length, (index){
+                return Container(
+                  margin: EdgeInsets.only(top: 5),
+                  color: Colors.white,
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        width: screenSize.width,
+                        height: 300,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(item.attach[index]["filePath"]), //TODO 요거 수정하기....
+                          ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          item.attach[index]["like"] != null ? Container(
+                            margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
+                            height: 30,
+                            width: 80,
+                            child: Text("❤️ ${item.attach[index]["like"].length} 명", //TODO 이모지
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                          ) : null,
+                          item.attach[index]["comment"] != null ? Container(
+                            margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
+                            height: 30,
+                            width: 80,
+                            child: Text("댓글 ${item.attach[index].length}개",
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                          ) : null,
+                        ].where(notNull).toList(),
+                      ),
+                      SizedBox(
+                        width: screenSize.width -20,
+                        child: Divider(thickness: 1,),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Container(
+                            width: screenSize.width/2,
+                            child: FlatButton(
+                              child: Row( //Icons.favorite_border : Icons.favorite
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Icon(item.attach[index]["like"] != null ?
+                                  item.attach[index]["like"][widget.currentUser.uid] != null ?
+                                  Icons.favorite : // 좋아요가 존재할 때
+                                  Icons.favorite_border : // 좋아요 목록에 현재 유저 아이디가 없을 때
+                                  Icons.favorite_border, // 좋아요 목록이 존재하지 않을 때
+                                    color: item.attach[index]["like"] != null ?
+                                    item.attach[index]["like"][widget.currentUser.uid] != null ?
+                                    Colors.red[600] : // 좋아요가 존재할 때
+                                    Colors.grey[600] : // 좋아요 목록에 현재 유저 아이디가 없을 때
+                                    Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
+                                  ),
+                                  SizedBox(width: 5,),
+                                  Text("좋아요", style: Theme.of(context).textTheme.subtitle,)
+                                ],
+                              ),
+                              onPressed: item.attach[index]["like"] != null ?
+                              item.attach[index]["like"][widget.currentUser.uid] != null ?
+                              ()=>dislikeToAttach(index) : // 좋아요가 존재할 때
+                              ()=>likeToAttach(index) : // 좋아요 목록에 현재 유저 아이디가 없을 때
+                              ()=>likeToAttach(index), // 좋아요 목록이 존재하지 않을 때
+                            ),
+                          ),
+                          Container(
+                            width: screenSize.width/2,
+                            child: FlatButton(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Icon(Icons.comment, color: Colors.grey[600],),
+                                  SizedBox(width: 5,),
+                                  Text("댓글 달기",style: Theme.of(context).textTheme.subtitle,)
+                                ],
+                              ),
+                              onPressed: (){}, //TODO 댓글창 열기
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ) : null,
+          ].where(notNull).toList(),
         ),
       )
     );

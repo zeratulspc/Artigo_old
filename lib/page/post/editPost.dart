@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' ;
 import 'dart:io';
 
 import 'package:image_picker/image_picker.dart';
@@ -25,21 +26,24 @@ class EditPostState extends State<EditPost> {
   PostDBFNC postDBFNC = PostDBFNC();
   TextEditingController textEditingController = TextEditingController();
   List<Attach> initialPhoto = List(); // 업로드 되지 않은 사진
-  List<Widget> photoItems= List();
+  List<Widget> photoItems = List();
   int maxLine = 8;
   bool showPostButton = false;
   bool notNull(Object o) => o != null;
-  String imgForTest= "https://googlelane.com/wp-content/uploads/2019/11/Google-Photos-Deploys-Info-Menu-Redesign-Download-APK.jpg";
 
   @override
   void initState() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     super.initState();
     if(this.mounted){
       textEditingController.addListener(() {
-        if(this.mounted){
+        if(this.mounted){ //TODO text field 길이 문제
           setState(() {
             if(textEditingController.text.length / 30 >= maxLine) { //TODO MaxLine 알고리즘 테스트
-              maxLine++;
+              print(maxLine);
+              maxLine++; //TODO 사용자가 의미 없이 Line 을 늘릴 때 (엔터 칠 때) 는 maxLine 이 늘어나지 않음
             }
             if(textEditingController.text.length >= 1) {
               showPostButton = true;
@@ -54,6 +58,10 @@ class EditPostState extends State<EditPost> {
 
   @override
   void dispose() {
+    SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
+    );
     super.dispose();
     textEditingController.dispose();
   }
@@ -91,7 +99,6 @@ class EditPostState extends State<EditPost> {
           ];
         }
         break;
-
     }
   }
 
@@ -106,6 +113,7 @@ class EditPostState extends State<EditPost> {
           uploaderUID: widget.currentUser.uid,
           uploadDate: DateTime.now().toIso8601String(),
         ));
+        photoItems.clear();
         generateItems(initialPhoto.length);
       });
     } else {
@@ -117,20 +125,16 @@ class EditPostState extends State<EditPost> {
     List<Widget> tempItems = List<Widget>.generate(widgetLength, (index){
       if(initialPhoto[index].tempPhoto != null) {
         return Container( //TODO 사진 디스크립션
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage(initialPhoto[index].tempPhoto.path),
-            ),
+          child: Image.file(
+            initialPhoto[index].tempPhoto,
+            fit: BoxFit.cover,
           ),
         );
       } else {
         return Container( //TODO 사진 디테일 페이지 만들기
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage(initialPhoto[index].filePath),
-            ),
+          child: Image.network(
+            initialPhoto[index].filePath,
+            fit: BoxFit.cover,
           ),
         );
       }
@@ -151,10 +155,15 @@ class EditPostState extends State<EditPost> {
     );
     if(key != null) { // post 가 정상적으로 업로드 되었는지 확인
       for(int i = 0;i < initialPhoto.length; i++) {
-        await postDBFNC.addPhoto(initialPhoto[i], key);
+        await postDBFNC.addPhoto(initialPhoto[i], key, i);
       }
+      Navigator.pop(context); // 로딩 다이알로그 pop
+      Navigator.pop(context); // 페이지 pop
+    } else {
+      Navigator.pop(context);
+      basicDialogs.dialogWithYes(context, "오류 발생", "게시글이 정상적으로 업로드 되지 않았습니다.");
     }
-    Navigator.pop(context);
+
   }
 
   @override
@@ -248,7 +257,7 @@ class EditPostState extends State<EditPost> {
                 maxLines: maxLine,
                 cursorColor: Theme.of(context).primaryColor,
                 style: TextStyle(
-                    fontSize: 18 //TODO 사진 있으면 16
+                    fontSize: 18
                 ),
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
@@ -258,10 +267,11 @@ class EditPostState extends State<EditPost> {
               ),
             ),
             initialPhoto.length != 0 ? Container(
-              width: screenSize.width-40,
+              width: screenSize.width,
               height: screenSize.height/2.75,
-              margin: EdgeInsets.all(20),
+              margin: EdgeInsets.symmetric(vertical: 20),
               child: StaggeredGridView.count(
+                padding: EdgeInsets.all(0),
                 physics: NeverScrollableScrollPhysics(),
                 crossAxisCount: 3,
                 mainAxisSpacing: 4.0,

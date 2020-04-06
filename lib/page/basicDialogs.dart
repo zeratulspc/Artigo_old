@@ -25,6 +25,29 @@ class BasicDialogs {
     );
   }
 
+  void dialogWithFunction(BuildContext context, String title, String content, Function function) {
+    showDialog(context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("확인"),
+              onPressed: function,
+            ),
+            FlatButton(
+              child: Text("취소"),
+              onPressed: ()=> Navigator.pop(context),
+            ),
+          ],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+        );
+      },
+    );
+  }
+
   void dialogWithYes(BuildContext context, String title, String content) {
     showDialog(context: context,
       barrierDismissible: false,
