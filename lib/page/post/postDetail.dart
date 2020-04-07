@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:photo_view/photo_view_gallery.dart';
+import 'package:photo_view/photo_view.dart';
+
 import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/like.dart';
+import 'package:nextor/page/post/photoViewer.dart';
 
 class PostDetail extends StatefulWidget {
   final Post item;
@@ -21,6 +25,8 @@ class _PostDetailState extends State<PostDetail> {
   LikeDBFNC likeDBFNC = LikeDBFNC();
   PostDBFNC postDBFNC = PostDBFNC();
   Post item;
+
+  List<bool> seeMore = List();
 
   _PostDetailState(this.item);
   bool notNull(Object o) => o != null;
@@ -222,21 +228,89 @@ class _PostDetailState extends State<PostDetail> {
             ),
             item.attach != null ? Column(
               children: List<Widget>.generate(item.attach.length, (index){
+                seeMore.add(false);
                 return Container(
                   margin: EdgeInsets.only(top: 5),
                   color: Colors.white,
                   child: Column(
                     children: <Widget>[
                       Container(
-                        width: screenSize.width,
-                        height: 300,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: NetworkImage(item.attach[index]["filePath"]), //TODO 요거 수정하기....
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GalleryPhotoViewWrapper(
+                                galleryItems: item.attach,
+                                backgroundDecoration: BoxDecoration(
+                                  color: Colors.black,
+                                ),
+                                initialIndex: index,
+                                scrollDirection: Axis.horizontal,
+                              ),
+                            ),
+                          ),
+                          child: Hero(
+                              tag: item.attach[index]["fileName"],
+                              child: Image.network(
+                                  item.attach[index]["filePath"],
+                                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
+                                    if (loadingProgress == null)
+                                      return child;
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
+                                            : null,
+                                      ),
+                                    );
+                                  }
+                              )
                           ),
                         ),
                       ),
+                      item.attach[index]["description"] != null ?
+                      Container( //TODO 텍스트 너무 많을 때 더보기 및 스크롤 기능 추가
+                        child: Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                          child: Column(
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Text(
+                                      item.attach[index]["description"],
+                                      style: TextStyle(fontSize: 18.0), //TODO 사진 있을때는 fontSize 16
+                                      textAlign: TextAlign.left,
+                                      maxLines: seeMore[index] ? null : 7,
+                                      overflow: seeMore[index] ? null : TextOverflow.ellipsis
+                                    ),
+                                  )
+                                ],
+                              ),
+                              item.attach[index]["description"].length >= 50 ? Align(
+                                alignment: Alignment.centerRight,
+                                child: InkWell(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: <Widget>[
+                                      Text(
+                                        seeMore[index] ? "줄이기" : "더보기",
+                                        style: TextStyle(color: Theme.of(context).primaryColor),
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      seeMore[index] = !seeMore[index];
+                                      print(seeMore[index]);
+                                    });
+                                  },
+                                ),
+                              ) : null
+                            ].where(notNull).toList(),
+                          ),
+                        ),
+                      ) : null,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -309,7 +383,7 @@ class _PostDetailState extends State<PostDetail> {
                           ),
                         ],
                       ),
-                    ],
+                    ].where(notNull).toList(),
                   ),
                 );
               }),

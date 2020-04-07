@@ -26,7 +26,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   ScrollController scrollController;
   PageController _pageController;
   TabController _tabController;
-  int _page = 0;
   bool isPageCanChanged = true;
 
   FirebaseUser currentUser;

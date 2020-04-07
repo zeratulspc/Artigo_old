@@ -93,8 +93,9 @@ class Attach {
   LinkedHashMap<dynamic, dynamic> like;
   LinkedHashMap<dynamic, dynamic> comment;
   File tempPhoto;
+  bool seeMore = false;
 
-  Attach({this.fileName, this.filePath, this.description, this.uploaderUID, this.tempPhoto, this.uploadDate});
+  Attach({this.fileName, this.filePath, this.description, this.uploaderUID, this.tempPhoto, this.uploadDate,});
 
   Attach.fromLinkedHashMap(LinkedHashMap linkedHashMap)
     :key = linkedHashMap["key"],

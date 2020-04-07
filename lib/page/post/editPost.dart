@@ -9,6 +9,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/page/basicDialogs.dart';
+import 'package:nextor/page/post/editPostAttach.dart';
 
 class EditPost extends StatefulWidget {
   final int postCase; // 1: POST 2: EDIT
@@ -24,8 +25,10 @@ class EditPost extends StatefulWidget {
 class EditPostState extends State<EditPost> {
   BasicDialogs basicDialogs = BasicDialogs();
   PostDBFNC postDBFNC = PostDBFNC();
+
+  ScrollController mainTextFieldScrollController = ScrollController();
   TextEditingController textEditingController = TextEditingController();
-  List<Attach> initialPhoto = List(); // 업로드 되지 않은 사진
+  List<Attach> attach = List(); // 업로드 되지 않은 사진
   List<Widget> photoItems = List();
   int maxLine = 8;
   bool showPostButton = false;
@@ -39,12 +42,8 @@ class EditPostState extends State<EditPost> {
     super.initState();
     if(this.mounted){
       textEditingController.addListener(() {
-        if(this.mounted){ //TODO text field 길이 문제
+        if(this.mounted){
           setState(() {
-            if(textEditingController.text.length / 30 >= maxLine) { //TODO MaxLine 알고리즘 테스트
-              print(maxLine);
-              maxLine++; //TODO 사용자가 의미 없이 Line 을 늘릴 때 (엔터 칠 때) 는 maxLine 이 늘어나지 않음
-            }
             if(textEditingController.text.length >= 1) {
               showPostButton = true;
             } else {
@@ -108,13 +107,13 @@ class EditPostState extends State<EditPost> {
     print(tempImage.path);
     if(await tempImage.exists()) {
       setState(() {
-        initialPhoto.add(Attach(
+        attach.add(Attach(
           tempPhoto: tempImage,
           uploaderUID: widget.currentUser.uid,
           uploadDate: DateTime.now().toIso8601String(),
         ));
         photoItems.clear();
-        generateItems(initialPhoto.length);
+        generateItems(attach.length);
       });
     } else {
       basicDialogs.dialogWithYes(context, "불러오기 실패", "불러오기에 실패했습니다.");
@@ -123,23 +122,24 @@ class EditPostState extends State<EditPost> {
 
   generateItems(int widgetLength) { //TODO 사진 삭제
     List<Widget> tempItems = List<Widget>.generate(widgetLength, (index){
-      if(initialPhoto[index].tempPhoto != null) {
+      if(attach[index].tempPhoto != null) {
         return Container( //TODO 사진 디스크립션
           child: Image.file(
-            initialPhoto[index].tempPhoto,
+            attach[index].tempPhoto,
             fit: BoxFit.cover,
           ),
         );
       } else {
         return Container( //TODO 사진 디테일 페이지 만들기
           child: Image.network(
-            initialPhoto[index].filePath,
+            attach[index].filePath,
             fit: BoxFit.cover,
           ),
         );
       }
     });
     setState(() {
+      photoItems.clear();
       photoItems.addAll(tempItems);
     });
   }
@@ -154,8 +154,8 @@ class EditPostState extends State<EditPost> {
       )
     );
     if(key != null) { // post 가 정상적으로 업로드 되었는지 확인
-      for(int i = 0;i < initialPhoto.length; i++) {
-        await postDBFNC.addPhoto(initialPhoto[i], key, i);
+      for(int i = 0;i < attach.length; i++) {
+        await postDBFNC.addPhoto(attach[i], key, i);
       }
       Navigator.pop(context); // 로딩 다이알로그 pop
       Navigator.pop(context); // 페이지 pop
@@ -251,35 +251,78 @@ class EditPostState extends State<EditPost> {
             ),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20),
-              width: screenSize.width,
-              child: TextField(
-                controller: textEditingController,
-                maxLines: maxLine,
-                cursorColor: Theme.of(context).primaryColor,
-                style: TextStyle(
-                    fontSize: 18
+              child: ConstrainedBox(
+                constraints: BoxConstraints(),
+                child: TextField(
+                  controller: textEditingController,
+                  cursorColor: Theme.of(context).primaryColor,
+                  style: TextStyle(
+                      fontSize: 18
+                  ),
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    hintText: "무슨 일이 일어나고 있나요?",
+                    border: InputBorder.none,
+                  ),
                 ),
-                keyboardType: TextInputType.multiline,
-                decoration: InputDecoration(
-                  hintText: "무슨 일이 일어나고 있나요?",
-                  border: InputBorder.none,
-                ),
-              ),
+              )
             ),
-            initialPhoto.length != 0 ? Container(
+            attach.length != 0 ? Container(
               width: screenSize.width,
               height: screenSize.height/2.75,
               margin: EdgeInsets.symmetric(vertical: 20),
-              child: StaggeredGridView.count(
-                padding: EdgeInsets.all(0),
-                physics: NeverScrollableScrollPhysics(),
-                crossAxisCount: 3,
-                mainAxisSpacing: 4.0,
-                crossAxisSpacing: 4.0,
-                staggeredTiles:tileForm(initialPhoto.length),
-                children: photoItems,
-              ),
+              child: InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: () async {
+                  List<Attach> editedAttach = await Navigator.push(context, MaterialPageRoute(builder: (context)=>
+                      EditPostAttach(attach: attach, uploaderUID: widget.currentUser.uid,)
+                  ));
+                  if(editedAttach != null)
+                    setState(() {
+                      attach.clear();
+                      attach.addAll(editedAttach);
+                      generateItems(attach.length);
+                    });
+
+                },
+                child: Stack(
+                  children: <Widget>[
+                    StaggeredGridView.count(
+                      padding: EdgeInsets.all(0),
+                      physics: NeverScrollableScrollPhysics(),
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 4.0,
+                      crossAxisSpacing: 4.0,
+                      staggeredTiles:tileForm(attach.length),
+                      children: photoItems,
+                    ),
+                    attach.length > 3 ?
+                    StaggeredGridView.count(
+                      physics: NeverScrollableScrollPhysics(),
+                      padding: EdgeInsets.all(0),
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 4.0,
+                      crossAxisSpacing: 4.0,
+                      staggeredTiles:tileForm(attach.length),
+                      children: <Widget>[
+                        Container(),
+                        Container(),
+                        Container(
+                          color: Colors.black.withOpacity(0.6),
+                          child: Center(
+                            child: Text("${attach.length - 3}+",
+                              style: TextStyle(color: Colors.white, fontSize: 24),),
+                          ),
+                        ),
+                      ],
+                    ) : null,
+                  ].where(notNull).toList(),
+                ),
+              )
             ) : null,
+            SizedBox(height: 20,),
           ].where(notNull).toList(),
         )
       ),

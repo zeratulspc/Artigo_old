@@ -159,7 +159,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
                                 Expanded(child: Text(item.body, maxLines: 7,
-                                  style: TextStyle(fontSize: 18.0), //TODO 사진 있을때는 fontsize 16
+                                  style: TextStyle(fontSize: 18.0),
                                   textAlign: TextAlign.left,
                                   overflow: TextOverflow.ellipsis,),)
                               ],
@@ -167,7 +167,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                           ],
                         ),
                       ),
-                      onTap: (){ //TODO 오른쪽에서 왼쪽으로
+                      onTap: (){
                         Navigator.push(context,
                             PageTransition(
                               type: PageTransitionType.rightToLeftWithFade,
@@ -179,46 +179,55 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                   item.attach != null ? Container(
                     width: screenSize.width,
                     height: screenSize.width < screenSize.height ? screenSize.height/2.5 : screenSize.width/1.5,
-                    child: Stack(
-                      children: <Widget>[
-                        StaggeredGridView.count(
-                          physics: NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.all(0),
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 4.0,
-                          crossAxisSpacing: 4.0,
-                          staggeredTiles:tileForm(item.attach.length),
-                          children: List<Widget>.generate(item.attach.length, (index){
-                            return Container(
-                              child: Image.network(
-                                item.attach[index]["filePath"],
-                                fit: BoxFit.cover,
+                    child: InkWell(
+                      onTap: (){
+                        Navigator.push(context,
+                            PageTransition(
+                              type: PageTransitionType.rightToLeftWithFade,
+                              child: PostDetail(item: item, uploader: uploader, currentUser: currentUser,),)
+                        );
+                      },
+                      child: Stack(
+                        children: <Widget>[
+                          StaggeredGridView.count(
+                            physics: NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.all(0),
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 4.0,
+                            crossAxisSpacing: 4.0,
+                            staggeredTiles:tileForm(item.attach.length),
+                            children: List<Widget>.generate(item.attach.length, (index){
+                              return Container(
+                                child: Image.network(
+                                  item.attach[index]["filePath"],
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            }),
+                          ),
+                          item.attach.length > 3 ?
+                          StaggeredGridView.count(
+                            physics: NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.all(0),
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 4.0,
+                            crossAxisSpacing: 4.0,
+                            staggeredTiles:tileForm(item.attach.length),
+                            children: <Widget>[
+                              Container(),
+                              Container(),
+                              Container(
+                                color: Colors.black.withOpacity(0.6),
+                                child: Center(
+                                  child: Text("${item.attach.length -3}+",
+                                    style: TextStyle(color: Colors.white, fontSize: 24),),
+                                ),
                               ),
-                            );
-                          }),
-                        ),
-                        item.attach.length > 3 ?
-                        StaggeredGridView.count(
-                          physics: NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.all(0),
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 4.0,
-                          crossAxisSpacing: 4.0,
-                          staggeredTiles:tileForm(item.attach.length),
-                          children: <Widget>[
-                            Container(),
-                            Container(),
-                            Container(
-                              color: Colors.black.withOpacity(0.6),
-                              child: Center(
-                                child: Text("${item.attach.length -3}+",
-                                style: TextStyle(color: Colors.white, fontSize: 24),),
-                              ),
-                            ),
-                          ],
-                        ) : null,
-                      ].where(notNull).toList(),
-                    )
+                            ],
+                          ) : null,
+                        ].where(notNull).toList(),
+                      ),
+                    ),
                   ) : null,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
