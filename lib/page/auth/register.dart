@@ -1,8 +1,14 @@
+import 'dart:io';
+import 'dart:async';
+
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
+
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:connectivity/connectivity.dart';
 
 import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/page/basicDialogs.dart';
 // TODO 회원가입 구현.
 // 별도의 관리자 개입이 없는이상 첫 role 은 GUEST 임.
 // 회원가입 페이지는 설문조사 항목을 포함하고 있음.
@@ -15,13 +21,23 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   AuthDBFNC authDBFNC = AuthDBFNC();
+  BasicDialogs basicDialogs = BasicDialogs();
 
   //유저 정보 변수
   final registerFormKey = GlobalKey<FormState>();
+  File defaultUserImage;
   String email;
   String password;
   String userName;
   int memberType;
+
+  @override
+  void initState() {
+    super.initState();
+    getImageFileFromAssets("user.png").then((data) {
+      defaultUserImage = data;
+    });
+  }
 
   // 오류 다이알로그
   Future _errorDialog(BuildContext context, _message, code) {
@@ -55,9 +71,15 @@ class _RegisterPageState extends State<RegisterPage> {
     child: CircularProgressIndicator(),
   );
 
+  Future<File> getImageFileFromAssets(String path) async {
+    final byteData = await rootBundle.load('assets/$path');
 
-//TODO 회원가입 Design
-//TODO 회원가입 FNC
+    final file = File('${(await getTemporaryDirectory()).path}/$path');
+    await file.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+    return file;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +87,9 @@ class _RegisterPageState extends State<RegisterPage> {
       floatingActionButton: memberType != null ? FloatingActionButton.extended(
         backgroundColor: Theme.of(context).primaryColor,
         label: Text("      확인      ", style: TextStyle(color: Colors.white),),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30)
+        ),
         onPressed: () async {
           final form = registerFormKey.currentState;
           form.save();
@@ -76,6 +101,7 @@ class _RegisterPageState extends State<RegisterPage> {
                await authDBFNC.createUserInfo(user: user.user, username: userName,
                description: "", registerDate: DateTime.now().toIso8601String(),
                role: memberType == 0 ? "MEMBER" : "GUEST");
+               await authDBFNC.uploadUserProfileImage(uid: user.user.uid, profileImage: defaultUserImage);
                Navigator.pop(context);
                Navigator.pop(context);
              }).catchError((e) {
@@ -104,13 +130,11 @@ class _RegisterPageState extends State<RegisterPage> {
            }
           }
         },
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15)
-        ),
       ) : null,
       appBar: AppBar(
         title: Text("회원가입"),
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[

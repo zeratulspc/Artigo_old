@@ -7,9 +7,10 @@ import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/page/basicDialogs.dart';
 
 class EditPostAttach extends StatefulWidget {
+  final Function(int index) deleteAttach;
   final List<Attach> attach;
   final String uploaderUID;
-  EditPostAttach({this.attach, this.uploaderUID}); // 1: POST 2: EDIT
+  EditPostAttach({this.attach, this.uploaderUID, this.deleteAttach}); // 1: POST 2: EDIT
 
 
   @override
@@ -54,6 +55,7 @@ class EditPostAttachState extends State<EditPostAttach> {
     if(await tempImage.exists()) {
       setState(() {
         attach.add(Attach(
+          key: attach.length.toString(),
           tempPhoto: tempImage,
           uploaderUID: widget.uploaderUID,
           uploadDate: DateTime.now().toIso8601String(),
@@ -149,10 +151,10 @@ class EditPostAttachState extends State<EditPostAttach> {
                           ),
                           onPressed: (){
                             setState(() {
-                              if(attach[index].filePath != null) {
+                              if(attach[index].tempPhoto != null) {
                                 attach.removeAt(index);
-                                //TODO 게시글 수정할 때
                               } else {
+                                widget.deleteAttach(index);
                                 attach.removeAt(index);
                               }
                             });
@@ -162,7 +164,7 @@ class EditPostAttachState extends State<EditPostAttach> {
                       ),
                     ],
                   ),
-                  Container(
+                  Container( //TODO 입력 창 수직 유동적으로 바꾸기.
                       margin: EdgeInsets.symmetric(horizontal: 20),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(),

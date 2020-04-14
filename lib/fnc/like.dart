@@ -22,6 +22,16 @@ class LikeDBFNC {
   Future dislikeToAttach(String postKey, String userUID, int index) async {
     likeDBRef.child(postKey).child("attach").child(index.toString()).child("like").child(userUID).remove();
   }
+
+  Future likeToComment(String postKey, String userUID, String commentKey) async {
+    likeDBRef.child(postKey).child("comment").child(commentKey).child("like").child(userUID).set(
+        Like(userUID: userUID, isLiked: true, date: DateTime.now().toIso8601String()).toMap());
+  }
+
+  Future dislikeToComment(String postKey, String userUID, String commentKey) async {
+    likeDBRef.child(postKey).child("comment").child(commentKey).child("like").child(userUID).remove();
+  }
+
 }
 
 class Like {

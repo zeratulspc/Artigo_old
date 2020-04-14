@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:nextor/page/comment/commentList.dart';
 
 import 'package:page_transition/page_transition.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,6 +22,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  GlobalKey<ScaffoldState> homeScaffoldKey = GlobalKey<ScaffoldState>();
   PostDBFNC postDBFNC = PostDBFNC();
   AuthDBFNC authDBFNC = AuthDBFNC();
   ScrollController scrollController;
@@ -78,6 +80,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size; //TODO screenSize 이용
     return Scaffold(
+      key: homeScaffoldKey,
       body: NestedScrollView(
         physics: NeverScrollableScrollPhysics(),
         controller: scrollController,
@@ -134,9 +137,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         },
         body: PageView(
           children: <Widget>[
-            PostList(navigateToMyProfile: () {
-              onPageChange(index: 3);
-            }, scrollController: scrollController,),
+            PostList(
+              navigateToMyProfile: () {
+                onPageChange(index: 3);
+              },
+              homeScaffoldKey: homeScaffoldKey,
+              scrollController: scrollController,),
             TodoBoard(),
             DataBoard(),
             MyProfile(),

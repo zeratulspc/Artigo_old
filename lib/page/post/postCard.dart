@@ -20,6 +20,8 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
         this.screenSize,
         this.likeToPost,
         this.dislikeToPost,
+        this.showCommentSheet,
+        this.showLikeSheet,
         @required this.item,})
       : assert(animation != null),
         assert(item != null),
@@ -30,6 +32,8 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
   final Function moreOption; //TODO 변수명 수정
   final Function likeToPost;
   final Function dislikeToPost;
+  final Function showCommentSheet;
+  final Function showLikeSheet;
   final Post item;
   final User uploader;
   final Size screenSize;
@@ -129,12 +133,15 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              InkWell(
-                                child: Text(uploader.userName??"", maxLines: 1,
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
-                                onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
-                                  //TODO 유저 프로필 페이지로 네비게이트
-                                },
+                              Container(
+                                width: screenSize.width / 1.7,
+                                child: InkWell(
+                                  child: Text(uploader.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
+                                  onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
+                                    //TODO 유저 프로필 페이지로 네비게이트
+                                  },
+                                ),
                               ),
                               Text(DateTime.now().day == date.day && DateTime.now().month == date.month && DateTime.now().year == date.year ?
                               "${date.hour} : ${date.minute >= 10 ? date.minute : "0"+date.minute.toString() }" : "${date.year}.${date.month}.${date.day}",
@@ -159,7 +166,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
                                 Expanded(child: Text(item.body, maxLines: 7,
-                                  style: TextStyle(fontSize: 18.0),
+                                  style: TextStyle(fontSize: item.body.length>=250?14:18),
                                   textAlign: TextAlign.left,
                                   overflow: TextOverflow.ellipsis,),)
                               ],
@@ -199,7 +206,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                             children: List<Widget>.generate(item.attach.length, (index){
                               return Container(
                                 child: Image.network(
-                                  item.attach[index]["filePath"],
+                                  item.attach[index].filePath,
                                   fit: BoxFit.cover,
                                 ),
                               );
@@ -236,16 +243,22 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                         margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                         height: 30,
                         width: 80,
-                        child: Text("❤️ ${item.like.length} 명", //TODO 이모지
-                          style: TextStyle(color: Colors.grey[700]),
+                        child: InkWell(
+                          child: Text("❤️ ${item.like.length} 명", //TODO 이모지
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                          onTap: showLikeSheet,
                         ),
                       ) : null,
                       item.comment != null ? Container(
                         margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                         height: 30,
                         width: 80,
-                        child: Text("댓글 ${item.comment.length}개",
-                          style: TextStyle(color: Colors.grey[700]),
+                        child: InkWell(
+                          child:Text("댓글 ${item.comment.length}개",
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                          onTap:showCommentSheet
                         ),
                       ) : null,
                     ].where(notNull).toList(),
@@ -275,7 +288,10 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                                 Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
                               ),
                               SizedBox(width: 5,),
-                              Text("좋아요", style: Theme.of(context).textTheme.subtitle,)
+                              InkWell(
+                                child: Text("좋아요", style: Theme.of(context).textTheme.subtitle,),
+                                onTap: null,
+                              ),
                             ],
                           ),
                           onPressed: item.like != null ?
@@ -296,7 +312,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                               Text("댓글 달기",style: Theme.of(context).textTheme.subtitle,)
                             ],
                           ),
-                          onPressed: (){}, //TODO 댓글창 열기
+                          onPressed: showCommentSheet, //TODO 댓글창 열기
                         ),
                       )
                     ],

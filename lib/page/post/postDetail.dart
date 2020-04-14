@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +9,8 @@ import 'package:photo_view/photo_view.dart';
 import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/like.dart';
+import 'package:nextor/page/basicDialogs.dart';
+import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/post/photoViewer.dart';
 
 class PostDetail extends StatefulWidget {
@@ -24,9 +27,12 @@ class PostDetail extends StatefulWidget {
 class _PostDetailState extends State<PostDetail> {
   LikeDBFNC likeDBFNC = LikeDBFNC();
   PostDBFNC postDBFNC = PostDBFNC();
+  BasicDialogs basicDialogs = BasicDialogs();
   Post item;
 
   List<bool> seeMore = List();
+
+
 
   _PostDetailState(this.item);
   bool notNull(Object o) => o != null;
@@ -52,6 +58,49 @@ class _PostDetailState extends State<PostDetail> {
         item = data;
       });
     });
+  }
+
+  void postModalBottomSheet(context, Post post) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext _context){
+          return Container(
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                    leading: Icon(Icons.edit),
+                    title: Text('게시글 수정'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>
+                          EditPost(postCase: 2, initialPost: post, uploader: widget.uploader, currentUser: widget.currentUser,)));
+                    } //TODO 게시글 수정
+                ),
+                ListTile(
+                  leading: Icon(Icons.delete),
+                  title: Text("게시글삭제"),
+                  subtitle: Text("다시 되돌릴 수 없습니다!"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    basicDialogs.dialogWithFunction(
+                        context, "게시글 삭제", "게시글을 삭제하시겠습니까?",
+                            () {
+                          Navigator.pop(context);
+                          basicDialogs.showLoading(context, "게시글을 삭제하는 중입니다.");
+                          if(post.attach != null) {
+                            postDBFNC.deletePostStorage(post.key, post.attach)
+                                .then((_)=>postDBFNC.deletePost(post.key).then((_){Navigator.pop(context);Navigator.pop(context);}));
+                          } else {
+                            postDBFNC.deletePost(post.key).then((_){Navigator.pop(context);Navigator.pop(context);});
+                          }
+                        });
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+    );
   }
 
 
@@ -113,12 +162,15 @@ class _PostDetailState extends State<PostDetail> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              InkWell(
-                                child: Text(widget.uploader.userName??"", maxLines: 1,
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
-                                onTap: widget.currentUser.uid == widget.uploader.key ?
-                                    (){} :
-                                    (){},//TODO 유저 프로필 페이지로 네비게이트
+                              Container(
+                                width: screenSize.width / 1.7,
+                                child: InkWell(
+                                  child: Text(widget.uploader.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
+                                  onTap: widget.currentUser.uid == widget.uploader.key ?
+                                      (){} :
+                                      (){},//TODO 유저 프로필 페이지로 네비게이트
+                                ),
                               ),
                               Text(DateTime.now().day == date.day && DateTime.now().month == date.month && DateTime.now().year == date.year ?
                               "${date.hour} : ${date.minute >= 10 ? date.minute : "0"+date.minute.toString() }" : "${date.year}.${date.month}.${date.day}",
@@ -143,7 +195,7 @@ class _PostDetailState extends State<PostDetail> {
                             children: <Widget>[
                               Expanded(child: Text(
                                 item.body,
-                                style: TextStyle(fontSize: 18.0), //TODO 사진 있을때는 fontsize 16
+                                style: TextStyle(fontSize: item.body.length>=250?16:18), //TODO 사진 있을때는 fontsize 16
                                 textAlign: TextAlign.left,),)
                             ],
                           ),
@@ -182,7 +234,7 @@ class _PostDetailState extends State<PostDetail> {
                       Container(
                         width: screenSize.width/2,
                         child: FlatButton(
-                          child: Row( //Icons.favorite_border : Icons.favorite
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Icon(item.like != null ?
@@ -250,9 +302,9 @@ class _PostDetailState extends State<PostDetail> {
                             ),
                           ),
                           child: Hero(
-                              tag: item.attach[index]["fileName"],
+                              tag: item.attach[index].fileName,
                               child: Image.network(
-                                  item.attach[index]["filePath"],
+                                  item.attach[index].filePath,
                                   loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
                                     if (loadingProgress == null)
                                       return child;
@@ -268,7 +320,7 @@ class _PostDetailState extends State<PostDetail> {
                           ),
                         ),
                       ),
-                      item.attach[index]["description"] != null ?
+                      item.attach[index].description != null ?
                       Container( //TODO 텍스트 너무 많을 때 더보기 및 스크롤 기능 추가
                         child: Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                           child: Column(
@@ -277,56 +329,60 @@ class _PostDetailState extends State<PostDetail> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: <Widget>[
                                   Expanded(
-                                    child: Text(
-                                      item.attach[index]["description"],
-                                      style: TextStyle(fontSize: 18.0), //TODO 사진 있을때는 fontSize 16
-                                      textAlign: TextAlign.left,
-                                      maxLines: seeMore[index] ? null : 7,
-                                      overflow: seeMore[index] ? null : TextOverflow.ellipsis
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: seeMore[index] ? item.attach[index].description :
+                                            item.attach[index].description.length >= 250 ?
+                                            item.attach[index].description.substring(0, 250) :
+                                            item.attach[index].description,
+                                              style: TextStyle(color: Colors.black87), //TODO 사진 있을때는 fontSize 16
+                                          ),
+                                          item.attach[index].description.length >= 250 && !seeMore[index]?
+                                          TextSpan(
+                                            text: "...",
+                                            style: TextStyle(color: Colors.black87), //TODO 사진 있을때는 fontSize 16
+                                          ) : null,
+                                          item.attach[index].description.length >= 250 ?
+                                          TextSpan(
+                                            text: seeMore[index] ? " 줄이기" : " 더보기",
+                                            style: TextStyle(color: Colors.grey[600],),
+                                            recognizer: TapGestureRecognizer()..onTap = (){
+                                              setState(() {
+                                                setState(() {
+                                                  seeMore[index] = !seeMore[index];
+                                                  print(seeMore[index]);
+                                                });
+                                              });
+                                            }
+                                          ) : null,
+                                        ].where(notNull).toList()
+                                      ),
                                     ),
                                   )
                                 ],
                               ),
-                              item.attach[index]["description"].length >= 50 ? Align(
-                                alignment: Alignment.centerRight,
-                                child: InkWell(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      Text(
-                                        seeMore[index] ? "줄이기" : "더보기",
-                                        style: TextStyle(color: Theme.of(context).primaryColor),
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      seeMore[index] = !seeMore[index];
-                                      print(seeMore[index]);
-                                    });
-                                  },
-                                ),
-                              ) : null
-                            ].where(notNull).toList(),
+                            ],
                           ),
                         ),
                       ) : null,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          item.attach[index]["like"] != null ? Container(
+                          item.attach[index].like != null ? Container(
                             margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                             height: 30,
                             width: 80,
-                            child: Text("❤️ ${item.attach[index]["like"].length} 명", //TODO 이모지
+                            child: Text("❤️ ${item.attach[index].like.length} 명", //TODO 이모지
                               style: TextStyle(color: Colors.grey[700]),
                             ),
                           ) : null,
-                          item.attach[index]["comment"] != null ? Container(
+                          item.attach[index].comment != null ? Container(
                             margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                             height: 30,
                             width: 80,
-                            child: Text("댓글 ${item.attach[index].length}개",
+                            child: Text("댓글 ${item.attach[index].comment.length}개",
                               style: TextStyle(color: Colors.grey[700]),
                             ),
                           ) : null,
@@ -345,13 +401,13 @@ class _PostDetailState extends State<PostDetail> {
                               child: Row( //Icons.favorite_border : Icons.favorite
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Icon(item.attach[index]["like"] != null ?
-                                  item.attach[index]["like"][widget.currentUser.uid] != null ?
+                                  Icon(item.attach[index].like != null ?
+                                  item.attach[index].like[widget.currentUser.uid] != null ?
                                   Icons.favorite : // 좋아요가 존재할 때
                                   Icons.favorite_border : // 좋아요 목록에 현재 유저 아이디가 없을 때
                                   Icons.favorite_border, // 좋아요 목록이 존재하지 않을 때
-                                    color: item.attach[index]["like"] != null ?
-                                    item.attach[index]["like"][widget.currentUser.uid] != null ?
+                                    color: item.attach[index].like != null ?
+                                    item.attach[index].like[widget.currentUser.uid] != null ?
                                     Colors.red[600] : // 좋아요가 존재할 때
                                     Colors.grey[600] : // 좋아요 목록에 현재 유저 아이디가 없을 때
                                     Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
@@ -360,8 +416,8 @@ class _PostDetailState extends State<PostDetail> {
                                   Text("좋아요", style: Theme.of(context).textTheme.subtitle,)
                                 ],
                               ),
-                              onPressed: item.attach[index]["like"] != null ?
-                              item.attach[index]["like"][widget.currentUser.uid] != null ?
+                              onPressed: item.attach[index].like != null ?
+                              item.attach[index].like[widget.currentUser.uid] != null ?
                               ()=>dislikeToAttach(index) : // 좋아요가 존재할 때
                               ()=>likeToAttach(index) : // 좋아요 목록에 현재 유저 아이디가 없을 때
                               ()=>likeToAttach(index), // 좋아요 목록이 존재하지 않을 때

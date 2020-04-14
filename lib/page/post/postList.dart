@@ -9,12 +9,16 @@ import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/like.dart';
 import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/postCard.dart';
+import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/post/postLoading.dart';
+import 'package:nextor/page/comment/commentList.dart';
+import 'package:nextor/page/like/likeList.dart';
 
 class PostList extends StatefulWidget {
+  final GlobalKey<ScaffoldState> homeScaffoldKey;
   final VoidCallback navigateToMyProfile;
   final ScrollController scrollController;
-  PostList({this.navigateToMyProfile, this.scrollController});
+  PostList({this.navigateToMyProfile, this.scrollController, this.homeScaffoldKey});
 
   @override
   _PostListState createState() => _PostListState();
@@ -65,7 +69,9 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
                     leading: Icon(Icons.edit),
                     title: Text('게시글 수정'),
                     onTap: () {
-
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>
+                          EditPost(postCase: 2, initialPost: post, uploader: user, currentUser: currentUser,)));
                     } //TODO 게시글 수정
                 ),
                 ListTile(
@@ -105,8 +111,9 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
           controller: widget.scrollController,
           sort: (a , b) => DateTime.parse(b.value["uploadDate"]).compareTo(DateTime.parse(a.value["uploadDate"])), //TODO 새로운 글이 위로 오게 하기 (현재 스켈레톤 로딩이 아래로 감.)
           itemBuilder: (context, snapshot, animation, index) {
-            Post post = Post.fromSnapShot(snapshot);
+            Post post = Post().fromSnapShot(snapshot);
             return FutureBuilder(
+              future: authDBFNC.getUserInfo(post.uploaderUID),
               builder: (context, asyncSnapshot){
                 if(!asyncSnapshot.hasData){
                   if(post.body.length <= 30) { // 글자수가 30보다 작을 경우
@@ -134,10 +141,35 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
                     likeToPost: (){
                       likeDBFNC.likeToPost(post.key, currentUser.uid);
                     },
+                    showCommentSheet: () {
+                      showModalBottomSheet(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                        isScrollControlled: true,
+                          context: context,
+                          builder: (context) {
+                            return CommentList(
+                              postKey: post.key,
+                              currentUser: currentUser,
+                            );
+                          },
+                      );
+                    },
+                    showLikeSheet: () {
+                      showModalBottomSheet(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                        isScrollControlled: true,
+                        context: context,
+                        builder: (context) {
+                          return LikeList(
+                            postKey: post.key,
+                            currentUser: currentUser,
+                          );
+                        },
+                      );
+                    },
                   );
                 }
               },
-              future: authDBFNC.getUserInfo(post.uploaderUID),
             );
           },
         )

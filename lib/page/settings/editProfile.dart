@@ -47,7 +47,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Future<bool> getImageFile(ImageSource source) async {
+  Future<bool> changeProfileImage(ImageSource source) async {
     File image = await ImagePicker.pickImage(source: source);
     if(image != null) {
       File croppedImage = await ImageCropper.cropImage(
@@ -98,6 +98,7 @@ class EditProfilePageState extends State<EditProfilePage> {
         backgroundColor: Colors.white,
         title: Text("프로필 수정", style: TextStyle(color: Colors.black),),
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
           color: Colors.white,
@@ -108,9 +109,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                   trailing: FlatButton(
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
-                    child: Text("수정", style: TextStyle(color: Theme.of(context).accentColor),),
+                    child: Text("수정", style: TextStyle(color: Theme.of(context).primaryColor),),
                     onPressed: (){
-                      getImageFile(ImageSource.gallery);
+                      changeProfileImage(ImageSource.gallery);
                     },
                   )
               ),
@@ -146,7 +147,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                   trailing: FlatButton(
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
-                    child: Text("수정", style: TextStyle(color: Theme.of(context).accentColor),),
+                    child: Text("수정", style: TextStyle(color: Theme.of(context).primaryColor),),
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(
                           builder: (_) => TextFieldPage(object: "userName", uid: currentUser.uid, item: userName,
@@ -178,7 +179,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                   trailing: FlatButton(
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
-                    child: Text("수정", style: TextStyle(color: Theme.of(context).accentColor),),
+                    child: Text("수정", style: TextStyle(color: Theme.of(context).primaryColor),),
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(
                           builder: (_) => TextFieldPage(object: "description", uid: currentUser.uid, item: description,

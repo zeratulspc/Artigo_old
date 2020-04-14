@@ -13,11 +13,10 @@ import 'package:nextor/page/post/editPostAttach.dart';
 
 class EditPost extends StatefulWidget {
   final int postCase; // 1: POST 2: EDIT
+  final Post initialPost;
   final User uploader;
   final FirebaseUser currentUser;
-  EditPost({this.postCase, this.uploader, this.currentUser}); // 1: POST 2: EDIT
-
-
+  EditPost({this.postCase, this.uploader, this.currentUser, this.initialPost}); // 1: POST 2: EDIT
   @override
   EditPostState createState() => EditPostState();
 }
@@ -30,6 +29,7 @@ class EditPostState extends State<EditPost> {
   TextEditingController textEditingController = TextEditingController();
   List<Attach> attach = List(); // 업로드 되지 않은 사진
   List<Widget> photoItems = List();
+  List<Attach> deletedItem = List();
   int maxLine = 8;
   bool showPostButton = false;
   bool notNull(Object o) => o != null;
@@ -40,6 +40,14 @@ class EditPostState extends State<EditPost> {
       DeviceOrientation.portraitUp,
     ]);
     super.initState();
+    if(widget.postCase == 2)
+      setState(() {
+        if(widget.initialPost.attach != null) {
+          attach.addAll(widget.initialPost.attach);
+          generateItems(attach.length);
+        }
+        textEditingController.text = widget.initialPost.body;
+      });
     if(this.mounted){
       textEditingController.addListener(() {
         if(this.mounted){
@@ -63,7 +71,59 @@ class EditPostState extends State<EditPost> {
     );
     super.dispose();
     textEditingController.dispose();
+    FocusScopeNode().dispose();
   }
+
+  editPost() async { //TODO 복잡한 상황에서 작동할 수정 알고리즘 만들기
+    basicDialogs.showLoading(context, "게시글 업로드 중");
+    List<int> newPhotoIndex = List();
+    await postDBFNC.updatePost(widget.initialPost.key, Post(
+        body: textEditingController.text,
+        uploaderUID: widget.currentUser.uid,
+        uploadDate: DateTime.now().toIso8601String(),
+        attach: widget.initialPost.attach,
+        like: widget.initialPost.like,
+        comment: widget.initialPost.comment,
+        isEdited: true,
+      )
+    );
+    attach.forEach((data){
+      if(data.tempPhoto != null)
+        newPhotoIndex.add(int.parse(data.key));
+    });
+    for(int i = 0; i < deletedItem.length; i++){ //TODO 길이 문제
+      await postDBFNC.deletePhoto(widget.initialPost.key, deletedItem[i], int.parse(deletedItem[i].key));
+    }
+    for(int i = 0;i < newPhotoIndex.length; i++) { //TODO 길이 문제
+      await postDBFNC.addPhoto(attach[newPhotoIndex[i]], widget.initialPost.key, newPhotoIndex[i]); // photo 업로드 실패 예외처리
+    }
+    Navigator.pop(context); // 로딩 다이알로그 pop
+    Navigator.pop(context); // 페이지 pop
+
+  }
+
+  uploadPost() async {
+    basicDialogs.showLoading(context, "게시글 업로드 중");
+    String key = postDBFNC.createPost(Post(
+      body: textEditingController.text,
+      uploaderUID: widget.currentUser.uid,
+      uploadDate: DateTime.now().toIso8601String(),
+      isEdited: false,
+    )
+    );
+    if(key != null) { // post 가 정상적으로 업로드 되었는지 확인
+      for(int i = 0;i < attach.length; i++) { //TODO 중복 사진 업로드 불가능하게 만들기
+        await postDBFNC.addPhoto(attach[i], key, i); // photo 업로드 실패 예외처리
+      }
+      Navigator.pop(context); // 로딩 다이알로그 pop
+      Navigator.pop(context); // 페이지 pop
+    } else {
+      Navigator.pop(context);
+      basicDialogs.dialogWithYes(context, "오류 발생", "게시글이 정상적으로 업로드 되지 않았습니다.");
+    }
+
+  }
+
 
   List<StaggeredTile> tileForm(int imageCount) {
     switch(imageCount){
@@ -101,22 +161,47 @@ class EditPostState extends State<EditPost> {
     }
   }
 
-  pickImage(BuildContext context) async {
+  pickImage(BuildContext context) async { //TODO 중복 사진 업로드 불가능하게 만들기
+    bool isDuple = false;
+    bool _isComplete = false;
     var tempImage = await ImagePicker.pickImage(
       source: ImageSource.gallery,);
-    print(tempImage.path);
-    if(await tempImage.exists()) {
-      setState(() {
-        attach.add(Attach(
-          tempPhoto: tempImage,
-          uploaderUID: widget.currentUser.uid,
-          uploadDate: DateTime.now().toIso8601String(),
-        ));
-        photoItems.clear();
-        generateItems(attach.length);
-      });
+    attach.forEach((item){
+      if(!_isComplete) {
+        if(item.tempPhoto != null) {
+          if(item.tempPhoto.path == tempImage.path) {
+            _isComplete = true;
+            isDuple = true;
+          } else {
+            isDuple = false;
+          }
+        } else {
+          if(item.fileName == "") { //TODO 서버 파일과 중복 검사
+            _isComplete = true;
+            isDuple = true;
+          } else {
+            isDuple = false;
+          }
+        }
+      }
+    });
+    if(!isDuple) { // 중복 검사 식
+      if(await tempImage.exists()) {
+        setState(() {
+          attach.add(Attach(
+            key: attach.length.toString(),
+            tempPhoto: tempImage,
+            uploaderUID: widget.currentUser.uid,
+            uploadDate: DateTime.now().toIso8601String(),
+          ));
+          photoItems.clear();
+          generateItems(attach.length);
+        });
+      } else {
+        basicDialogs.dialogWithYes(context, "불러오기 실패", "불러오기에 실패했습니다.");
+      }
     } else {
-      basicDialogs.dialogWithYes(context, "불러오기 실패", "불러오기에 실패했습니다.");
+      basicDialogs.dialogWithYes(context, "업로드 불가", "중복된 이미지는 업로드 할 수 없습니다.");
     }
   }
 
@@ -144,28 +229,6 @@ class EditPostState extends State<EditPost> {
     });
   }
 
-  uploadPost() async {
-    basicDialogs.showLoading(context, "게시글 업로드 중");
-    String key = await postDBFNC.createPost(Post(
-        body: textEditingController.text,
-        uploaderUID: widget.currentUser.uid,
-        uploadDate: DateTime.now().toIso8601String(),
-        isEdited: false,
-      )
-    );
-    if(key != null) { // post 가 정상적으로 업로드 되었는지 확인
-      for(int i = 0;i < attach.length; i++) {
-        await postDBFNC.addPhoto(attach[i], key, i);
-      }
-      Navigator.pop(context); // 로딩 다이알로그 pop
-      Navigator.pop(context); // 페이지 pop
-    } else {
-      Navigator.pop(context);
-      basicDialogs.dialogWithYes(context, "오류 발생", "게시글이 정상적으로 업로드 되지 않았습니다.");
-    }
-
-  }
-
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -187,7 +250,7 @@ class EditPostState extends State<EditPost> {
                 child: Text("게시", style: TextStyle(
                     color: showPostButton ? Colors.black : Colors.grey[500]),),
               ),
-              onTap: showPostButton ? uploadPost : null,
+              onTap: showPostButton ? widget.postCase == 1 ? uploadPost : editPost : null,
             ),
           )
         ],
@@ -241,8 +304,11 @@ class EditPostState extends State<EditPost> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(widget.uploader.userName??"", maxLines: 1,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
+                        Container(
+                          width: screenSize.width / 1.3,
+                          child: Text(widget.uploader.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
+                        ),
                       ],
                     ),
                   ),
@@ -277,7 +343,13 @@ class EditPostState extends State<EditPost> {
                 highlightColor: Colors.transparent,
                 onTap: () async {
                   List<Attach> editedAttach = await Navigator.push(context, MaterialPageRoute(builder: (context)=>
-                      EditPostAttach(attach: attach, uploaderUID: widget.currentUser.uid,)
+                      EditPostAttach(
+                        attach: attach,
+                        uploaderUID: widget.currentUser.uid,
+                        deleteAttach: (int index){
+                          deletedItem.add(attach[index]);
+                        },
+                      )
                   ));
                   if(editedAttach != null)
                     setState(() {

@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 
 import 'package:nextor/fnc/postDB.dart';
 
@@ -35,10 +36,15 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
 
 class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
   int currentIndex;
+  List<bool> seeMore = List();
+  bool notNull(Object o) => o != null;
 
   @override
   void initState() {
     currentIndex = widget.initialIndex;
+    for(int i=0;widget.galleryItems.length>i;i++){
+      seeMore.add(false);
+    }
     super.initState();
   }
 
@@ -69,23 +75,75 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
               onPageChanged: onPageChanged,
               scrollDirection: widget.scrollDirection,
             ),
-            Container(
+            widget.galleryItems[currentIndex]["description"] != null ?
+            Container( //TODO 화면 터치하면 사라짐
+              height: seeMore[currentIndex] ? 300 : 130,
+              color: Colors.black54,
               padding: EdgeInsets.all(20.0),
-              child: Text( //TODO 텍스트 너무 많을 때 더보기 및 스크롤 기능 추가
-                "${widget.galleryItems[currentIndex]["description"] != null ?
-                widget.galleryItems[currentIndex]["description"] : ""
-                }",
-                style: TextStyle(
-                  color: Colors.white,
-                  decoration: null,
+              child: Scrollbar(
+                child: SingleChildScrollView(
+                  child:  Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: seeMore[currentIndex] ? widget.galleryItems[currentIndex]["description"] :
+                                      widget.galleryItems[currentIndex]["description"].length >= 250 ?
+                                      widget.galleryItems[currentIndex]["description"].substring(0, 250) :
+                                      widget.galleryItems[currentIndex]["description"],
+                                      style: TextStyle(color: Colors.white), //TODO 사진 있을때는 fontSize 16
+                                    ),
+                                    widget.galleryItems[currentIndex]["description"].length >= 250 && !seeMore[currentIndex]?
+                                    TextSpan(
+                                      text: "...",
+                                      style: TextStyle(color: Colors.white), //TODO 사진 있을때는 fontSize 16
+                                    ) : null,
+                                    widget.galleryItems[currentIndex]["description"].length >= 250 ?
+                                    TextSpan(
+                                        text: seeMore[currentIndex] ? " 줄이기" : " 더보기",
+                                        style: TextStyle(color: Colors.grey[600],),
+                                        recognizer: TapGestureRecognizer()..onTap = (){
+                                          setState(() {
+                                            setState(() {
+                                              seeMore[currentIndex] = !seeMore[currentIndex];
+                                              print(seeMore[currentIndex]);
+                                            });
+                                          });
+                                        }
+                                    ) : null,
+                                  ].where(notNull).toList()
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            )
-          ],
+            ) : null,
+          ].where(notNull).toList(),
         ),
       ),
     );
   }
+
+  /*
+  Text(
+                    "${widget.galleryItems[currentIndex]["description"] != null ?
+                    widget.galleryItems[currentIndex]["description"] : ""
+                    }",
+                    style: TextStyle(
+                      color: Colors.white,
+                      decoration: null,
+                    ),
+                  ),
+   */
 
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
     return PhotoViewGalleryPageOptions(
