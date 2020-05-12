@@ -25,7 +25,7 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
   final dynamic maxScale;
   final int initialIndex;
   final PageController pageController;
-  final List<dynamic> galleryItems;
+  final List<Attach> galleryItems;
   final Axis scrollDirection;
 
   @override
@@ -75,7 +75,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
               onPageChanged: onPageChanged,
               scrollDirection: widget.scrollDirection,
             ),
-            widget.galleryItems[currentIndex]["description"] != null ?
+            widget.galleryItems[currentIndex].description != null ?
             Container( //TODO 화면 터치하면 사라짐
               height: seeMore[currentIndex] ? 300 : 130,
               color: Colors.black54,
@@ -92,18 +92,18 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                               text: TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: seeMore[currentIndex] ? widget.galleryItems[currentIndex]["description"] :
-                                      widget.galleryItems[currentIndex]["description"].length >= 250 ?
-                                      widget.galleryItems[currentIndex]["description"].substring(0, 250) :
-                                      widget.galleryItems[currentIndex]["description"],
+                                      text: seeMore[currentIndex] ? widget.galleryItems[currentIndex].description :
+                                      widget.galleryItems[currentIndex].description.length >= 250 ?
+                                      widget.galleryItems[currentIndex].description.substring(0, 250) :
+                                      widget.galleryItems[currentIndex].description,
                                       style: TextStyle(color: Colors.white), //TODO 사진 있을때는 fontSize 16
                                     ),
-                                    widget.galleryItems[currentIndex]["description"].length >= 250 && !seeMore[currentIndex]?
+                                    widget.galleryItems[currentIndex].description.length >= 250 && !seeMore[currentIndex]?
                                     TextSpan(
                                       text: "...",
                                       style: TextStyle(color: Colors.white), //TODO 사진 있을때는 fontSize 16
                                     ) : null,
-                                    widget.galleryItems[currentIndex]["description"].length >= 250 ?
+                                    widget.galleryItems[currentIndex].description.length >= 250 ?
                                     TextSpan(
                                         text: seeMore[currentIndex] ? " 줄이기" : " 더보기",
                                         style: TextStyle(color: Colors.grey[600],),
@@ -147,11 +147,11 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
 
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
     return PhotoViewGalleryPageOptions(
-      imageProvider: NetworkImage(widget.galleryItems[index]["filePath"]),
+      imageProvider: NetworkImage(widget.galleryItems[index].filePath),
       initialScale: PhotoViewComputedScale.contained,
       minScale: PhotoViewComputedScale.contained * (0.5 + index / 10),
       maxScale: PhotoViewComputedScale.covered * 1.1,
-      heroAttributes: PhotoViewHeroAttributes(tag: widget.galleryItems[index]["fileName"]),
+      heroAttributes: PhotoViewHeroAttributes(tag: widget.galleryItems[index].fileName),
     );
   }
 }
