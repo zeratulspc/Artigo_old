@@ -204,7 +204,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                             crossAxisSpacing: 4.0,
                             staggeredTiles:tileForm(item.attach.length),
                             children: List<Widget>.generate(item.attach.length, (index){
-                              return Container(
+                              return Container( //TODO 로딩 구현(회색)
                                 child: Image.network(
                                   item.attach[index].filePath,
                                   fit: BoxFit.cover,
@@ -226,7 +226,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                               Container(
                                 color: Colors.black.withOpacity(0.6),
                                 child: Center(
-                                  child: Text("${item.attach.length -3}+",
+                                  child: Text("+${item.attach.length -3}",
                                     style: TextStyle(color: Colors.white, fontSize: 24),),
                                 ),
                               ),

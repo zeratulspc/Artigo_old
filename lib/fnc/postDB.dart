@@ -4,12 +4,16 @@ import 'dart:convert';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:nextor/fnc/comment.dart';
+import 'package:nextor/fnc/like.dart';
 import 'package:path/path.dart';
+import 'package:uuid/uuid.dart';
 
 
 class PostDBFNC {
   final postDBRef = FirebaseDatabase.instance.reference().child("Posts");
   final StorageReference fireBaseStorageRef = FirebaseStorage.instance.ref().child("Posts");
+  final Uuid _uuid = Uuid();
 
   String createPost(Post post) {
     String key = postDBRef.push().key;
@@ -17,24 +21,26 @@ class PostDBFNC {
     return key;
   }
 
-  Future addPhoto(Attach attach, String postKey, int index) async {
-    print(index);
-    attach.fileName = basename(attach.tempPhoto.path); //TODO 랜덤 이름
+  Future addPhoto(Attach attach, String postKey) async {
+    attach.fileName = "${_uuid.v1()}.${attach.tempPhoto.path.split('.').last}";
     final StorageUploadTask task =
-    fireBaseStorageRef.child(postKey).child(basename(attach.fileName)).putFile(attach.tempPhoto);
+    fireBaseStorageRef.child(postKey).child(attach.fileName).putFile(attach.tempPhoto);
     task.onComplete.then((com) async { // Photo 업로드 성공 시
       String imageUrl = await com.ref.getDownloadURL();
       attach.filePath = imageUrl;
-      await postDBRef.child(postKey).child("attach").child(index.toString()).set(attach.toMap());
+      String key = postDBRef.child(postKey).child("attach").push().key;
+      attach.key = key;
+      postDBRef.child(postKey).child('attach').child(key).update(attach.toMap());
     }).catchError((error){ // Photo 업로드 실패 시
       print(error.hashCode);
     });
   }
 
-  Future deletePhoto(String postKey, Attach attach,int index) async {
-    attach.fileName = attach.tempPhoto != null ? basename(attach.tempPhoto.path) : attach.fileName;
-    await fireBaseStorageRef.child(postKey).child(basename(attach.fileName)).delete();
-    await postDBRef.child(postKey).child("attach").child(index.toString()).remove();
+
+
+  Future deletePhoto(String postKey, Attach attach) async {
+    await fireBaseStorageRef.child(postKey).child(attach.fileName).delete();
+    await postDBRef.child(postKey).child("attach").child(attach.key).remove();
   }
 
   Future updatePost(String key, Post post) async {
@@ -42,9 +48,9 @@ class PostDBFNC {
   }
 
   Future deletePostStorage(String key, List<Attach> attach) async {
-    for(int i = 0; i < attach.length; i++) {
-      await fireBaseStorageRef.child(key).child(attach[i].fileName).delete();
-    }
+    attach.forEach((v) async {
+      await fireBaseStorageRef.child(key).child(v.fileName).delete();
+    });
   }
 
   Future deletePost(String key) async {
@@ -63,41 +69,47 @@ class Post {
   String uploaderUID;
   String uploadDate;
   bool isEdited;
+
   List<Attach> attach;
   LinkedHashMap<dynamic, dynamic> like;
   LinkedHashMap<dynamic, dynamic> comment;
 
-  Post({this.key, this.body, this.uploaderUID, this.uploadDate, this.attach, this.like, this.comment, this.isEdited});
-
-//  Post.fromSnapShot(DataSnapshot snapshot)
-//      :key = snapshot.key,
-//        body = snapshot.value["body"],
-//        uploaderUID = snapshot.value["uploaderUID"],
-//        attach = snapshot.value["attach"].map((i) => Attach.fromJson(i)).toList(),
-//        like = snapshot.value["like"],
-//        comment = snapshot.value["comment"],
-//        uploadDate = snapshot.value["uploadDate"];
+  Post({this.key, this.body, this.uploaderUID, this.uploadDate, this.attach,
+    this.like, this.comment, this.isEdited,});
 
   fromSnapShot(DataSnapshot snapshot) {
-    var _list = snapshot.value["attach"] as List;
-    List<Attach> _attachList;
-    if(_list != null) {
-      _attachList = _list.map((i) => Attach.fromJson(i)).toList();
+// List<dynamic> 을 List<Attach> 으로 파싱하는 코드임.
+//    var _list = snapshot.value["attach"] as List;
+//    List<Attach> _attachList;
+//    if(_list != null) {
+//      _attachList = _list.map((i) => Attach.fromJson(i)).toList();
+//    }
+    LinkedHashMap<dynamic, dynamic> _list = snapshot.value["attach"];
+    List<Attach> attachList = List();
+    if(_list != null){
+      _list.forEach((k, v) {
+        attachList.add(Attach.fromLinkedHashMap(v));
+      });
     }
+    attachList.sort((a, b)=>DateTime.parse(a.uploadDate).compareTo(DateTime.parse(b.uploadDate)));
     return Post(
       key: snapshot.key,
         body : snapshot.value["body"],
         uploaderUID : snapshot.value["uploaderUID"],
-        attach : _attachList,
+        attach : attachList,
         like : snapshot.value["like"],
         comment : snapshot.value["comment"],
-        uploadDate : snapshot.value["uploadDate"]
+        uploadDate : snapshot.value["uploadDate"],
     );
   }
 
   toMap() {
-    List<dynamic> attaches=
-    attach != null ? attach.map((i) => i.toMap()).toList() : null;
+    LinkedHashMap<dynamic, dynamic> attaches = LinkedHashMap();
+    if(attach!=null){
+      for(int i = 0;i<attach.length;i++){
+        attaches.putIfAbsent(attach[i].key, () => attach[i].toMap());
+      }
+    }
 
     return {
       "key" : key,
@@ -109,6 +121,7 @@ class Post {
       "like" : like
     };
   }
+
 
 }
 
@@ -125,7 +138,8 @@ class Attach {
   File tempPhoto;
   bool seeMore = false;
 
-  Attach({this.key, this.fileName, this.filePath, this.description, this.uploaderUID, this.tempPhoto, this.uploadDate,});
+  Attach({this.key, this.fileName, this.filePath, this.description,
+    this.uploaderUID, this.tempPhoto, this.uploadDate,});
 
   Attach.fromLinkedHashMap(LinkedHashMap linkedHashMap)
     :key = linkedHashMap["key"],
@@ -136,7 +150,7 @@ class Attach {
       uploadDate = linkedHashMap["uploadDate"],
       uploaderUID = linkedHashMap["uploaderUID"];
 
-  factory Attach.fromJson(LinkedHashMap<dynamic, dynamic> parsedJson) {
+  factory Attach.fromJson(dynamic parsedJson) {
     return Attach(
       key: parsedJson["key"],
       fileName: parsedJson["fileName"],
@@ -146,7 +160,6 @@ class Attach {
       uploaderUID: parsedJson["uploaderUID"],
     );
   }
-
 
   toMap() {
     return {
@@ -159,5 +172,7 @@ class Attach {
       "uploaderUID" : uploaderUID
     };
   }
+
+
 
 }

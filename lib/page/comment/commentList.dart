@@ -154,7 +154,7 @@ class CommentListState extends State<CommentList> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { //TODO 답글 표기 형태 변경
     Size screenSize = MediaQuery.of(context).size;
     return Container(
       width: screenSize.width,

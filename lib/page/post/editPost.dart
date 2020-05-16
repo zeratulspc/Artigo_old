@@ -74,46 +74,18 @@ class EditPostState extends State<EditPost> {
     FocusScopeNode().dispose();
   }
 
-  editPost() async { //TODO 복잡한 상황에서 작동할 수정 알고리즘 만들기
+  uploadPost() async { //TODO 게시글 업로드 후 3초 후에 타임라인에 표시하도록 수정
     basicDialogs.showLoading(context, "게시글 업로드 중");
-    List<int> newPhotoIndex = List();
-    await postDBFNC.updatePost(widget.initialPost.key, Post(
+      String key = postDBFNC.createPost(Post(
         body: textEditingController.text,
         uploaderUID: widget.currentUser.uid,
         uploadDate: DateTime.now().toIso8601String(),
-        attach: widget.initialPost.attach,
-        like: widget.initialPost.like,
-        comment: widget.initialPost.comment,
-        isEdited: true,
+        isEdited: false,
       )
-    );
-    attach.forEach((data){
-      if(data.tempPhoto != null)
-        newPhotoIndex.add(int.parse(data.key));
-    });
-    for(int i = 0; i < deletedItem.length; i++){ //TODO 길이 문제
-      await postDBFNC.deletePhoto(widget.initialPost.key, deletedItem[i], int.parse(deletedItem[i].key));
-    }
-    for(int i = 0;i < newPhotoIndex.length; i++) { //TODO 길이 문제
-      await postDBFNC.addPhoto(attach[newPhotoIndex[i]], widget.initialPost.key, newPhotoIndex[i]); // photo 업로드 실패 예외처리
-    }
-    Navigator.pop(context); // 로딩 다이알로그 pop
-    Navigator.pop(context); // 페이지 pop
-
-  }
-
-  uploadPost() async {
-    basicDialogs.showLoading(context, "게시글 업로드 중");
-    String key = postDBFNC.createPost(Post(
-      body: textEditingController.text,
-      uploaderUID: widget.currentUser.uid,
-      uploadDate: DateTime.now().toIso8601String(),
-      isEdited: false,
-    )
     );
     if(key != null) { // post 가 정상적으로 업로드 되었는지 확인
       for(int i = 0;i < attach.length; i++) { //TODO 중복 사진 업로드 불가능하게 만들기
-        await postDBFNC.addPhoto(attach[i], key, i); // photo 업로드 실패 예외처리
+        await postDBFNC.addPhoto(attach[i], key); // photo 업로드 실패 예외처리
       }
       Navigator.pop(context); // 로딩 다이알로그 pop
       Navigator.pop(context); // 페이지 pop
@@ -124,8 +96,37 @@ class EditPostState extends State<EditPost> {
 
   }
 
+  editPost() async {
+    basicDialogs.showLoading(context, "게시글 업로드 중");
+    List<int> newPhotoIndex = List();
+    await postDBFNC.updatePost(widget.initialPost.key, Post(
+        body: textEditingController.text,
+        uploaderUID: widget.currentUser.uid,
+        uploadDate: DateTime.now().toIso8601String(),
+        like: widget.initialPost.like,
+        attach: widget.initialPost.attach,
+        comment: widget.initialPost.comment,
+        isEdited: true,
+      )
+    );
 
-  List<StaggeredTile> tileForm(int imageCount) {
+    attach.forEach((data){
+      if(data.tempPhoto != null)
+        newPhotoIndex.add(int.parse(data.key));
+    });
+    for(int i = 0; i < deletedItem.length; i++){
+      await postDBFNC.deletePhoto(widget.initialPost.key, deletedItem[i]);
+    }
+
+    for(int i = 0;i < newPhotoIndex.length; i++) {
+      await postDBFNC.addPhoto(attach[newPhotoIndex[i]], widget.initialPost.key); // photo 업로드 실패 예외처리'
+    }
+    Navigator.pop(context); // 로딩 다이알로그 pop
+    Navigator.pop(context); // 페이지 pop
+
+  }
+
+  List<StaggeredTile> tileForm(int imageCount) { // 타일
     switch(imageCount){
       case 1:
         return [
@@ -205,17 +206,17 @@ class EditPostState extends State<EditPost> {
     }
   }
 
-  generateItems(int widgetLength) { //TODO 사진 삭제
+  generateItems(int widgetLength) {
     List<Widget> tempItems = List<Widget>.generate(widgetLength, (index){
       if(attach[index].tempPhoto != null) {
-        return Container( //TODO 사진 디스크립션
+        return Container(
           child: Image.file(
             attach[index].tempPhoto,
             fit: BoxFit.cover,
           ),
         );
       } else {
-        return Container( //TODO 사진 디테일 페이지 만들기
+        return Container( //TODO 로딩 구현(회색)
           child: Image.network(
             attach[index].filePath,
             fit: BoxFit.cover,
@@ -384,7 +385,7 @@ class EditPostState extends State<EditPost> {
                         Container(
                           color: Colors.black.withOpacity(0.6),
                           child: Center(
-                            child: Text("${attach.length - 3}+",
+                            child: Text("+${attach.length - 3}",
                               style: TextStyle(color: Colors.white, fontSize: 24),),
                           ),
                         ),

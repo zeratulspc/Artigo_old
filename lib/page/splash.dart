@@ -15,7 +15,7 @@ class SplashScreenState extends State<SplashScreen> {
   BasicDialogs basicDialogs = BasicDialogs();
   AuthDBFNC authDBFNC = AuthDBFNC();
   VersionCheck versionCheck = VersionCheck();
-  
+
   @override
   void initState() {
     super.initState();

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-class CommentSkeleton extends StatelessWidget {
+class CommentSkeleton extends StatelessWidget { //TODO 스켈레톤 수정
   CommentSkeleton(
       {Key key,
         @required this.animation,

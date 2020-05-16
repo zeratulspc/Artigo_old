@@ -44,12 +44,12 @@ class _PostDetailState extends State<PostDetail> {
     likeDBFNC.dislikeToPost(widget.item.key, widget.currentUser.uid);
     refreshPost();
   }
-  likeToAttach(int index) {
-    likeDBFNC.likeToAttach(widget.item.key, widget.currentUser.uid, index);
+  likeToAttach(String key) {
+    likeDBFNC.likeToAttach(widget.item.key, widget.currentUser.uid, key);
     refreshPost();
   }
-  dislikeToAttach(int index) {
-    likeDBFNC.dislikeToAttach(widget.item.key, widget.currentUser.uid, index);
+  dislikeToAttach(String key) {
+    likeDBFNC.dislikeToAttach(widget.item.key, widget.currentUser.uid, key);
     refreshPost();
   }
   refreshPost() {
@@ -400,7 +400,7 @@ class _PostDetailState extends State<PostDetail> {
                             child: FlatButton(
                               child: Row( //Icons.favorite_border : Icons.favorite
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
+                                children: <Widget>[ //TODO Like 제대로 표시되지 않음
                                   Icon(item.attach[index].like != null ?
                                   item.attach[index].like[widget.currentUser.uid] != null ?
                                   Icons.favorite : // 좋아요가 존재할 때
@@ -418,9 +418,9 @@ class _PostDetailState extends State<PostDetail> {
                               ),
                               onPressed: item.attach[index].like != null ?
                               item.attach[index].like[widget.currentUser.uid] != null ?
-                              ()=>dislikeToAttach(index) : // 좋아요가 존재할 때
-                              ()=>likeToAttach(index) : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                              ()=>likeToAttach(index), // 좋아요 목록이 존재하지 않을 때
+                              ()=>dislikeToAttach(item.attach[index].key) : // 좋아요가 존재할 때
+                              ()=>likeToAttach(item.attach[index].key) : // 좋아요 목록에 현재 유저 아이디가 없을 때
+                              ()=>likeToAttach(item.attach[index].key), // 좋아요 목록이 존재하지 않을 때
                             ),
                           ),
                           Container(
