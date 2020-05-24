@@ -16,9 +16,11 @@ import 'package:nextor/page/basicDialogs.dart';
 class CommentList extends StatefulWidget {
   final String postKey;
   final String commentKey;
+  final String attachKey;
   final FirebaseUser currentUser;
+  final VoidCallback getPost;
 
-  CommentList({this.postKey, this.currentUser, this.commentKey});
+  CommentList({this.postKey, this.currentUser, this.attachKey, this.commentKey, this.getPost});
   @override
   CommentListState createState() => CommentListState();
 }
@@ -29,19 +31,33 @@ class CommentListState extends State<CommentList> {
   LikeDBFNC likeDBFNC = LikeDBFNC();
   AuthDBFNC authDBFNC = AuthDBFNC();
   BasicDialogs basicDialogs = BasicDialogs();
+  DatabaseReference commentDBRef;
 
   TextEditingController commentUpdateController = TextEditingController();
   TextEditingController newCommentController = TextEditingController();
 
   bool isValid = false;
+  bool isAttachComment = false;
 
   @override
   void initState() {
     super.initState();
-    if(widget.commentKey == null) {
-      commentDBFNC = CommentDBFNC(postKey: widget.postKey);
+    if(widget.attachKey == null) {
+      if(widget.commentKey == null) { // Post 댓글
+        commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.postKey).child("comment");
+        commentDBFNC = CommentDBFNC(commentDBRef: commentDBRef);
+      } else { // Post 댓글의 답글
+        commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.postKey).child("comment").child(widget.commentKey).child("reply");
+        commentDBFNC = CommentDBFNC(commentDBRef: commentDBRef);
+      }
     } else {
-      commentDBFNC = CommentDBFNC(postKey: widget.postKey, commentKey: widget.commentKey);
+      if(widget.commentKey == null) { // attach 댓글
+        commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.postKey).child("attach").child(widget.attachKey).child("comment");
+        commentDBFNC = CommentDBFNC(commentDBRef: commentDBRef);
+      } else { // attach 댓글의 답글
+        commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.postKey).child("attach").child(widget.attachKey).child("comment").child(widget.commentKey).child("reply");
+        commentDBFNC = CommentDBFNC(commentDBRef: commentDBRef);
+      }
     }
     newCommentController.addListener((){
       if(newCommentController.text == ""){
@@ -58,6 +74,12 @@ class CommentListState extends State<CommentList> {
     });
   }
 
+  @override
+  void dispose() {
+    widget.getPost();
+    super.dispose();
+  }
+
   void commentMoreOptionSheet(context, Comment comment) {
     showModalBottomSheet(
         context: context,
@@ -72,7 +94,7 @@ class CommentListState extends State<CommentList> {
                       Navigator.pop(context);
                       commentUpdateController.text = comment.body;
                       commentUpdateSheet(context, comment);
-                    } //TODO 게시글 수정
+                    }
                 ),
                 ListTile(
                   leading: Icon(Icons.delete),
@@ -164,9 +186,7 @@ class CommentListState extends State<CommentList> {
           Container(
             height: screenSize.height-105,
             child:FirebaseAnimatedList(
-              query: widget.commentKey == null ?
-              postDBFNC.postDBRef.child(widget.postKey).child("comment") :
-              postDBFNC.postDBRef.child(widget.postKey).child("comment").child(widget.commentKey).child("reply"),
+              query: commentDBFNC.commentDBRef,
               sort: (a , b) => DateTime.parse(b.value["uploadDate"]).compareTo(DateTime.parse(a.value["uploadDate"])),
               itemBuilder: (context, snapshot, animation, index) {
                 Comment comment = Comment.fromSnapShot(snapshot);
@@ -193,7 +213,7 @@ class CommentListState extends State<CommentList> {
                         dislikeToComment: (){
                           likeDBFNC.dislikeToComment(widget.postKey, widget.currentUser.uid, comment.key);
                         },
-                        replyComment: widget.commentKey == null ? ()=> showModalBottomSheet(
+                        replyComment: widget.attachKey == null ? widget.commentKey == null ? ()=> showModalBottomSheet( // post 댓글의 답글
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
                           isScrollControlled: true,
                           context: context,
@@ -204,7 +224,19 @@ class CommentListState extends State<CommentList> {
                               currentUser: widget.currentUser,
                             );
                           },
-                        ) : null,
+                        ) : null : () => showModalBottomSheet( // Attach 댓글의 답글
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                          isScrollControlled: true,
+                          context: context,
+                          builder: (context) {
+                            return CommentList(
+                              postKey: widget.postKey,
+                              attachKey: widget.attachKey,
+                              commentKey: comment.key,
+                              currentUser: widget.currentUser,
+                            );
+                          },
+                        ),
                         item: comment,
                       );
                     }
@@ -213,7 +245,7 @@ class CommentListState extends State<CommentList> {
               },
             ),
           ),
-          KeyboardAvoider(
+          KeyboardAvoider( // 키보드
             child: Align(
               alignment: Alignment.bottomCenter,
               child: Container(

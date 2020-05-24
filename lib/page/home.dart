@@ -82,7 +82,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Scaffold(
       key: homeScaffoldKey,
       body: NestedScrollView(
-        physics: NeverScrollableScrollPhysics(),
         controller: scrollController,
         dragStartBehavior: DragStartBehavior.down,
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) { //TODO appbar physics 끄기
@@ -127,7 +126,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             postCase: 1,
                             currentUser: currentUser,
                             uploader: currentUserInfo,
-                          ),)
+                          ),
+                        )
                     );
                   },
                 ),
@@ -142,7 +142,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 onPageChange(index: 3);
               },
               homeScaffoldKey: homeScaffoldKey,
-              scrollController: scrollController,),
+              scrollController: scrollController,
+            ),
             TodoBoard(),
             DataBoard(),
             MyProfile(),

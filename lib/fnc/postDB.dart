@@ -139,7 +139,7 @@ class Attach {
   bool seeMore = false;
 
   Attach({this.key, this.fileName, this.filePath, this.description,
-    this.uploaderUID, this.tempPhoto, this.uploadDate,});
+    this.uploaderUID, this.tempPhoto, this.uploadDate, this.like, this.comment});
 
   Attach.fromLinkedHashMap(LinkedHashMap linkedHashMap)
     :key = linkedHashMap["key"],
@@ -147,6 +147,8 @@ class Attach {
       fileName = linkedHashMap["fileName"],
       filePath = linkedHashMap["filePath"],
       description = linkedHashMap["description"],
+      like = linkedHashMap["like"],
+      comment = linkedHashMap["comment"],
       uploadDate = linkedHashMap["uploadDate"],
       uploaderUID = linkedHashMap["uploaderUID"];
 
@@ -156,6 +158,8 @@ class Attach {
       fileName: parsedJson["fileName"],
       filePath: parsedJson["filePath"],
       description: parsedJson["description"],
+      like: parsedJson["like"],
+      comment: parsedJson["comment"],
       uploadDate: parsedJson["uploadDate"],
       uploaderUID: parsedJson["uploaderUID"],
     );
@@ -168,6 +172,8 @@ class Attach {
       "fileName" : fileName,
       "filePath" : filePath,
       "description" : description,
+      "like" : like,
+      "comment" : comment,
       "uploadDate" : uploadDate,
       "uploaderUID" : uploaderUID
     };

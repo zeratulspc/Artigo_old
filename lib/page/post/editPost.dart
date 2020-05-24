@@ -84,7 +84,7 @@ class EditPostState extends State<EditPost> {
       )
     );
     if(key != null) { // post 가 정상적으로 업로드 되었는지 확인
-      for(int i = 0;i < attach.length; i++) { //TODO 중복 사진 업로드 불가능하게 만들기
+      for(int i = 0;i < attach.length; i++) {
         await postDBFNC.addPhoto(attach[i], key); // photo 업로드 실패 예외처리
       }
       Navigator.pop(context); // 로딩 다이알로그 pop
@@ -162,7 +162,7 @@ class EditPostState extends State<EditPost> {
     }
   }
 
-  pickImage(BuildContext context) async { //TODO 중복 사진 업로드 불가능하게 만들기
+  pickImage(BuildContext context) async {
     bool isDuple = false;
     bool _isComplete = false;
     var tempImage = await ImagePicker.pickImage(
@@ -177,7 +177,7 @@ class EditPostState extends State<EditPost> {
             isDuple = false;
           }
         } else {
-          if(item.fileName == "") { //TODO 서버 파일과 중복 검사
+          if(item.fileName == "") {
             _isComplete = true;
             isDuple = true;
           } else {
@@ -186,23 +186,25 @@ class EditPostState extends State<EditPost> {
         }
       }
     });
-    if(!isDuple) { // 중복 검사 식
-      if(await tempImage.exists()) {
-        setState(() {
-          attach.add(Attach(
-            key: attach.length.toString(),
-            tempPhoto: tempImage,
-            uploaderUID: widget.currentUser.uid,
-            uploadDate: DateTime.now().toIso8601String(),
-          ));
-          photoItems.clear();
-          generateItems(attach.length);
-        });
+    if(tempImage != null) {
+      if(!isDuple) { // 중복 검사 식
+        if(await tempImage.exists()) {
+          setState(() {
+            attach.add(Attach(
+              key: attach.length.toString(),
+              tempPhoto: tempImage,
+              uploaderUID: widget.currentUser.uid,
+              uploadDate: DateTime.now().toIso8601String(),
+            ));
+            photoItems.clear();
+            generateItems(attach.length);
+          });
+        } else {
+          basicDialogs.dialogWithYes(context, "불러오기 실패", "불러오기에 실패했습니다.");
+        }
       } else {
-        basicDialogs.dialogWithYes(context, "불러오기 실패", "불러오기에 실패했습니다.");
+        basicDialogs.dialogWithYes(context, "업로드 불가", "중복된 이미지는 업로드 할 수 없습니다.");
       }
-    } else {
-      basicDialogs.dialogWithYes(context, "업로드 불가", "중복된 이미지는 업로드 할 수 없습니다.");
     }
   }
 
@@ -216,7 +218,7 @@ class EditPostState extends State<EditPost> {
           ),
         );
       } else {
-        return Container( //TODO 로딩 구현(회색)
+        return Container(
           child: Image.network(
             attach[index].filePath,
             fit: BoxFit.cover,
@@ -227,6 +229,7 @@ class EditPostState extends State<EditPost> {
     setState(() {
       photoItems.clear();
       photoItems.addAll(tempItems);
+      print(photoItems.length);
     });
   }
 
@@ -343,22 +346,27 @@ class EditPostState extends State<EditPost> {
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 onTap: () async {
-                  List<Attach> editedAttach = await Navigator.push(context, MaterialPageRoute(builder: (context)=>
+                  AttachEditInfo editedAttach = await Navigator.push(context, MaterialPageRoute(builder: (context)=>
                       EditPostAttach(
                         attach: attach,
                         uploaderUID: widget.currentUser.uid,
-                        deleteAttach: (int index){
-                          deletedItem.add(attach[index]);
-                        },
                       )
                   ));
-                  if(editedAttach != null)
-                    setState(() {
-                      attach.clear();
-                      attach.addAll(editedAttach);
-                      generateItems(attach.length);
-                    });
-
+                  if(editedAttach != null) {
+                    if(editedAttach.deleteQueue.length != 0) {
+                      editedAttach.deleteQueue.forEach((element) {
+                        deletedItem.add(attach[element]);
+                      });
+                    }
+                    if(editedAttach.attach != null) {
+                      setState(() {
+                        attach.clear();
+                        attach.addAll(editedAttach.attach);
+                      });
+                      photoItems.clear();
+                      generateItems(attach.length); //TODO 재 생성된 tile 이 화면에 적용되지 읺는 문제 해결
+                    }
+                  }
                 },
                 child: Stack(
                   children: <Widget>[

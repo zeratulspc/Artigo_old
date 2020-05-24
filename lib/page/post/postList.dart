@@ -25,8 +25,8 @@ class PostList extends StatefulWidget {
 }
 
 class _PostListState extends State<PostList> with TickerProviderStateMixin  {
-
   BasicDialogs basicDialogs = BasicDialogs();
+  ScrollController scrollController = ScrollController();
 
   //리스트 로딩 관련 변수
   PostDBFNC postDBFNC = PostDBFNC();
@@ -72,7 +72,7 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>
                           EditPost(postCase: 2, initialPost: post, uploader: user, currentUser: currentUser,)));
-                    } //TODO 게시글 수정
+                    }
                 ),
                 ListTile(
                   leading: Icon(Icons.delete),
@@ -108,8 +108,8 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
       body: Container(
         child: FirebaseAnimatedList(//TODO 10개씩만 로딩
           query: postDBFNC.postDBRef,
-          controller: widget.scrollController,
-          sort: (a , b) => DateTime.parse(b.value["uploadDate"]).compareTo(DateTime.parse(a.value["uploadDate"])), //TODO 새로운 글이 위로 오게 하기 (현재 스켈레톤 로딩이 아래로 감.)
+          controller: scrollController,
+          sort: (a , b) => DateTime.parse(b.value["uploadDate"]).compareTo(DateTime.parse(a.value["uploadDate"])),
           itemBuilder: (context, snapshot, animation, index) {
             Post post = Post().fromSnapShot(snapshot);
             return FutureBuilder(
@@ -145,13 +145,13 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
                       showModalBottomSheet(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
                         isScrollControlled: true,
-                          context: context,
-                          builder: (context) {
-                            return CommentList(
-                              postKey: post.key,
-                              currentUser: currentUser,
-                            );
-                          },
+                        context: context,
+                        builder: (context) {
+                          return CommentList(
+                            postKey: post.key,
+                            currentUser: currentUser,
+                          );
+                        },
                       );
                     },
                     showLikeSheet: () {
@@ -172,7 +172,7 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
               },
             );
           },
-        )
+        ),
       ),
     );
   }

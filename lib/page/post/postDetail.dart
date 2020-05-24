@@ -12,6 +12,7 @@ import 'package:nextor/fnc/like.dart';
 import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/post/photoViewer.dart';
+import 'package:nextor/page/comment/commentList.dart';
 
 class PostDetail extends StatefulWidget {
   final Post item;
@@ -74,7 +75,7 @@ class _PostDetailState extends State<PostDetail> {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>
                           EditPost(postCase: 2, initialPost: post, uploader: widget.uploader, currentUser: widget.currentUser,)));
-                    } //TODO 게시글 수정
+                    }
                 ),
                 ListTile(
                   leading: Icon(Icons.delete),
@@ -183,7 +184,7 @@ class _PostDetailState extends State<PostDetail> {
                     ),
                     trailing: IconButton(
                       icon: Icon(Icons.more_horiz,),
-                      onPressed: (){},
+                      onPressed: ()=> postModalBottomSheet(context, item),
                     ),
                   ),
                   Container(
@@ -270,7 +271,19 @@ class _PostDetailState extends State<PostDetail> {
                               Text("댓글 달기",style: Theme.of(context).textTheme.subtitle,)
                             ],
                           ),
-                          onPressed: (){}, //TODO 댓글창 열기
+                          onPressed: (){
+                            showModalBottomSheet(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (context) {
+                                return CommentList(
+                                  postKey: item.key,
+                                  currentUser: widget.currentUser,
+                                );
+                              },
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -292,7 +305,13 @@ class _PostDetailState extends State<PostDetail> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => GalleryPhotoViewWrapper(
+                                getPost: (){
+                                  refreshPost();
+                                },
+                                uploader: widget.uploader,
+                                currentUser: widget.currentUser,
                                 galleryItems: item.attach,
+                                postKey: widget.item.key,
                                 backgroundDecoration: BoxDecoration(
                                   color: Colors.black,
                                 ),
@@ -352,7 +371,6 @@ class _PostDetailState extends State<PostDetail> {
                                               setState(() {
                                                 setState(() {
                                                   seeMore[index] = !seeMore[index];
-                                                  print(seeMore[index]);
                                                 });
                                               });
                                             }
@@ -400,7 +418,7 @@ class _PostDetailState extends State<PostDetail> {
                             child: FlatButton(
                               child: Row( //Icons.favorite_border : Icons.favorite
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[ //TODO Like 제대로 표시되지 않음
+                                children: <Widget>[
                                   Icon(item.attach[index].like != null ?
                                   item.attach[index].like[widget.currentUser.uid] != null ?
                                   Icons.favorite : // 좋아요가 존재할 때
@@ -434,7 +452,23 @@ class _PostDetailState extends State<PostDetail> {
                                   Text("댓글 달기",style: Theme.of(context).textTheme.subtitle,)
                                 ],
                               ),
-                              onPressed: (){}, //TODO 댓글창 열기
+                              onPressed: (){
+                                showModalBottomSheet(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (context) {
+                                    return CommentList(
+                                      postKey: item.key,
+                                      currentUser: widget.currentUser,
+                                      attachKey: item.attach[index].key,
+                                      getPost: (){
+                                        refreshPost();
+                                      },
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           ),
                         ],

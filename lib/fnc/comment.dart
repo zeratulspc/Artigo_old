@@ -6,42 +6,22 @@ import 'package:nextor/fnc/postDB.dart';
 
 class CommentDBFNC {
   CommentDBFNC(
-      {@required this.postKey, this.commentKey});
-  final String postKey;
-  final String commentKey;
+      {@required this.commentDBRef});
+  final DatabaseReference commentDBRef;
 
   Future<String> createComment(Comment comment) async {
-    if(commentKey == null) {
-      final commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(postKey).child("comment");
       String key = commentDBRef.push().key;
       await commentDBRef.child(key).set(comment.toMap());
       return key;
-    } else {
-      final commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(postKey).child("comment").child(commentKey).child("reply");
-      String key = commentDBRef.push().key;
-      await commentDBRef.child(key).set(comment.toMap());
-      return key;
-    }
   }
 
   Future updateComment(Comment comment) async {
-    if(commentKey == null) {
-      final commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(postKey).child("comment");
       await commentDBRef.child(comment.key).update(comment.toMap());
-    } else {
-      final commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(postKey).child("comment").child(commentKey).child("reply");
-      await commentDBRef.child(comment.key).update(comment.toMap());
-    }
+
   }
 
   Future deleteComment(String commentKey) async {
-    if(this.commentKey == null) {
-      final commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(postKey).child("comment");
       await commentDBRef.child(commentKey).remove();
-    } else {
-      final commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(postKey).child("comment").child(this.commentKey).child("reply");
-      await commentDBRef.child(commentKey).remove();
-    }
   }
 
 }

@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' ;
 
@@ -7,10 +9,9 @@ import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/page/basicDialogs.dart';
 
 class EditPostAttach extends StatefulWidget {
-  final Function(int index) deleteAttach;
   final List<Attach> attach;
   final String uploaderUID;
-  EditPostAttach({this.attach, this.uploaderUID, this.deleteAttach}); // 1: POST 2: EDIT
+  EditPostAttach({this.attach, this.uploaderUID}); // 1: POST 2: EDIT
 
 
   @override
@@ -23,6 +24,7 @@ class EditPostAttachState extends State<EditPostAttach> {
 
   List<TextEditingController> controllers = List();
   List<Attach> attach = List(); // 업로드 되지 않은 사진
+  Queue<int> deleteQueue = Queue();
   bool notNull(Object o) => o != null;
 
   @override
@@ -44,14 +46,13 @@ class EditPostAttachState extends State<EditPostAttach> {
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown,
         DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
     );
-    attach.clear();
     super.dispose();
+    attach.clear();
   }
 
   pickImage(BuildContext context) async {
     var tempImage = await ImagePicker.pickImage(
       source: ImageSource.gallery,);
-    print(tempImage.path);
     if(await tempImage.exists()) {
       setState(() {
         attach.add(Attach(
@@ -86,7 +87,7 @@ class EditPostAttachState extends State<EditPostAttach> {
                 child: Center(
                   child: Text("완료", style: TextStyle(color: Colors.black),),
                 ),
-                onTap: () => Navigator.pop(context, attach),
+                onTap: () => Navigator.pop(context, AttachEditInfo(attach: attach, deleteQueue: deleteQueue)),
               ),
             )
           ],
@@ -154,17 +155,16 @@ class EditPostAttachState extends State<EditPostAttach> {
                               if(attach[index].tempPhoto != null) {
                                 attach.removeAt(index);
                               } else {
-                                widget.deleteAttach(index);
+                                deleteQueue.add(index);
                                 attach.removeAt(index);
                               }
                             });
-
                           },
                         ),
                       ),
                     ],
                   ),
-                  Container( //TODO 입력 창 수직 유동적으로 바꾸기.
+                  Container(
                       margin: EdgeInsets.symmetric(horizontal: 20),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(),
@@ -190,8 +190,13 @@ class EditPostAttachState extends State<EditPostAttach> {
               ),
             );
           },
-
         )
     );
   }
+}
+
+class AttachEditInfo {
+  List<Attach> attach;
+  Queue<int> deleteQueue;
+  AttachEditInfo({this.attach, this.deleteQueue});
 }

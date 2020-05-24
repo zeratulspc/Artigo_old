@@ -315,6 +315,7 @@ class TextFieldPageState extends State<TextFieldPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
         elevation: 1,
         backgroundColor: Colors.white,
         title: Text("${objectToInfo(object)} 수정", style: TextStyle(color: Colors.black),),
@@ -329,6 +330,7 @@ class TextFieldPageState extends State<TextFieldPage> {
           ),
         ],
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           key: editProfileFormKey,

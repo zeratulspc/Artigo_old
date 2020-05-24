@@ -183,7 +183,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                       },
                     ),
                   ),
-                  item.attach != null ? Container(
+                  item.attach.length != 0? Container(
                     width: screenSize.width,
                     height: screenSize.width < screenSize.height ? screenSize.height/2.5 : screenSize.width/1.5,
                     child: InkWell(
