@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/like.dart';
+import 'package:nextor/page/like/likeList.dart';
 import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/post/photoViewer.dart';
@@ -26,7 +28,6 @@ class PostDetail extends StatefulWidget {
 }
 
 class _PostDetailState extends State<PostDetail> {
-  LikeDBFNC likeDBFNC = LikeDBFNC();
   PostDBFNC postDBFNC = PostDBFNC();
   BasicDialogs basicDialogs = BasicDialogs();
   Post item;
@@ -38,19 +39,23 @@ class _PostDetailState extends State<PostDetail> {
   _PostDetailState(this.item);
   bool notNull(Object o) => o != null;
   likeToPost() {
-    likeDBFNC.likeToPost(widget.item.key, widget.currentUser.uid);
+    DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key);
+    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid);
     refreshPost();
   }
   dislikeToPost() {
-    likeDBFNC.dislikeToPost(widget.item.key, widget.currentUser.uid);
+    DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key);
+    LikeDBFNC(likeDBRef: likeDBRef).dislike(widget.currentUser.uid);
     refreshPost();
   }
   likeToAttach(String key) {
-    likeDBFNC.likeToAttach(widget.item.key, widget.currentUser.uid, key);
+    DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key).child("attach").child(key);
+    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid);
     refreshPost();
   }
   dislikeToAttach(String key) {
-    likeDBFNC.dislikeToAttach(widget.item.key, widget.currentUser.uid, key);
+    DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key).child("attach").child(key);
+    LikeDBFNC(likeDBRef: likeDBRef).dislike(widget.currentUser.uid);
     refreshPost();
   }
   refreshPost() {
@@ -59,6 +64,20 @@ class _PostDetailState extends State<PostDetail> {
         item = data;
       });
     });
+  }
+
+  showLikeList() {
+    showModalBottomSheet(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return LikeList(
+          postKey: item.key,
+          currentUser: widget.currentUser,
+        );
+      },
+    );
   }
 
   void postModalBottomSheet(context, Post post) {
@@ -184,7 +203,11 @@ class _PostDetailState extends State<PostDetail> {
                     ),
                     trailing: IconButton(
                       icon: Icon(Icons.more_horiz,),
-                      onPressed: ()=> postModalBottomSheet(context, item),
+                      onPressed: (){
+                        if(widget.currentUser.uid == item.uploaderUID){
+                          postModalBottomSheet(context, item);
+                        }
+                      },
                     ),
                   ),
                   Container(
@@ -211,16 +234,34 @@ class _PostDetailState extends State<PostDetail> {
                         margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                         height: 30,
                         width: 80,
-                        child: Text("❤️ ${item.like.length} 명", //TODO 이모지
-                          style: TextStyle(color: Colors.grey[700]),
+                        child: InkWell(
+                          child: Text("❤️ ${item.like.length} 명", //TODO 이모지
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                          onTap: showLikeList,
                         ),
                       ) : null,
                       item.comment != null ? Container(
                         margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                         height: 30,
                         width: 80,
-                        child: Text("댓글 ${item.comment.length}개",
-                          style: TextStyle(color: Colors.grey[700]),
+                        child: InkWell(
+                          onTap: (){
+                            showModalBottomSheet(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (context) {
+                                return CommentList(
+                                  postKey: item.key,
+                                  currentUser: widget.currentUser,
+                                );
+                              },
+                            );
+                          },
+                          child: Text("댓글 ${item.comment.length}개",
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
                         ),
                       ) : null,
                     ].where(notNull).toList(),
@@ -305,9 +346,6 @@ class _PostDetailState extends State<PostDetail> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => GalleryPhotoViewWrapper(
-                                getPost: (){
-                                  refreshPost();
-                                },
                                 uploader: widget.uploader,
                                 currentUser: widget.currentUser,
                                 galleryItems: item.attach,
@@ -392,16 +430,49 @@ class _PostDetailState extends State<PostDetail> {
                             margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                             height: 30,
                             width: 80,
-                            child: Text("❤️ ${item.attach[index].like.length} 명", //TODO 이모지
-                              style: TextStyle(color: Colors.grey[700]),
+                            child: InkWell(
+                              onTap:() {
+                                showModalBottomSheet(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (context) {
+                                    return LikeList(
+                                      postKey: item.key,
+                                      currentUser: widget.currentUser,
+                                      attachKey: item.attach[index].key,
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text("❤️ ${item.attach[index].like.length} 명", //TODO 이모지
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
                             ),
                           ) : null,
                           item.attach[index].comment != null ? Container(
                             margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                             height: 30,
                             width: 80,
-                            child: Text("댓글 ${item.attach[index].comment.length}개",
-                              style: TextStyle(color: Colors.grey[700]),
+                            child: InkWell(
+                              onTap: (){
+                                showModalBottomSheet(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (context) {
+                                    return CommentList(
+                                      getPost: () => refreshPost(),
+                                      postKey: item.key,
+                                      currentUser: widget.currentUser,
+                                      attachKey: item.attach[index].key,
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text("댓글 ${item.attach[index].comment.length}개",
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
                             ),
                           ) : null,
                         ].where(notNull).toList(),
@@ -459,12 +530,10 @@ class _PostDetailState extends State<PostDetail> {
                                   context: context,
                                   builder: (context) {
                                     return CommentList(
+                                      getPost: () => refreshPost(),
                                       postKey: item.key,
                                       currentUser: widget.currentUser,
                                       attachKey: item.attach[index].key,
-                                      getPost: (){
-                                        refreshPost();
-                                      },
                                     );
                                   },
                                 );

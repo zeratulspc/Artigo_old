@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,8 +12,11 @@ import 'package:nextor/page/like/likeLoading.dart';
 class LikeList extends StatefulWidget {
   final String postKey;
   final FirebaseUser currentUser;
+  final String attachKey;
+  final String commentKey;
+  final String replyKey;
 
-  LikeList({@required this.postKey, this.currentUser});
+  LikeList({@required this.postKey, this.currentUser, this.attachKey, this.commentKey, this.replyKey});
   @override
   LikeListState createState() => LikeListState();
 }
@@ -23,8 +27,61 @@ class LikeListState extends State<LikeList> {
 
   bool isValid = false;
 
+  DatabaseReference query;
+
   @override
   void initState() {
+    if(widget.attachKey == null) {
+      if(widget.commentKey == null) {
+        query = postDBFNC.postDBRef
+            .child(widget.postKey)
+            .child("like"); // Post 좋아요 목록
+      } else {
+        if(widget.replyKey == null) {
+          query = postDBFNC.postDBRef
+              .child(widget.postKey)
+              .child("comment")
+              .child(widget.commentKey)
+              .child("like"); // Post 댓글 좋아요 목록
+        } else {
+          query = postDBFNC.postDBRef
+              .child(widget.postKey)
+              .child("comment")
+              .child(widget.commentKey)
+              .child("reply")
+              .child(widget.replyKey)
+              .child("like"); // Post 댓글 답글 좋아요 목록
+        }
+      }
+    } else {
+      if(widget.commentKey == null) {
+        query = postDBFNC.postDBRef
+            .child(widget.postKey)
+            .child("attach")
+            .child(widget.attachKey)
+            .child("like"); //Attach 좋아요 목록
+      } else {
+        if(widget.replyKey == null) {
+          query = postDBFNC.postDBRef
+              .child(widget.postKey)
+              .child("attach")
+              .child(widget.attachKey)
+              .child("comment")
+              .child(widget.commentKey)
+              .child("like"); //Attach 댓글 좋아요 목록
+        } else {
+          query = postDBFNC.postDBRef
+              .child(widget.postKey)
+              .child("attach")
+              .child(widget.attachKey)
+              .child("comment")
+              .child(widget.commentKey)
+              .child("reply")
+              .child(widget.replyKey)
+              .child("like"); //Attach 댓글 답글 좋아요 목록
+        }
+      }
+    }
     super.initState();
   }
 
@@ -39,7 +96,7 @@ class LikeListState extends State<LikeList> {
           Container(
             height: screenSize.height-105,
             child:FirebaseAnimatedList(
-              query:  postDBFNC.postDBRef.child(widget.postKey).child("like"),
+              query:  query,
               sort: (a , b) => DateTime.parse(b.value["date"]).compareTo(DateTime.parse(a.value["date"])),
               itemBuilder: (context, snapshot, animation, index) {
                 Like like = Like.fromSnapshot(snapshot);

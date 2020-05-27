@@ -30,7 +30,6 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
 
   //리스트 로딩 관련 변수
   PostDBFNC postDBFNC = PostDBFNC();
-  LikeDBFNC likeDBFNC = LikeDBFNC();
 
   // 현재 유저 정보
   AuthDBFNC authDBFNC = AuthDBFNC();
@@ -136,10 +135,12 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
                         postModalBottomSheet(context, post);
                     },
                     dislikeToPost: (){
-                      likeDBFNC.dislikeToPost(post.key, currentUser.uid);
+                      DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
+                      LikeDBFNC(likeDBRef: likeDBRef).dislike(currentUser.uid);
                     },
                     likeToPost: (){
-                      likeDBFNC.likeToPost(post.key, currentUser.uid);
+                      DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
+                      LikeDBFNC(likeDBRef: likeDBRef).like(currentUser.uid);
                     },
                     showCommentSheet: () {
                       showModalBottomSheet(

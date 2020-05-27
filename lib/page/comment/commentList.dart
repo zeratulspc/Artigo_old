@@ -9,6 +9,7 @@ import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/comment.dart';
 import 'package:nextor/fnc/like.dart';
+import 'package:nextor/page/like/likeList.dart';
 import 'package:nextor/page/comment/commentItem.dart';
 import 'package:nextor/page/comment/commentLoading.dart';
 import 'package:nextor/page/basicDialogs.dart';
@@ -27,12 +28,13 @@ class CommentList extends StatefulWidget {
 
 class CommentListState extends State<CommentList> {
   CommentDBFNC commentDBFNC;
+  LikeDBFNC likeDBFNC;
   PostDBFNC postDBFNC = PostDBFNC();
-  LikeDBFNC likeDBFNC = LikeDBFNC();
   AuthDBFNC authDBFNC = AuthDBFNC();
   BasicDialogs basicDialogs = BasicDialogs();
   DatabaseReference commentDBRef;
-
+  DatabaseReference likeDBRef;
+  
   TextEditingController commentUpdateController = TextEditingController();
   TextEditingController newCommentController = TextEditingController();
 
@@ -76,7 +78,9 @@ class CommentListState extends State<CommentList> {
 
   @override
   void dispose() {
-    widget.getPost();
+    if(widget.getPost != null) {
+      widget.getPost();
+    }
     super.dispose();
   }
 
@@ -176,7 +180,7 @@ class CommentListState extends State<CommentList> {
   }
 
   @override
-  Widget build(BuildContext context) { //TODO 답글 표기 형태 변경
+  Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Container(
       width: screenSize.width,
@@ -203,15 +207,30 @@ class CommentListState extends State<CommentList> {
                         currentUser: widget.currentUser,
                         uploader: asyncSnapshot.data,
                         screenSize: screenSize,
+                        seeLikeList: () {
+                          showModalBottomSheet(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) {
+                              return LikeList( //TODO Like list 표시법 수정
+                                postKey: widget.postKey,
+                                currentUser: widget.currentUser,
+                                commentKey: widget.commentKey,
+                                attachKey: widget.attachKey,
+                              );
+                            },
+                          );
+                        },
                         moreOption: (){
                           if(widget.currentUser.uid == comment.uploaderUID)
                             commentMoreOptionSheet(context, comment);
                         },
                         likeToComment: (){
-                            likeDBFNC.likeToComment(widget.postKey, widget.currentUser.uid, comment.key);
+                          LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).like(widget.currentUser.uid);
                         },
                         dislikeToComment: (){
-                          likeDBFNC.dislikeToComment(widget.postKey, widget.currentUser.uid, comment.key);
+                          LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).dislike(widget.currentUser.uid);
                         },
                         replyComment: widget.attachKey == null ? widget.commentKey == null ? ()=> showModalBottomSheet( // post 댓글의 답글
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
@@ -261,7 +280,7 @@ class CommentListState extends State<CommentList> {
                 width: screenSize.width,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: 150) ,
-                  child: Row( //TODO 길이 재조정
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
                       Container(

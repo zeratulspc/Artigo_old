@@ -1,37 +1,20 @@
 import 'dart:collection';
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 
-class LikeDBFNC {
-  final likeDBRef = FirebaseDatabase.instance.reference().child("Posts");
+class LikeDBFNC { //TODO 리팩토링
+  LikeDBFNC({@required this.likeDBRef});
+  final DatabaseReference likeDBRef;
 
-  Future likeToPost(String postKey, String userUID) async {
-    likeDBRef.child(postKey).child("like").child(userUID).set(
-      Like(userUID: userUID, isLiked: true, date: DateTime.now().toIso8601String()).toMap());
-  }
-
-  Future dislikeToPost(String postKey, String userUID) async {
-    likeDBRef.child(postKey).child("like").child(userUID).remove();
-  }
-
-  Future likeToAttach(String postKey, String userUID, String key) async {
-    likeDBRef.child(postKey).child("attach").child(key).child("like").child(userUID).set(
+  Future like(String userUID) async {
+    likeDBRef.child("like").child(userUID).set(
         Like(userUID: userUID, isLiked: true, date: DateTime.now().toIso8601String()).toMap());
   }
 
-  Future dislikeToAttach(String postKey, String userUID, String key) async {
-    likeDBRef.child(postKey).child("attach").child(key).child("like").child(userUID).remove();
+  Future dislike(String userUID) async {
+    likeDBRef.child("like").child(userUID).remove();
   }
-
-  Future likeToComment(String postKey, String userUID, String commentKey) async {
-    likeDBRef.child(postKey).child("comment").child(commentKey).child("like").child(userUID).set(
-        Like(userUID: userUID, isLiked: true, date: DateTime.now().toIso8601String()).toMap());
-  }
-
-  Future dislikeToComment(String postKey, String userUID, String commentKey) async {
-    likeDBRef.child(postKey).child("comment").child(commentKey).child("like").child(userUID).remove();
-  }
-
 }
 
 class Like {

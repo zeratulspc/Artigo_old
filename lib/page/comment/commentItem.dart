@@ -16,6 +16,7 @@ class CommentItem extends StatelessWidget {
         this.uploader,
         this.moreOption,
         this.screenSize,
+        this.seeLikeList,
         this.likeToComment,
         this.dislikeToComment,
         this.replyComment,
@@ -25,6 +26,7 @@ class CommentItem extends StatelessWidget {
         super(key: key);
 
   final Animation<double> animation;
+  final Function seeLikeList;
   final Function moreOption;
   final Function likeToComment;
   final Function dislikeToComment;
@@ -152,12 +154,19 @@ class CommentItem extends StatelessWidget {
                           ) : null ,
                           replyComment != null ? SizedBox(width: 20,) : null,
                           item.like != null ?
-                          Text("좋아요 ${item.like.length}개",
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),) : null,
+                          InkWell(
+                            onTap: seeLikeList,
+                            child: Text("좋아요 ${item.like.length}개",
+                              style: TextStyle(color: Colors.grey[600], fontSize: 12),),
+                          ) : null,
                           item.reply != null ? SizedBox(width: 20,) : null,
                           item.reply != null ?
-                          Text("답글 ${item.reply.length}개",
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),) : null,
+                          replyComment != null ?
+                          InkWell(
+                            onTap: replyComment,
+                            child: Text("답글 ${item.reply.length}개",
+                              style: TextStyle(color: Colors.grey[600], fontSize: 12),),
+                          ) : null : null,
                         ].where(notNull).toList(),
                       ),
                     ),
