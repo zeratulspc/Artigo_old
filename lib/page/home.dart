@@ -91,7 +91,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               floating: true,
               pinned: true,
               snap: true,
-              title: Text("NEXTOR", style: TextStyle(color: Colors.black, fontFamily: "Montserrat"),), //TODO 검색 기능 및 메신저 기능
+              title: Text("ARTIGO", style: TextStyle(color: Colors.black, fontFamily: "Montserrat"),), //TODO 검색 기능 및 메신저 기능
               bottom: TabBar(
                 controller: _tabController,
                   labelColor: Theme.of(context).primaryColor,

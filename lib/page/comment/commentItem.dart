@@ -122,7 +122,7 @@ class CommentItem extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    Container( //TODO 위젯 사이즈 조절
                       margin: EdgeInsets.only(left: 60, top: 5),
                       child: Row(
                         children: <Widget>[

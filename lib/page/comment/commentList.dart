@@ -218,6 +218,7 @@ class CommentListState extends State<CommentList> {
                                 currentUser: widget.currentUser,
                                 commentKey: widget.commentKey,
                                 attachKey: widget.attachKey,
+                                replyKey: comment.key,
                               );
                             },
                           );

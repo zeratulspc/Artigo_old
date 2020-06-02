@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 
-class LikeDBFNC { //TODO 리팩토링
+class LikeDBFNC {
   LikeDBFNC({@required this.likeDBRef});
   final DatabaseReference likeDBRef;
 

@@ -7,8 +7,8 @@ class Notifications extends StatefulWidget {
 }
 
 class _NotificationsState extends State<Notifications> {
-//TODO Notifications Design
-//TODO Notifications FNC
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

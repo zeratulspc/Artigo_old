@@ -38,15 +38,17 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   login(BuildContext context) async {
     final form = loginKey.currentState;
     form.save();
+    String _email = email.trim();
+    String _password = password.trim();
     if(form.validate()) {
       basicDialogs.showLoading(context, "로그인 중");
       var connectivityResult = await (Connectivity().checkConnectivity()); // 인터넷 연결상태 확인
       if(connectivityResult != ConnectivityResult.none) { // 만약 인터넷 연결상태가 양호하면
-        authDBFNC.loginUser(email: email, password: password).then((user) {
+        authDBFNC.loginUser(email: _email, password: _password).then((user) {
           authDBFNC.updateUserRecentLoginDate(uid: user.user.uid, recentLoginDate: DateTime.now().toIso8601String());
               if(isAutoLogin??false) {
-                setEmail(email);
-                setPassword(password);
+                setEmail(_email);
+                setPassword(_password);
               }
               Navigator.pop(context);
               Navigator.of(context).pushReplacementNamed('/home');

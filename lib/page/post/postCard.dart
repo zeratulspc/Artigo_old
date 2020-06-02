@@ -2,14 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/page/post/postDetail.dart';
 
 
-class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
+class PostCard extends StatelessWidget {
   PostCard(
       {Key key,
         @required this.animation,
@@ -29,7 +29,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
 
   final Animation<double> animation;
   final VoidCallback navigateToMyProfile;
-  final Function moreOption; //TODO 변수명 수정
+  final Function moreOption;
   final Function likeToPost;
   final Function dislikeToPost;
   final Function showCommentSheet;
@@ -204,10 +204,20 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                             crossAxisSpacing: 4.0,
                             staggeredTiles:tileForm(item.attach.length),
                             children: List<Widget>.generate(item.attach.length, (index){
-                              return Container( //TODO 로딩 구현(회색)
-                                child: Image.network(
-                                  item.attach[index].filePath,
+                              return Container( //TODO 로딩박스, 이미지 캐싱
+                                child: CachedNetworkImage(
+                                  imageUrl: item.attach[index].filePath,
                                   fit: BoxFit.cover,
+                                  progressIndicatorBuilder: (context, url, downloadProgress){
+                                    return Container(
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          backgroundColor: Colors.white,
+                                          value: downloadProgress.progress,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               );
                             }),
@@ -244,7 +254,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                         height: 30,
                         width: 80,
                         child: InkWell(
-                          child: Text("❤️ ${item.like.length} 명", //TODO 이모지
+                          child: Text("❤️ ${item.like.length} 명",
                             style: TextStyle(color: Colors.grey[700]),
                           ),
                           onTap: showLikeSheet,
@@ -312,7 +322,7 @@ class PostCard extends StatelessWidget { //TODO 카드 디자인 수정
                               Text("댓글 달기",style: Theme.of(context).textTheme.subtitle,)
                             ],
                           ),
-                          onPressed: showCommentSheet, //TODO 댓글창 열기
+                          onPressed: showCommentSheet,
                         ),
                       )
                     ],

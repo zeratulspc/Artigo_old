@@ -1,17 +1,20 @@
+import 'dart:io';
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' ;
 
+import 'package:image/image.dart' as Img;
 import 'package:image_picker/image_picker.dart';
 
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/page/basicDialogs.dart';
 
 class EditPostAttach extends StatefulWidget {
+  final int imageUploadQuality;
   final List<Attach> attach;
   final String uploaderUID;
-  EditPostAttach({this.attach, this.uploaderUID}); // 1: POST 2: EDIT
+  EditPostAttach({this.attach, this.uploaderUID, this.imageUploadQuality}); // 1: POST 2: EDIT
 
 
   @override
@@ -50,20 +53,54 @@ class EditPostAttachState extends State<EditPostAttach> {
     attach.clear();
   }
 
-  pickImage(BuildContext context) async {
-    var tempImage = await ImagePicker.pickImage(
-      source: ImageSource.gallery,);
-    if(await tempImage.exists()) {
-      setState(() {
-        attach.add(Attach(
-          key: attach.length.toString(),
-          tempPhoto: tempImage,
-          uploaderUID: widget.uploaderUID,
-          uploadDate: DateTime.now().toIso8601String(),
-        ));
-      });
-    } else {
-      basicDialogs.dialogWithYes(context, "불러오기 실패", "불러오기에 실패했습니다.");
+  void pickImageSheet(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext _context){
+          return Container(
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                    leading: Icon(Icons.camera_alt),
+                    title: Text('사진 찍기'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      pickImage(context, ImageSource.camera);
+                    }
+                ),
+                ListTile(
+                  leading: Icon(Icons.photo_library),
+                  title: Text("갤러리에서 가져오기"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    pickImage(context, ImageSource.gallery);
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
+  pickImage(BuildContext context, ImageSource source) async { //TODO 이미지 리사이징
+    File tempImage;
+    PickedFile pickedFile;
+    pickedFile = await ImagePicker().getImage(source: source, imageQuality: widget.imageUploadQuality);
+    tempImage = File(pickedFile.path);
+    if(tempImage != null) {
+      if(await tempImage.exists()) {
+        setState(() {
+          attach.add(Attach(
+            key: attach.length.toString(),
+            tempPhoto: tempImage,
+            uploaderUID: widget.uploaderUID,
+            uploadDate: DateTime.now().toIso8601String(),
+          ));
+        });
+      } else {
+        basicDialogs.dialogWithYes(context, "불러오기 실패", "불러오기에 실패했습니다.");
+      }
     }
   }
 
@@ -98,7 +135,7 @@ class EditPostAttachState extends State<EditPostAttach> {
           splashColor: Theme.of(context).accentColor,
           child: Icon(Icons.photo, color: Colors.white,),
           onPressed: (){
-            pickImage(context);
+            pickImageSheet(context);
           },
         ),
         body: ListView.builder(
@@ -114,7 +151,7 @@ class EditPostAttachState extends State<EditPostAttach> {
                       Container(
                         height: 300,
                         width: screenSize.width,
-                        child: Image.network(
+                        child: Image.network( //TODO Loading Container
                           attach[index].filePath,
                           fit: BoxFit.cover,
                         ),

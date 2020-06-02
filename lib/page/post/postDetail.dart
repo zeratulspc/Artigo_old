@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:photo_view/photo_view.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/postDB.dart';
@@ -219,7 +218,7 @@ class _PostDetailState extends State<PostDetail> {
                             children: <Widget>[
                               Expanded(child: Text(
                                 item.body,
-                                style: TextStyle(fontSize: item.body.length>=250?16:18), //TODO 사진 있을때는 fontsize 16
+                                style: TextStyle(fontSize: item.body.length>=250?16:18),
                                 textAlign: TextAlign.left,),)
                             ],
                           ),
@@ -235,7 +234,7 @@ class _PostDetailState extends State<PostDetail> {
                         height: 30,
                         width: 80,
                         child: InkWell(
-                          child: Text("❤️ ${item.like.length} 명", //TODO 이모지
+                          child: Text("❤️ ${item.like.length} 명",
                             style: TextStyle(color: Colors.grey[700]),
                           ),
                           onTap: showLikeList,
@@ -360,16 +359,15 @@ class _PostDetailState extends State<PostDetail> {
                           ),
                           child: Hero(
                               tag: item.attach[index].fileName,
-                              child: Image.network(
-                                  item.attach[index].filePath,
-                                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
-                                    if (loadingProgress == null)
-                                      return child;
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
-                                            : null,
+                              child: CachedNetworkImage( //TODO 로딩박스, 이미지 캐싱
+                                  imageUrl: item.attach[index].filePath,
+                                  progressIndicatorBuilder: (context, url, downloadProgress) {
+                                    return Container(
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          backgroundColor: Colors.white,
+                                          value: downloadProgress.progress,
+                                        ),
                                       ),
                                     );
                                   }
@@ -378,7 +376,7 @@ class _PostDetailState extends State<PostDetail> {
                         ),
                       ),
                       item.attach[index].description != null ?
-                      Container( //TODO 텍스트 너무 많을 때 더보기 및 스크롤 기능 추가
+                      Container(
                         child: Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                           child: Column(
                             children: <Widget>[
@@ -394,12 +392,12 @@ class _PostDetailState extends State<PostDetail> {
                                             item.attach[index].description.length >= 250 ?
                                             item.attach[index].description.substring(0, 250) :
                                             item.attach[index].description,
-                                              style: TextStyle(color: Colors.black87), //TODO 사진 있을때는 fontSize 16
+                                              style: TextStyle(color: Colors.black87),
                                           ),
                                           item.attach[index].description.length >= 250 && !seeMore[index]?
                                           TextSpan(
                                             text: "...",
-                                            style: TextStyle(color: Colors.black87), //TODO 사진 있을때는 fontSize 16
+                                            style: TextStyle(color: Colors.black87),
                                           ) : null,
                                           item.attach[index].description.length >= 250 ?
                                           TextSpan(
@@ -445,7 +443,7 @@ class _PostDetailState extends State<PostDetail> {
                                   },
                                 );
                               },
-                              child: Text("❤️ ${item.attach[index].like.length} 명", //TODO 이모지
+                              child: Text("❤️ ${item.attach[index].like.length} 명",
                                 style: TextStyle(color: Colors.grey[700]),
                               ),
                             ),

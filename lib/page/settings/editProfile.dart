@@ -47,8 +47,9 @@ class EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Future<bool> changeProfileImage(ImageSource source) async {
-    File image = await ImagePicker.pickImage(source: source);
+  Future<bool> changeProfileImage(ImageSource source) async { //TODO 이미지 리사이징
+    PickedFile pickedFile = await ImagePicker().getImage(source: source, imageQuality: 50);
+    File image = File(pickedFile.path);
     if(image != null) {
       File croppedImage = await ImageCropper.cropImage(
           sourcePath: image.path,

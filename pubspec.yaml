@@ -11,7 +11,7 @@ description: 넥스터 커뮤니티 앱
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.1.1 # 버전명 표기할 것!
+version: 0.1.2 # 버전명 표기할 것!
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -36,10 +36,11 @@ dependencies:
   keyboard_avoider: 0.1.2 # 댓글 창 Scroll 관련
   uuid: 2.0.4 # 랜덤 키 생성
 
-  image_picker: 0.6.3+4 # 이미지 선택
+  image_picker: 0.6.7 # 이미지 선택 https://pub.dev/packages/image_picker
   image_cropper: 1.2.1 # 이미지 자르기
   photo_view: 0.9.2 # 이미지 뷰어
   path_provider: 1.6.5 # asset->파일로 변환 관련 패키지
+  cached_network_image: 2.2.0+1 # 이미지 캐싱 https://pub.dev/packages/cached_network_image
 
   firebase_core: 0.4.4 # https://pub.dev/packages/firebase_core
   firebase_auth: 0.15.4 # https://pub.dev/packages/firebase_auth

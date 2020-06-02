@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' ;
 import 'dart:io';
 
+import 'package:image/image.dart' as Img;
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -22,6 +23,8 @@ class EditPost extends StatefulWidget {
 }
 
 class EditPostState extends State<EditPost> {
+  final int imageUploadQuality = 50;
+
   BasicDialogs basicDialogs = BasicDialogs();
   PostDBFNC postDBFNC = PostDBFNC();
 
@@ -74,7 +77,7 @@ class EditPostState extends State<EditPost> {
     FocusScopeNode().dispose();
   }
 
-  uploadPost() async { //TODO 게시글 업로드 후 3초 후에 타임라인에 표시하도록 수정
+  uploadPost() async {
     basicDialogs.showLoading(context, "게시글 업로드 중");
       String key = postDBFNC.createPost(Post(
         body: textEditingController.text,
@@ -162,32 +165,68 @@ class EditPostState extends State<EditPost> {
     }
   }
 
-  pickImage(BuildContext context) async {
+  void pickImageSheet(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext _context){
+          return Container(
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                    leading: Icon(Icons.camera_alt),
+                    title: Text('사진 찍기'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      pickImage(context, ImageSource.camera);
+                    }
+                ),
+                ListTile(
+                  leading: Icon(Icons.photo_library),
+                  title: Text("갤러리에서 가져오기"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    pickImage(context, ImageSource.gallery);
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
+  pickImage(BuildContext context, ImageSource source) async { //TODO 이미지 리사이징
     bool isDuple = false;
     bool _isComplete = false;
-    var tempImage = await ImagePicker.pickImage(
-      source: ImageSource.gallery,);
-    attach.forEach((item){
-      if(!_isComplete) {
-        if(item.tempPhoto != null) {
-          if(item.tempPhoto.path == tempImage.path) {
-            _isComplete = true;
-            isDuple = true;
+    File tempImage;
+    PickedFile pickedFile;
+
+    pickedFile = await ImagePicker().getImage(source: source, imageQuality: imageUploadQuality);
+    if(pickedFile != null) {
+      tempImage = File(pickedFile.path);
+      attach.forEach((item){
+        if(!_isComplete) {
+          if(item.tempPhoto != null) {
+            if(item.tempPhoto.path == tempImage.path) {
+              _isComplete = true;
+              isDuple = true;
+            } else {
+              isDuple = false;
+            }
           } else {
-            isDuple = false;
-          }
-        } else {
-          if(item.fileName == "") {
-            _isComplete = true;
-            isDuple = true;
-          } else {
-            isDuple = false;
+            if(item.fileName == "") {
+              _isComplete = true;
+              isDuple = true;
+            } else {
+              isDuple = false;
+            }
           }
         }
-      }
-    });
+      });
+    }
     if(tempImage != null) {
-      if(!isDuple) { // 중복 검사 식
+      print(tempImage.lengthSync().toString());
+      if(!isDuple) {
         if(await tempImage.exists()) {
           setState(() {
             attach.add(Attach(
@@ -219,7 +258,7 @@ class EditPostState extends State<EditPost> {
         );
       } else {
         return Container(
-          child: Image.network(
+          child: Image.network( //TODO Loading Container
             attach[index].filePath,
             fit: BoxFit.cover,
           ),
@@ -229,7 +268,6 @@ class EditPostState extends State<EditPost> {
     setState(() {
       photoItems.clear();
       photoItems.addAll(tempItems);
-      print(photoItems.length);
     });
   }
 
@@ -265,7 +303,7 @@ class EditPostState extends State<EditPost> {
         splashColor: Theme.of(context).accentColor,
         child: Icon(Icons.photo, color: Colors.white,),
         onPressed: (){
-          pickImage(context);
+          pickImageSheet(context);
         },
       ),
       body: SingleChildScrollView(
@@ -348,6 +386,7 @@ class EditPostState extends State<EditPost> {
                 onTap: () async {
                   AttachEditInfo editedAttach = await Navigator.push(context, MaterialPageRoute(builder: (context)=>
                       EditPostAttach(
+                        imageUploadQuality: imageUploadQuality,
                         attach: attach,
                         uploaderUID: widget.currentUser.uid,
                       )
@@ -362,9 +401,10 @@ class EditPostState extends State<EditPost> {
                       setState(() {
                         attach.clear();
                         attach.addAll(editedAttach.attach);
+                        photoItems.clear();
+                        generateItems(attach.length); //TODO 재 생성된 tile 이 화면에 적용되지 읺는 문제 해결
                       });
-                      photoItems.clear();
-                      generateItems(attach.length); //TODO 재 생성된 tile 이 화면에 적용되지 읺는 문제 해결
+
                     }
                   }
                 },

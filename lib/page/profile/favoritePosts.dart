@@ -7,8 +7,7 @@ class FavoritePosts extends StatefulWidget {
 }
 
 class _FavoritePostsState extends State<FavoritePosts> {
-//TODO FavoritePosts Design
-//TODO FavoritePosts FNC
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -73,10 +73,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<File> getImageFileFromAssets(String path) async {
     final byteData = await rootBundle.load('assets/$path');
-
     final file = File('${(await getTemporaryDirectory()).path}/$path');
     await file.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-
     return file;
   }
 
@@ -84,7 +82,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: memberType != null ? FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Theme.of(context).primaryColor,
         label: Text("      확인      ", style: TextStyle(color: Colors.white),),
         shape: RoundedRectangleBorder(
@@ -93,14 +91,16 @@ class _RegisterPageState extends State<RegisterPage> {
         onPressed: () async {
           final form = registerFormKey.currentState;
           form.save();
+          String _email = email;
+          String _password = password;
           if(form.validate()) {
             showLoading(context);
             var connectivityResult = await (Connectivity().checkConnectivity()); // 인터넷 연결상태 확인
            if(connectivityResult != ConnectivityResult.none) {//TODO 이메일 인증 구현
-             authDBFNC.createUser(email: email, password: password).then((user) async {
+             authDBFNC.createUser(email: _email, password: _password).then((user) async {
                await authDBFNC.createUserInfo(user: user.user, username: userName,
                description: "", registerDate: DateTime.now().toIso8601String(),
-               role: memberType == 0 ? "MEMBER" : "GUEST");
+               role: "MEMBER");
                await authDBFNC.uploadUserProfileImage(uid: user.user.uid, profileImage: defaultUserImage);
                Navigator.pop(context);
                Navigator.pop(context);
@@ -130,7 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
            }
           }
         },
-      ) : null,
+      ),
       appBar: AppBar(
         title: Text("회원가입"),
       ),
@@ -138,129 +138,85 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            firstQuestion(),
-            AnimatedSwitcher(
-              duration: Duration(seconds: 1),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(child: child, opacity: animation);},
-              child: memberType != null ? secondQuestion() : Text(""),
+            Container(
+              child: Form(
+                key: registerFormKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                      ListTile(
+                        title: Text("유저 정보를 입력해주세요", style: Theme
+                            .of(context)
+                            .textTheme
+                            .headline6),
+                      ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(
+                            10, 10, 10, 1
+                        ),
+                        height: 90,
+                        child: TextFormField(
+                          onSaved: (value) => userName = value,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                            labelText: "닉네임",
+                            fillColor: Colors.grey[300],
+                            filled: true,),
+                          validator: (String name) {
+                            if (name.length == 0)
+                              return '닉네임을 입력해주세요.';
+                            else
+                              return null;
+                          },
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(
+                            10, 10, 10, 1
+                        ),
+                        height: 90,
+                        child: TextFormField(
+                          onSaved: (value) => email = value,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                            labelText: "이메일 주소",
+                            fillColor: Colors.grey[300],
+                            filled: true,),
+                          validator: (String email) {
+                            if (email.length == 0)
+                              return '이메일 주소를 입력해주세요.';
+                            else
+                              return null;
+                          },
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(
+                            10, 1, 10, 10
+                        ),
+                        child: TextFormField(
+                          onSaved: (value) => password = value,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            labelText: "비밀번호",
+                            fillColor: Colors.grey[300],
+                            filled: true,),
+                          validator: (String pass) {
+                            if (pass.length == 0)
+                              return '비밀번호를 입력해주세요.';
+                            else
+                              return null;
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
       )
     );
   }
-
-  // 첫번째 질문
-  Widget firstQuestion() {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ListTile(
-            title: Text("1. 가입 유형을 선택해주세요.", style: Theme.of(context).textTheme.title),
-          ),
-          ListTile(
-            title: Text('동아리 회원'),
-            leading: Radio(
-              value: 0,
-              groupValue: memberType,
-              onChanged: (int value) {
-                setState(() { memberType = value; });
-              },
-            ),
-          ),
-          ListTile(
-            title: Text('기타 회원'),
-            leading: Radio(
-              value: 1,
-              groupValue: memberType,
-              onChanged: (int value) {
-                setState(() { memberType = value; });
-              },
-            ),
-          ),
-        ],
-      )
-    );
-  }
-
-  //두번째 질문
-  Widget secondQuestion() {
-    return Container(
-        child: Form(
-          key: registerFormKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              ListTile(
-                title: Text("2. 유저 정보를 입력해주세요", style: Theme
-                    .of(context)
-                    .textTheme
-                    .title),
-              ),
-              Container(
-                padding: EdgeInsets.fromLTRB(
-                    10, 10, 10, 1
-                ),
-                height: 90,
-                child: TextFormField(
-                  onSaved: (value) => userName = value,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: "닉네임",
-                    fillColor: Colors.grey[300],
-                    filled: true,),
-                  validator: (String name) {
-                    if (name.length == 0)
-                      return '닉네임을 입력해주세요.';
-                    else
-                      return null;
-                  },
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.fromLTRB(
-                    10, 10, 10, 1
-                ),
-                height: 90,
-                child: TextFormField(
-                  onSaved: (value) => email = value,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: "이메일 주소",
-                    fillColor: Colors.grey[300],
-                    filled: true,),
-                  validator: (String email) {
-                    if (email.length == 0)
-                      return '이메일 주소를 입력해주세요.';
-                    else
-                      return null;
-                  },
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.fromLTRB(
-                    10, 1, 10, 10
-                ),
-                child: TextFormField(
-                  onSaved: (value) => password = value,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: "비밀번호",
-                    fillColor: Colors.grey[300],
-                    filled: true,),
-                  validator: (String pass) {
-                    if (pass.length == 0)
-                      return '비밀번호를 입력해주세요.';
-                    else
-                      return null;
-                  },
-                ),
-              ),
-            ],
-          ),
-        )
-    );
-  }
 }
+

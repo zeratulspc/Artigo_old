@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           child: child,
         );
       },
-      title: 'Nextor Community',
+      title: 'Artigo Community',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.grey[300],
         primaryColor: Colors.green,
