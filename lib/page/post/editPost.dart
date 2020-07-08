@@ -195,7 +195,7 @@ class EditPostState extends State<EditPost> {
     );
   }
 
-  pickImage(BuildContext context, ImageSource source) async { //TODO 이미지 리사이징
+  pickImage(BuildContext context, ImageSource source) async {
     bool isDuple = false;
     bool _isComplete = false;
     File tempImage;

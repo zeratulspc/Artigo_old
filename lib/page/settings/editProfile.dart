@@ -47,7 +47,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Future<bool> changeProfileImage(ImageSource source) async { //TODO 이미지 리사이징
+  Future<bool> changeProfileImage(ImageSource source) async {
     PickedFile pickedFile = await ImagePicker().getImage(source: source, imageQuality: 50);
     File image = File(pickedFile.path);
     if(image != null) {
@@ -208,7 +208,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
               Divider(),
-
             ],
           ),
         )
@@ -326,7 +325,8 @@ class TextFieldPageState extends State<TextFieldPage> {
             highlightColor: Colors.transparent,
             child: Text("저장", style: TextStyle(color: Colors.black),),
             onPressed: () {
-              confirmDialog(context,object);
+              if(editProfileFormKey.currentState.validate())
+                confirmDialog(context,object);
             },
           ),
         ],
@@ -341,7 +341,7 @@ class TextFieldPageState extends State<TextFieldPage> {
                 padding: EdgeInsets.fromLTRB(
                     10, 10, 10, 1
                 ),
-                height: 90,
+                height: 150,
                 child: TextFormField(
                   initialValue: item,
                   onSaved: (value) => item = value,
@@ -349,12 +349,29 @@ class TextFieldPageState extends State<TextFieldPage> {
                   decoration: InputDecoration(
                     labelText: objectToInfo(object),
                     fillColor: Colors.grey[300],
-                    filled: true,),
-                  validator: (String name) {
-                    if (name.length == 0)
-                      return '${objectToInfo(object)}을 입력해주세요.';
-                    else
-                      return null;
+                    filled: true,
+                  ),
+                  validator: (String value) {
+                    switch(object){
+                      case "userName":
+                        if (value.length == 0)
+                          return '${objectToInfo(object)}을 입력해주세요.';
+                        else if(value.length >= 16)
+                          return '${objectToInfo(object)}은 16글자를 넘길 수 없습니다.';
+                        else
+                          return null;
+                        break;
+                      case "description":
+                        if (value.length == 0)
+                          return '${objectToInfo(object)}을 입력해주세요.';
+                        else if(value.length >= 64)
+                          return '${objectToInfo(object)}은 64글자를 넘길 수 없습니다.';
+                        else
+                          return null;
+                        break;
+                      default:
+                        return null;
+                    }
                   },
                 ),
               ),

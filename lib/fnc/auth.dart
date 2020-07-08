@@ -178,7 +178,11 @@ class User {
   String role; // GUEST, MEMBER, ADMIN
   String token; //TODO FCM
 
-  User({this.key,this.userName, this.email, this.registerDate, this.recentLoginDate, this.role, this.token});
+  List<String> follower; // 팔로워
+  List<String> following; // 팔로잉
+
+  User({this.key,this.userName,
+    this.email, this.registerDate, this.recentLoginDate, this.role, this.token});
 
   User.fromLinkedHashMap(LinkedHashMap linkedHashMap)
       :key = linkedHashMap["key"],
@@ -200,7 +204,9 @@ class User {
         recentLoginDate = snapshot.value["recentLoginDate"],
         profileImageURL = snapshot.value["profileImageURL"],
         role = snapshot.value["role"],
-        token = snapshot.value["token"];
+        token = snapshot.value["token"],
+        follower = snapshot.value["follower"],
+        following = snapshot.value["following"];
 
   toMap() {
     return {
@@ -212,8 +218,17 @@ class User {
       "recentLoginDate" : recentLoginDate,
       "profileImageURL" : profileImageURL,
       "role" : role,
-      "token" : token
+      "token" : token,
+      "follower" : follower,
+      "following" : following,
     };
   }
+
+}
+
+class Follower {
+  String followerUid; //팔로워 uid
+  String followDate; //팔로우 한 날짜
+
 
 }

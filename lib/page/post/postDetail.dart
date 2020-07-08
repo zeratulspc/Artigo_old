@@ -359,7 +359,7 @@ class _PostDetailState extends State<PostDetail> {
                           ),
                           child: Hero(
                               tag: item.attach[index].fileName,
-                              child: CachedNetworkImage( //TODO 로딩박스, 이미지 캐싱
+                              child: CachedNetworkImage(
                                   imageUrl: item.attach[index].filePath,
                                   progressIndicatorBuilder: (context, url, downloadProgress) {
                                     return Container(

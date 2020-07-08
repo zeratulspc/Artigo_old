@@ -102,8 +102,16 @@ class _RegisterPageState extends State<RegisterPage> {
                description: "", registerDate: DateTime.now().toIso8601String(),
                role: "MEMBER");
                await authDBFNC.uploadUserProfileImage(uid: user.user.uid, profileImage: defaultUserImage);
-               Navigator.pop(context);
-               Navigator.pop(context);
+               authDBFNC.loginUser(email: _email, password: _password).then((user) {
+                 authDBFNC.updateUserRecentLoginDate(uid: user.user.uid, recentLoginDate: DateTime.now().toIso8601String());
+                 Navigator.pop(context);
+                 Navigator.pop(context);
+                 Navigator.of(context).pushReplacementNamed('/home');
+               }
+               ).catchError((error) {
+                 Navigator.pop(context);
+                 _errorDialog(context, error.message, error.code);
+               });
              }).catchError((e) {
                Navigator.pop(context);
                _errorDialog(context, e.message, e.code);

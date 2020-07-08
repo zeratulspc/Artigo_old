@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_database/firebase_database.dart';
@@ -24,17 +25,23 @@ class PostList extends StatefulWidget {
   _PostListState createState() => _PostListState();
 }
 
-class _PostListState extends State<PostList> with TickerProviderStateMixin  {
+class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
   BasicDialogs basicDialogs = BasicDialogs();
-  ScrollController scrollController = ScrollController();
+  
 
   //리스트 로딩 관련 변수
   PostDBFNC postDBFNC = PostDBFNC();
+  List<Post> posts = List();
+  Query postQuery;
+
 
   // 현재 유저 정보
   AuthDBFNC authDBFNC = AuthDBFNC();
   FirebaseUser currentUser;
   User user;
+
+  @override
+  final bool wantKeepAlive = true;
 
   @override
   void initState() {
@@ -53,6 +60,57 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
             });
           }
         });
+      });
+      postQuery = postDBFNC.postDBRef;
+      postQuery.onChildAdded.listen(_onEntryAdded);
+      postQuery.onChildChanged.listen(_onEntryChanged);
+      postQuery.onChildRemoved.listen(_onEntryRemoved);
+    }
+  }
+
+  _onEntryAdded(Event event) {
+    if(this.mounted){
+      Post _post = Post().fromSnapShot(event.snapshot);
+      authDBFNC.getUserInfo(_post.uploaderUID).then(
+              (userInfo) {
+            _post.uploader = userInfo;
+            posts.insert(0 , _post);
+            setState(() {
+              posts.sort((a, b){
+                DateTime dateA = DateTime.parse(a.uploadDate);
+                DateTime dateB = DateTime.parse(b.uploadDate);
+                return dateB.compareTo(dateA);
+              });
+
+            });
+          });
+    }
+  }
+
+  _onEntryChanged(Event event) {
+    if(this.mounted){
+      Post _post = Post().fromSnapShot(event.snapshot);
+      authDBFNC.getUserInfo(_post.uploaderUID).then(
+              (userInfo) {
+            _post.uploader = userInfo;
+            setState(() {
+              var oldEntry = posts.singleWhere((entry) {
+                return entry.key == _post.key;
+              });
+              posts[posts.indexOf(oldEntry)] = _post;
+            });
+          }
+      );
+    }
+  }
+
+  _onEntryRemoved(Event event) {
+    if(this.mounted){
+      setState(() {
+        posts.removeWhere((posts) =>
+        posts.key == Post()
+            .fromSnapShot(event.snapshot)
+            .key);
       });
     }
   }
@@ -100,80 +158,69 @@ class _PostListState extends State<PostList> with TickerProviderStateMixin  {
     );
   }
 
+  Future<Null> _handleRefresh() async {
+    setState(() {
+
+    });
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Container(
-        child: FirebaseAnimatedList(//TODO 10개씩만 로딩
-          query: postDBFNC.postDBRef,
-          controller: scrollController,
-          sort: (a , b) => DateTime.parse(b.value["uploadDate"]).compareTo(DateTime.parse(a.value["uploadDate"])),
-          itemBuilder: (context, snapshot, animation, index) {
-            Post post = Post().fromSnapShot(snapshot);
-            return FutureBuilder(
-              future: authDBFNC.getUserInfo(post.uploaderUID),
-              builder: (context, asyncSnapshot){
-                if(!asyncSnapshot.hasData){
-                  if(post.body.length <= 30) { // 글자수가 30보다 작을 경우
-                    return PostCardSkeleton(animation: animation, postSizeCase: 1,);
-                  } else {
-                    return PostCardSkeleton(animation: animation, postSizeCase: 2,);
-                  }
-                } else if(asyncSnapshot.hasError){
-                  return Text("Error!"); //TODO 에러
-                } else {
-                  return PostCard(
-                    animation: animation,
-                    screenSize: screenSize,
-                    item: post,
-                    navigateToMyProfile: this.widget.navigateToMyProfile,
-                    uploader: asyncSnapshot.data,
+    return RefreshIndicator(
+      onRefresh: _handleRefresh,
+      child: ListView.builder(
+        padding: EdgeInsets.only(top: 6),
+        itemCount: posts.length,
+        itemBuilder: (BuildContext context, int index) {
+          Post post = posts[index];
+          return PostCard(
+            screenSize: screenSize,
+            item: post,
+            navigateToMyProfile: this.widget.navigateToMyProfile,
+            uploader: posts[index].uploader,
+            currentUser: currentUser,
+            moreOption: (){
+              if(currentUser.uid == post.uploaderUID || user.role == "ADMIN")
+                postModalBottomSheet(context, post);
+            },
+            dislikeToPost: (){
+              DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
+              LikeDBFNC(likeDBRef: likeDBRef).dislike(currentUser.uid);
+            },
+            likeToPost: (){
+              DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
+              LikeDBFNC(likeDBRef: likeDBRef).like(currentUser.uid);
+            },
+            showCommentSheet: () {
+              showModalBottomSheet(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                isScrollControlled: true,
+                context: context,
+                builder: (context) {
+                  return CommentList(
+                    postKey: post.key,
                     currentUser: currentUser,
-                    moreOption: (){
-                      if(currentUser.uid == post.uploaderUID)
-                        postModalBottomSheet(context, post);
-                    },
-                    dislikeToPost: (){
-                      DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
-                      LikeDBFNC(likeDBRef: likeDBRef).dislike(currentUser.uid);
-                    },
-                    likeToPost: (){
-                      DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
-                      LikeDBFNC(likeDBRef: likeDBRef).like(currentUser.uid);
-                    },
-                    showCommentSheet: () {
-                      showModalBottomSheet(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
-                        isScrollControlled: true,
-                        context: context,
-                        builder: (context) {
-                          return CommentList(
-                            postKey: post.key,
-                            currentUser: currentUser,
-                          );
-                        },
-                      );
-                    },
-                    showLikeSheet: () {
-                      showModalBottomSheet(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
-                        isScrollControlled: true,
-                        context: context,
-                        builder: (context) {
-                          return LikeList(
-                            postKey: post.key,
-                            currentUser: currentUser,
-                          );
-                        },
-                      );
-                    },
                   );
-                }
-              },
-            );
-          },
-        ),
+                },
+              );
+            },
+            showLikeSheet: () {
+              showModalBottomSheet(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                isScrollControlled: true,
+                context: context,
+                builder: (context) {
+                  return LikeList(
+                    postKey: post.key,
+                    currentUser: currentUser,
+                  );
+                },
+              );
+            },
+          );
+        },
       ),
     );
   }

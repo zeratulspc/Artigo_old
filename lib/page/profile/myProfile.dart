@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:nextor/fnc/auth.dart';
 
@@ -11,11 +12,8 @@ class MyProfile extends StatefulWidget { // 내 프로필 페이지
 class _MyProfileState extends State<MyProfile> {
   AuthDBFNC authDBFNC = AuthDBFNC();
   FirebaseUser currentUser;
-  String userName;
-  String description;
-  String email;
-  String userRole;
-  String profileImageURL;
+  User uploader = User();
+  int postCount = 0;
 
   @override
   void initState() {
@@ -23,180 +21,199 @@ class _MyProfileState extends State<MyProfile> {
     authDBFNC.getUser().then(
             (data) {
           currentUser = data;
-          authDBFNC.getUserInfo(currentUser.uid).then(
-                  (data) {
-                if(this.mounted) {
-                  setState(() {
-                    userName = data.userName;
-                    description = data.description;
-                    userRole = data.role;
-                    email = data.email;
-                    profileImageURL = data.profileImageURL;
-                  });
-                }
+          authDBFNC.getUserInfo(currentUser.uid).then((data) {
+              if(this.mounted) {
+                setState(() {
+                  uploader = data;
+                });
               }
+            }
           );
         }
     );
   }
 
-  Widget _buildCoverImage(Size screenSize) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      height: screenSize.height / 3,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.grey
-      ),
-    );
-  }
-
-  Widget _buildProfileImage() {
-    return Center(
-      child: Container(
-        width: 150.0,
-        height: 150.0,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(80.0),
-          border: Border.all(
-            color: Colors.white,
-            width: 8.0,
-          ),
-        ),
-        child: Center(
-          child: Stack(
-            children: <Widget>[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(80),
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  color: Colors.grey[300],
-                ),
-              ),
-              profileImageURL != null ? ClipRRect(
-                borderRadius: BorderRadius.circular(80),
-                child: Image.network( //TODO Info 확인 가능한 프로필 사진
-                  profileImageURL,
-                  height: 150.0,
-                  width: 150.0,
-                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
-                    if(loadingProgress == null) return child;
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(80),
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        color: Colors.grey[300],
-                      ),
-                    );
-                  },
-                ),
-              ) : ClipRRect(
-                borderRadius: BorderRadius.circular(80),
-                child: Container(
-                  child: Center(
-                    child: Text("프로필 사진 없음"),
-                  ),
-                  width: 150,
-                  height: 150,
-                  color: Colors.grey[300],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFullName() {
-    TextStyle _nameTextStyle = TextStyle(
-      color: Colors.black,
-      fontSize: 28.0,
-      fontWeight: FontWeight.w700,
-    );
-
-    return Text(
-      userName??"",
-      style: _nameTextStyle,
-    );
-  }
-
-  Widget _buildRole(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 6.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4.0),
-      ),
-      child: Text(
-        authDBFNC.roleKr(userRole??""),
-        style: TextStyle(
-          fontFamily: 'Spectral',
-          color: Colors.black,
-          fontSize: 20.0,
-          fontWeight: FontWeight.w300,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBio(BuildContext context) {
-    TextStyle bioTextStyle = TextStyle(
-      fontFamily: 'Spectral',
-      fontWeight: FontWeight.w400,//try changing weight to w500 if not thin
-      fontStyle: FontStyle.italic,
-      color: Color(0xFF799497),
-      fontSize: 16.0,
-    );
-
-    return Container(
-      padding: EdgeInsets.all(8.0),
-      child: Text(
-        description??"",
-        textAlign: TextAlign.center,
-        style: bioTextStyle,
-      ),
-    );
-  }
-
-  Widget _buildSeparator(Size screenSize) {
-    return Container(
-      width: screenSize.width / 1.6,
-      child: Divider(thickness: 1,),
-      margin: EdgeInsets.only(top: 4.0),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait; // 세로모드 확인
     Size screenSize = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          Container(
-            width: screenSize.width,
-            height: 450,
-            color: Colors.white,
-          ),
-          _buildCoverImage(screenSize),
-          SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  SizedBox(height: screenSize.height / 5),
-                  _buildProfileImage(),
-                  _buildFullName(),
-                  _buildRole(context),
-                  _buildBio(context),
-                  _buildSeparator(screenSize),
-                  SizedBox(height: 10.0),
-                ],
+    double profileImgWidth;
+    double profileImgHeight;
+    double profileImgCircular;
+    if(isPortrait){
+      profileImgWidth = screenSize.width/3.2;
+      profileImgHeight = screenSize.width/3.2;
+      profileImgCircular = 80;
+    } else {
+      profileImgWidth = screenSize.width/3.2;
+      profileImgHeight = screenSize.width/3.2;
+      profileImgCircular = 120;
+    }
+    return ListView(
+      padding: EdgeInsets.only(top: 6),
+      children: <Widget>[
+        Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                child: Center(
+                  child: Stack(
+                    children: <Widget>[
+                      ClipRRect(
+                          borderRadius: BorderRadius.circular(profileImgCircular),
+                          child: Container(
+                            height: profileImgHeight,
+                            width: profileImgWidth,
+                            color: Colors.grey[400],
+                          )
+                      ),
+                      uploader != null ?
+                      uploader.profileImageURL != null ?
+                      ClipRRect( // User 정보가 있고, ProfileImage 가 존재할 때
+                        borderRadius: BorderRadius.circular(profileImgCircular),
+                        child: Container(
+                          height: profileImgHeight,
+                          width: profileImgWidth,
+                          child: CachedNetworkImage(
+                            imageUrl: uploader.profileImageURL,
+                          ),
+                        ),
+                      ) :
+                      ClipRRect(// User 정보가 있고, ProfileImage 가 존재하지 않을 때
+                          borderRadius: BorderRadius.circular(profileImgCircular),
+                          child: Container(
+                            height: profileImgHeight,
+                            width: profileImgWidth,
+                            color: Colors.grey[400],
+                          )
+                      ) :
+                      ClipRRect(// User 정보가 없을 때
+                          borderRadius: BorderRadius.circular(profileImgCircular),
+                          child: Container(
+                            height: profileImgHeight,
+                            width: profileImgWidth,
+                            color: Colors.grey[400],
+                          )
+                      )
+                    ],
+                  ),
+                ),
+                margin: EdgeInsets.only(top: 50,),
+                height: screenSize.width/3.2,
+                width: screenSize.width/3.2,
               ),
-            ),
-          ),
-        ],
-      ),
+              Container(
+                child: Center(
+                  child: Text(
+                    uploader.userName??"불러오는 중",
+                    maxLines: 1,
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),
+                  ),
+                ),
+                height: 50, // 길이는 Expand 위젯 사용
+                width: screenSize.width/1.8,
+              ),
+              Container(
+                child: Center(
+                  child: Text(
+                    uploader.description??"불러오는 중",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                margin: EdgeInsets.only(bottom: 10),
+                width: screenSize.width/1.5,
+              ),
+              Container(
+                width: screenSize.width - 80,
+                child: Divider(),
+              ),
+              Container(
+                width: screenSize.width/1.5,
+                margin: EdgeInsets.only(bottom: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Container(
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            child: Text(
+                              "$postCount",
+                              style: TextStyle(fontSize: 22),
+                            ),
+                          ),
+                          Container(
+                            child: Text(
+                              "게시글",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            child: Text(
+                              "4", //TODO 연결
+                              style: TextStyle(fontSize: 22),
+                            ),
+                          ),
+                          Container(
+                            child: Text(
+                              "팔로워",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            child: Text(
+                              "32", //TODO 연결
+                              style: TextStyle(fontSize: 22),
+                            ),
+                          ),
+                          Container(
+                            child: Text(
+                              "팔로잉",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  color: Theme.of(context).primaryColor,
+                  child: Text(
+                    "팔로우",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  onPressed: (){},
+                ),
+                margin: EdgeInsets.only(bottom: 30),
+                height: 50, // 길이는 Expand 위젯 사용
+                width: screenSize.width/1.5,
+              ),
+            ],
+          )
+        ),
+      ],
     );
   }
 }

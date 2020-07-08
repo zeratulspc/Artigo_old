@@ -83,7 +83,7 @@ class EditPostAttachState extends State<EditPostAttach> {
     );
   }
 
-  pickImage(BuildContext context, ImageSource source) async { //TODO 이미지 리사이징
+  pickImage(BuildContext context, ImageSource source) async {
     File tempImage;
     PickedFile pickedFile;
     pickedFile = await ImagePicker().getImage(source: source, imageQuality: widget.imageUploadQuality);

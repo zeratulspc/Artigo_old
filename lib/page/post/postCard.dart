@@ -12,7 +12,6 @@ import 'package:nextor/page/post/postDetail.dart';
 class PostCard extends StatelessWidget {
   PostCard(
       {Key key,
-        @required this.animation,
         this.navigateToMyProfile,
         this.currentUser,
         this.uploader,
@@ -23,11 +22,9 @@ class PostCard extends StatelessWidget {
         this.showCommentSheet,
         this.showLikeSheet,
         @required this.item,})
-      : assert(animation != null),
-        assert(item != null),
+      : assert(item != null),
         super(key: key);
 
-  final Animation<double> animation;
   final VoidCallback navigateToMyProfile;
   final Function moreOption;
   final Function likeToPost;
@@ -83,15 +80,10 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     DateTime date = DateTime.parse(item.uploadDate);
     return Padding(
-      padding: EdgeInsets.only(bottom: 3),
-      child: SizeTransition(
-        axis: Axis.vertical,
-        sizeFactor: animation,
-        child: GestureDetector(
+      padding: EdgeInsets.only(bottom: 6),
+      child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 3),
-            child: Container(
+          child: Container(
               color: Colors.white,
               width: screenSize.width,
               child: Column(
@@ -110,22 +102,34 @@ class PostCard extends StatelessWidget {
                                   color: Colors.grey[400],
                                 )
                             ),
+                            uploader != null ?
                             uploader.profileImageURL != null ?
-                            ClipRRect(
+                            ClipRRect( // User 정보가 있고, ProfileImage 가 존재할 때
                               borderRadius: BorderRadius.circular(80),
-                              child: Image.network(
-                                uploader.profileImageURL,
-                                height: 40.0,
-                                width: 40.0,
+                              child: Container(
+                                height: 40,
+                                width: 40,
+                                child: CachedNetworkImage(
+                                  imageUrl: uploader.profileImageURL,
+                                ),
                               ),
-                            ) : ClipRRect(
+                            ) :
+                            ClipRRect(// User 정보가 있고, ProfileImage 가 존재하지 않을 때
                                 borderRadius: BorderRadius.circular(80),
                                 child: Container(
                                   height: 40,
                                   width: 40,
                                   color: Colors.grey[400],
                                 )
-                            ),
+                            ) :
+                            ClipRRect(// User 정보가 없을 때
+                                borderRadius: BorderRadius.circular(80),
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  color: Colors.grey[400],
+                                )
+                            )
                           ],
                         ),
                         Container(
@@ -133,7 +137,8 @@ class PostCard extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Container(
+                              uploader != null ?
+                              Container( // 업로더 정보가 있을 때
                                 width: screenSize.width / 1.7,
                                 child: InkWell(
                                   child: Text(uploader.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
@@ -141,6 +146,14 @@ class PostCard extends StatelessWidget {
                                   onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
                                     //TODO 유저 프로필 페이지로 네비게이트
                                   },
+                                ),
+                              ) :
+                              Container( // 업로더 정보가 없을 때
+                                width: screenSize.width / 1.7,
+                                child: InkWell(
+                                  child: Text("", maxLines: 1, overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
+                                  onTap:(){},
                                 ),
                               ),
                               Text(DateTime.now().day == date.day && DateTime.now().month == date.month && DateTime.now().year == date.year ?
@@ -174,26 +187,26 @@ class PostCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      onTap: (){
+                      onTap: uploader != null ? (){
                         Navigator.push(context,
                             PageTransition(
                               type: PageTransitionType.rightToLeftWithFade,
                               child: PostDetail(item: item, uploader: uploader, currentUser: currentUser,),)
                         );
-                      },
+                      } : (){},
                     ),
                   ),
                   item.attach.length != 0? Container(
                     width: screenSize.width,
                     height: screenSize.width < screenSize.height ? screenSize.height/2.5 : screenSize.width/1.5,
                     child: InkWell(
-                      onTap: (){
+                      onTap: uploader != null ?(){
                         Navigator.push(context,
                             PageTransition(
                               type: PageTransitionType.rightToLeftWithFade,
                               child: PostDetail(item: item, uploader: uploader, currentUser: currentUser,),)
                         );
-                      },
+                      } : (){},
                       child: Stack(
                         children: <Widget>[
                           StaggeredGridView.count(
@@ -204,12 +217,13 @@ class PostCard extends StatelessWidget {
                             crossAxisSpacing: 4.0,
                             staggeredTiles:tileForm(item.attach.length),
                             children: List<Widget>.generate(item.attach.length, (index){
-                              return Container( //TODO 로딩박스, 이미지 캐싱
+                              return Container(
                                 child: CachedNetworkImage(
                                   imageUrl: item.attach[index].filePath,
                                   fit: BoxFit.cover,
                                   progressIndicatorBuilder: (context, url, downloadProgress){
                                     return Container(
+                                      color: Colors.grey,
                                       child: Center(
                                         child: CircularProgressIndicator(
                                           backgroundColor: Colors.white,
@@ -265,10 +279,10 @@ class PostCard extends StatelessWidget {
                         height: 30,
                         width: 80,
                         child: InkWell(
-                          child:Text("댓글 ${item.comment.length}개",
-                            style: TextStyle(color: Colors.grey[700]),
-                          ),
-                          onTap:showCommentSheet
+                            child:Text("댓글 ${item.comment.length}개",
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                            onTap:showCommentSheet
                         ),
                       ) : null,
                     ].where(notNull).toList(),
@@ -287,10 +301,10 @@ class PostCard extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Icon(item.like != null ?
-                                  item.like[currentUser.uid] != null ?
-                                  Icons.favorite : // 좋아요가 존재할 때
-                                  Icons.favorite_border : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                                  Icons.favorite_border, // 좋아요 목록이 존재하지 않을 때
+                              item.like[currentUser.uid] != null ?
+                              Icons.favorite : // 좋아요가 존재할 때
+                              Icons.favorite_border : // 좋아요 목록에 현재 유저 아이디가 없을 때
+                              Icons.favorite_border, // 좋아요 목록이 존재하지 않을 때
                                 color: item.like != null ?
                                 item.like[currentUser.uid] != null ?
                                 Colors.red[600] : // 좋아요가 존재할 때
@@ -329,9 +343,7 @@ class PostCard extends StatelessWidget {
                   )
                 ].where(notNull).toList(),
               )
-            ),
-          )
-        ),
+          ),
       ),
     );
   }

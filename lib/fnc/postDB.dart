@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:nextor/fnc/auth.dart';
 import 'package:nextor/fnc/comment.dart';
 import 'package:nextor/fnc/like.dart';
 import 'package:path/path.dart';
@@ -68,6 +69,7 @@ class Post {
   String body;
   String uploaderUID;
   String uploadDate;
+  User uploader;
   bool isEdited;
 
   List<Attach> attach;

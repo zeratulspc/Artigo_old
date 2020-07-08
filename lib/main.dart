@@ -21,8 +21,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //FlutterStatusbarcolor.setStatusBarColor(Colors.white);
-    //FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: routes,
@@ -37,7 +35,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.grey[300],
         primaryColor: Colors.green,
         primarySwatch: Colors.green,
-        accentColor: Colors.greenAccent,
+        accentColor: Colors.lightGreen,
       ),
       home: SplashScreen(),
     );
