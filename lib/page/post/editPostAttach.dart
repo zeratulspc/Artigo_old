@@ -4,7 +4,6 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' ;
 
-import 'package:image/image.dart' as Img;
 import 'package:image_picker/image_picker.dart';
 
 import 'package:nextor/fnc/postDB.dart';

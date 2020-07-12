@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:connectivity/connectivity.dart';
 
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/page/basicDialogs.dart';
 // TODO 회원가입 구현.
 // 별도의 관리자 개입이 없는이상 첫 role 은 GUEST 임.
@@ -20,7 +20,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  AuthDBFNC authDBFNC = AuthDBFNC();
+  UserDBFNC authDBFNC = UserDBFNC();
   BasicDialogs basicDialogs = BasicDialogs();
 
   //유저 정보 변수

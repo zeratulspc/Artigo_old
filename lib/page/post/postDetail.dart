@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/like.dart';
 import 'package:nextor/page/like/likeList.dart';
@@ -290,7 +290,7 @@ class _PostDetailState extends State<PostDetail> {
                                 Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
                               ),
                               SizedBox(width: 5,),
-                              Text("좋아요", style: Theme.of(context).textTheme.subtitle,)
+                              Text("좋아요", style: Theme.of(context).textTheme.subtitle2,)
                             ],
                           ),
                           onPressed: item.like != null ?
@@ -308,7 +308,7 @@ class _PostDetailState extends State<PostDetail> {
                             children: <Widget>[
                               Icon(Icons.comment, color: Colors.grey[600],),
                               SizedBox(width: 5,),
-                              Text("댓글 달기",style: Theme.of(context).textTheme.subtitle,)
+                              Text("댓글 달기",style: Theme.of(context).textTheme.subtitle2,)
                             ],
                           ),
                           onPressed: (){
@@ -500,7 +500,7 @@ class _PostDetailState extends State<PostDetail> {
                                     Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
                                   ),
                                   SizedBox(width: 5,),
-                                  Text("좋아요", style: Theme.of(context).textTheme.subtitle,)
+                                  Text("좋아요", style: Theme.of(context).textTheme.subtitle2,)
                                 ],
                               ),
                               onPressed: item.attach[index].like != null ?
@@ -518,7 +518,7 @@ class _PostDetailState extends State<PostDetail> {
                                 children: <Widget>[
                                   Icon(Icons.comment, color: Colors.grey[600],),
                                   SizedBox(width: 5,),
-                                  Text("댓글 달기",style: Theme.of(context).textTheme.subtitle,)
+                                  Text("댓글 달기",style: Theme.of(context).textTheme.subtitle2,)
                                 ],
                               ),
                               onPressed: (){

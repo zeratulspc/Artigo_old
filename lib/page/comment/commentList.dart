@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/comment.dart';
 import 'package:nextor/fnc/like.dart';
@@ -30,7 +30,7 @@ class CommentListState extends State<CommentList> {
   CommentDBFNC commentDBFNC;
   LikeDBFNC likeDBFNC;
   PostDBFNC postDBFNC = PostDBFNC();
-  AuthDBFNC authDBFNC = AuthDBFNC();
+  UserDBFNC authDBFNC = UserDBFNC();
   BasicDialogs basicDialogs = BasicDialogs();
   DatabaseReference commentDBRef;
   DatabaseReference likeDBRef;

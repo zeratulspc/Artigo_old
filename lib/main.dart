@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
 import 'package:nextor/page/auth/login.dart';
 import 'package:nextor/page/home.dart';

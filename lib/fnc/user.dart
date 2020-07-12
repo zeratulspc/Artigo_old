@@ -8,7 +8,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class AuthDBFNC {
+class UserDBFNC {
   final userDBRef = FirebaseDatabase.instance.reference().child("Users");
   final userStorageRef = FirebaseStorage.instance.ref().child("UserStorages");
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -129,18 +129,25 @@ class AuthDBFNC {
     await userDBRef.child(uid).update({"profileImageURL" : profileImageURL,});
   }
 
-  //TODO 커버사진
 
   // 삭제
-
   Future deleteUser({FirebaseUser currentUser}) async {
     await userDBRef.child(currentUser.uid).remove();
     await currentUser.delete();
   }
 
+  //팔로우 기능
+  followUser(String myUid, String targetUid) {
+    userDBRef.child(targetUid).child("follower").child(myUid).set({"followerUid" : myUid, "followDate": DateTime.now().toIso8601String()});
+    userDBRef.child(myUid).child("following").child(targetUid).set({"followingUid" : targetUid, "followingDate": DateTime.now().toIso8601String()});
+  }
+
+  unFollowUser(String myUid, String targetUid) {
+    userDBRef.child(targetUid).child("follower").child(myUid).remove();
+    userDBRef.child(myUid).child("following").child(targetUid).remove();
+  }
 
   // Auth
-
   Future<AuthResult> loginUser({String email, String password, String loginDate}) async {
     try {
       AuthResult result = await auth.signInWithEmailAndPassword(email: email, password: password);
@@ -157,7 +164,7 @@ class AuthDBFNC {
   }
 
   Future<User> getUserInfo(String uid) async { // uid 를 입력한 유저의 정보 가져오기
-    User user = User.fromSnapShot(await userDBRef.child(uid).once());
+    User user = User().fromSnapShot(await userDBRef.child(uid).once());
     return user;
   }
 
@@ -178,35 +185,43 @@ class User {
   String role; // GUEST, MEMBER, ADMIN
   String token; //TODO FCM
 
-  List<String> follower; // 팔로워
-  List<String> following; // 팔로잉
+  List<Follower> follower = List(); // 팔로워
+  List<Following> following = List(); // 팔로잉
 
-  User({this.key,this.userName,
+  User({this.key,this.userName, this.description, this.profileImageURL, this.following, this.follower,
     this.email, this.registerDate, this.recentLoginDate, this.role, this.token});
 
-  User.fromLinkedHashMap(LinkedHashMap linkedHashMap)
-      :key = linkedHashMap["key"],
-        userName = linkedHashMap["userName"],
-        email = linkedHashMap["email"],
-        description = linkedHashMap["description"],
-        registerDate = linkedHashMap["registerDate"],
-        recentLoginDate = linkedHashMap["recentLoginDate"],
-        profileImageURL = linkedHashMap["profileImageURL"],
-        role = linkedHashMap["role"],
-        token = linkedHashMap["token"];
+  fromSnapShot(DataSnapshot snapshot) {
+    LinkedHashMap<dynamic, dynamic> _followerList = snapshot.value["follower"];
+    List<Follower> followerList = List();
+    if(_followerList != null){
+      _followerList.forEach((k, v) {
+        followerList.add(Follower().fromLinkedHashMap(v));
+      });
+    }
 
-  User.fromSnapShot(DataSnapshot snapshot)
-      :key = snapshot.key,
-        userName = snapshot.value["userName"],
-        email = snapshot.value["email"],
-        description = snapshot.value["description"],
-        registerDate = snapshot.value["registerDate"],
-        recentLoginDate = snapshot.value["recentLoginDate"],
-        profileImageURL = snapshot.value["profileImageURL"],
-        role = snapshot.value["role"],
-        token = snapshot.value["token"],
-        follower = snapshot.value["follower"],
-        following = snapshot.value["following"];
+    LinkedHashMap<dynamic, dynamic> _followingList = snapshot.value["following"];
+    List<Following> followingList = List();
+    if(_followingList != null){
+      _followingList.forEach((k, v) {
+        followingList.add(Following().fromLinkedHashMap(v));
+      });
+    }
+
+    return User(
+        key : snapshot.key,
+        userName : snapshot.value["userName"],
+        email : snapshot.value["email"],
+        description : snapshot.value["description"],
+        registerDate : snapshot.value["registerDate"],
+        recentLoginDate : snapshot.value["recentLoginDate"],
+        profileImageURL : snapshot.value["profileImageURL"],
+        role : snapshot.value["role"],
+        token : snapshot.value["token"],
+        follower : followerList,
+        following : followingList,
+    );
+  }
 
   toMap() {
     return {
@@ -230,5 +245,53 @@ class Follower {
   String followerUid; //팔로워 uid
   String followDate; //팔로우 한 날짜
 
+  Follower({this.followDate, this.followerUid});
 
+  Follower fromLinkedHashMap(LinkedHashMap linkedHashMap){
+    return Follower(
+      followerUid : linkedHashMap["followerUid"],
+      followDate : linkedHashMap["followDate"],
+    );
+  }
+
+  Follower fromSnapShot(DataSnapshot snapshot){
+    return Follower(
+      followerUid : snapshot.value["followerUid"],
+      followDate : snapshot.value["followDate"],
+    );
+  }
+  toMap(){
+    return {
+      "followerUid" : followerUid,
+      "followDate" : followDate,
+    };
+  }
+}
+
+class Following {
+  String followingUid; // 팔로우 한 사람 uid
+  String followingDate; // 팔로우 한 날짜
+
+  Following({this.followingDate, this.followingUid});
+
+  Following fromLinkedHashMap(LinkedHashMap linkedHashMap){
+    return Following(
+      followingUid : linkedHashMap["followingUid"],
+      followingDate : linkedHashMap["followingDate"],
+    );
+  }
+
+  Following fromSnapShot(DataSnapshot snapshot){
+    return Following(
+      followingUid : snapshot.value["followingUid"],
+      followingDate : snapshot.value["followingDate"],
+    );
+  }
+
+  toMap(){
+    return {
+      "followingUid" : followingUid,
+      "followingDate" : followingDate,
+    };
+  }
 }

@@ -1,11 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
 
 import 'package:nextor/fnc/comment.dart';
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 
 
 class CommentItem extends StatelessWidget {

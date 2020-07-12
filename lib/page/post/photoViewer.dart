@@ -1,12 +1,10 @@
-import 'dart:collection';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
 import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/like.dart';
 import 'package:nextor/page/comment/commentList.dart';
 

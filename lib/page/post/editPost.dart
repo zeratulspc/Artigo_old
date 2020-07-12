@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' ;
 import 'dart:io';
 
-import 'package:image/image.dart' as Img;
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/editPostAttach.dart';

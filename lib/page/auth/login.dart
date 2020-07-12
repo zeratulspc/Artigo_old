@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:connectivity/connectivity.dart';
 
 import 'package:nextor/fnc/preferencesData.dart';
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/page/auth/register.dart';
 import 'package:nextor/page/basicDialogs.dart';
 
@@ -18,7 +18,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   BasicDialogs basicDialogs = BasicDialogs();
 
   // 로그인 관련 변수
-  final AuthDBFNC authDBFNC = AuthDBFNC();
+  final UserDBFNC authDBFNC = UserDBFNC();
   final loginKey = GlobalKey<FormState>();
   String email;
   String password;

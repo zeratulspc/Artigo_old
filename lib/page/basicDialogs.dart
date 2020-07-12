@@ -38,7 +38,7 @@ class BasicDialogs {
               onPressed: function,
             ),
             FlatButton(
-              child: Text("취소", style: TextStyle(color: Theme.of(context).textTheme.subtitle.color),),
+              child: Text("취소", style: TextStyle(color: Theme.of(context).textTheme.subtitle2.color),),
               onPressed: ()=> Navigator.pop(context),
             ),
           ],

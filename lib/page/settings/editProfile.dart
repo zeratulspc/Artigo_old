@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/page/basicDialogs.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -17,7 +17,7 @@ class EditProfilePage extends StatefulWidget {
 
 class EditProfilePageState extends State<EditProfilePage> {
   BasicDialogs basicDialogs = BasicDialogs();
-  AuthDBFNC authDBFNC = AuthDBFNC();
+  UserDBFNC authDBFNC = UserDBFNC();
   FirebaseUser currentUser;
   String userName;
   String description;
@@ -234,7 +234,7 @@ class TextFieldPageState extends State<TextFieldPage> {
   String item;
   TextFieldPageState({this.object, this.uid, this.item});
 
-  AuthDBFNC authDBFNC = AuthDBFNC();
+  UserDBFNC authDBFNC = UserDBFNC();
 
   String objectToInfo(String object) {
     switch(object) {
@@ -355,17 +355,17 @@ class TextFieldPageState extends State<TextFieldPage> {
                     switch(object){
                       case "userName":
                         if (value.length == 0)
-                          return '${objectToInfo(object)}을 입력해주세요.';
+                          return '닉네임을 입력해주세요.';
                         else if(value.length >= 16)
-                          return '${objectToInfo(object)}은 16글자를 넘길 수 없습니다.';
+                          return '닉네임은 16글자를 넘길 수 없습니다.';
                         else
                           return null;
                         break;
                       case "description":
                         if (value.length == 0)
-                          return '${objectToInfo(object)}을 입력해주세요.';
+                          return '한줄소개를 입력해주세요.';
                         else if(value.length >= 64)
-                          return '${objectToInfo(object)}은 64글자를 넘길 수 없습니다.';
+                          return '한줄소개는 64글자를 넘길 수 없습니다.';
                         else
                           return null;
                         break;

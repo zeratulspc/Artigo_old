@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/like.dart';
 import 'package:nextor/page/like/likeLoading.dart';
@@ -23,7 +23,7 @@ class LikeList extends StatefulWidget {
 
 class LikeListState extends State<LikeList> {
   PostDBFNC postDBFNC = PostDBFNC();
-  AuthDBFNC authDBFNC = AuthDBFNC();
+  UserDBFNC authDBFNC = UserDBFNC();
 
   bool isValid = false;
 

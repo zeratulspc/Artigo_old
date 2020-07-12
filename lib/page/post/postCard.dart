@@ -5,8 +5,9 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/page/post/postDetail.dart';
+import 'package:nextor/page/profile/userProfile.dart';
 
 
 class PostCard extends StatelessWidget {
@@ -19,6 +20,7 @@ class PostCard extends StatelessWidget {
         this.screenSize,
         this.likeToPost,
         this.dislikeToPost,
+        this.showProfileSheet,
         this.showCommentSheet,
         this.showLikeSheet,
         @required this.item,})
@@ -30,6 +32,7 @@ class PostCard extends StatelessWidget {
   final Function likeToPost;
   final Function dislikeToPost;
   final Function showCommentSheet;
+  final Function showProfileSheet;
   final Function showLikeSheet;
   final Post item;
   final User uploader;
@@ -106,12 +109,27 @@ class PostCard extends StatelessWidget {
                             uploader.profileImageURL != null ?
                             ClipRRect( // User 정보가 있고, ProfileImage 가 존재할 때
                               borderRadius: BorderRadius.circular(80),
-                              child: Container(
-                                height: 40,
-                                width: 40,
-                                child: CachedNetworkImage(
-                                  imageUrl: uploader.profileImageURL,
+                              child: GestureDetector(
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  child: CachedNetworkImage(
+                                    imageUrl: uploader.profileImageURL,
+                                  ),
                                 ),
+                                onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.grey[300],
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return Container(
+                                        height: screenSize.height-50,
+                                        child: UserProfilePage(targetUserUid: uploader.key,),
+                                      );
+                                    },
+                                  );
+                                },
                               ),
                             ) :
                             ClipRRect(// User 정보가 있고, ProfileImage 가 존재하지 않을 때
@@ -144,7 +162,17 @@ class PostCard extends StatelessWidget {
                                   child: Text(uploader.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
                                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
                                   onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
-                                    //TODO 유저 프로필 페이지로 네비게이트
+                                    showModalBottomSheet(
+                                      backgroundColor: Colors.grey[300],
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (context) {
+                                        return Container(
+                                          height: screenSize.height-50,
+                                          child: UserProfilePage(targetUserUid: uploader.key,),
+                                        );
+                                      },
+                                    );
                                   },
                                 ),
                               ) :
@@ -313,7 +341,7 @@ class PostCard extends StatelessWidget {
                               ),
                               SizedBox(width: 5,),
                               InkWell(
-                                child: Text("좋아요", style: Theme.of(context).textTheme.subtitle,),
+                                child: Text("좋아요", style: Theme.of(context).textTheme.subtitle2,),
                                 onTap: null,
                               ),
                             ],
@@ -333,7 +361,7 @@ class PostCard extends StatelessWidget {
                             children: <Widget>[
                               Icon(Icons.comment, color: Colors.grey[600],),
                               SizedBox(width: 5,),
-                              Text("댓글 달기",style: Theme.of(context).textTheme.subtitle,)
+                              Text("댓글 달기",style: Theme.of(context).textTheme.subtitle2,)
                             ],
                           ),
                           onPressed: showCommentSheet,

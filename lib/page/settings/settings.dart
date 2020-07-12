@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:package_info/package_info.dart';
 
 import 'package:nextor/fnc/preferencesData.dart';
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/versionCheck.dart';
 
 import 'package:nextor/page/settings/editProfile.dart';
@@ -18,7 +18,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   VersionCheck versionCheck = VersionCheck();
-  AuthDBFNC authDBFNC = AuthDBFNC();
+  UserDBFNC authDBFNC = UserDBFNC();
   FirebaseUser currentUser;
   String userName;
   String description;
@@ -166,9 +166,9 @@ class _SettingsState extends State<Settings> {
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(
-                    builder: (_) => EditProfilePage(callback: () {
-                      authDBFNC.getUserInfo(currentUser.uid).then(
-                              (data) {
+                    builder: (_) => EditProfilePage(
+                      callback: () {
+                      authDBFNC.getUserInfo(currentUser.uid).then((data) {
                             setState(() {
                               userName = data.userName;
                               description = data.description;

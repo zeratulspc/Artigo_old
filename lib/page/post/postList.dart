@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/like.dart';
 import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/postCard.dart';
 import 'package:nextor/page/post/editPost.dart';
-import 'package:nextor/page/post/postLoading.dart';
 import 'package:nextor/page/comment/commentList.dart';
 import 'package:nextor/page/like/likeList.dart';
 
@@ -19,7 +17,7 @@ class PostList extends StatefulWidget {
   final GlobalKey<ScaffoldState> homeScaffoldKey;
   final VoidCallback navigateToMyProfile;
   final ScrollController scrollController;
-  PostList({this.navigateToMyProfile, this.scrollController, this.homeScaffoldKey});
+  PostList({this.navigateToMyProfile,this.scrollController, this.homeScaffoldKey});
 
   @override
   _PostListState createState() => _PostListState();
@@ -27,7 +25,6 @@ class PostList extends StatefulWidget {
 
 class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
   BasicDialogs basicDialogs = BasicDialogs();
-  
 
   //리스트 로딩 관련 변수
   PostDBFNC postDBFNC = PostDBFNC();
@@ -36,7 +33,7 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
 
 
   // 현재 유저 정보
-  AuthDBFNC authDBFNC = AuthDBFNC();
+  UserDBFNC authDBFNC = UserDBFNC();
   FirebaseUser currentUser;
   User user;
 
@@ -81,7 +78,6 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
                 DateTime dateB = DateTime.parse(b.uploadDate);
                 return dateB.compareTo(dateA);
               });
-
             });
           });
     }

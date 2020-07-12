@@ -1,13 +1,9 @@
 import 'dart:collection';
 import 'dart:io';
-import 'dart:convert';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:nextor/fnc/auth.dart';
-import 'package:nextor/fnc/comment.dart';
-import 'package:nextor/fnc/like.dart';
-import 'package:path/path.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:uuid/uuid.dart';
 
 
@@ -36,8 +32,6 @@ class PostDBFNC {
       print(error.hashCode);
     });
   }
-
-
 
   Future deletePhoto(String postKey, Attach attach) async {
     await fireBaseStorageRef.child(postKey).child(attach.fileName).delete();
@@ -80,15 +74,9 @@ class Post {
     this.like, this.comment, this.isEdited,});
 
   fromSnapShot(DataSnapshot snapshot) {
-// List<dynamic> 을 List<Attach> 으로 파싱하는 코드임.
-//    var _list = snapshot.value["attach"] as List;
-//    List<Attach> _attachList;
-//    if(_list != null) {
-//      _attachList = _list.map((i) => Attach.fromJson(i)).toList();
-//    }
     LinkedHashMap<dynamic, dynamic> _list = snapshot.value["attach"];
     List<Attach> attachList = List();
-    if(_list != null){
+    if(_list != null) {
       _list.forEach((k, v) {
         attachList.add(Attach.fromLinkedHashMap(v));
       });

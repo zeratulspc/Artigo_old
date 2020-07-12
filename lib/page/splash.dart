@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/preferencesData.dart';
 import 'package:nextor/fnc/versionCheck.dart';
 import 'package:nextor/page/auth/login.dart';
@@ -13,7 +13,7 @@ class SplashScreen extends StatefulWidget {
 
 class SplashScreenState extends State<SplashScreen> {
   BasicDialogs basicDialogs = BasicDialogs();
-  AuthDBFNC authDBFNC = AuthDBFNC();
+  UserDBFNC authDBFNC = UserDBFNC();
   VersionCheck versionCheck = VersionCheck();
 
   @override

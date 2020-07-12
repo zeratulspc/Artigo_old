@@ -1,17 +1,15 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:nextor/page/comment/commentList.dart';
 
 import 'package:page_transition/page_transition.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:nextor/fnc/auth.dart';
+import 'package:nextor/fnc/user.dart';
 
 import 'package:nextor/page/post/postList.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/todo/todoBoard.dart';
 import 'package:nextor/page/data/dataBoard.dart';
 import 'package:nextor/page/settings/settings.dart';
-import 'package:nextor/page/profile/myProfile.dart';
+import 'package:nextor/page/profile/userProfile.dart';
 import 'package:nextor/page/post/searchPage.dart';
 
 //temp
@@ -25,7 +23,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   GlobalKey<ScaffoldState> homeScaffoldKey = GlobalKey<ScaffoldState>();
   PostDBFNC postDBFNC = PostDBFNC();
-  AuthDBFNC authDBFNC = AuthDBFNC();
+  UserDBFNC authDBFNC = UserDBFNC();
   ScrollController scrollController;
   TabController _tabController;
   bool isPageCanChanged = true;
@@ -141,7 +139,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             TodoBoard(),
             DataBoard(),
-            MyProfile(),
+            UserProfilePage(),
             Settings(scrollController: scrollController,),
           ],
           controller: _tabController,
