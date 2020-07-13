@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:page_transition/page_transition.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:nextor/fnc/user.dart';
 
+
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/page/post/postList.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/todo/todoBoard.dart';
@@ -132,6 +133,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           children: <Widget>[
             PostList(
               navigateToMyProfile: () {
+                Navigator.popUntil(context, ModalRoute.withName('/home'));
                 onPageChange(3);
               },
               homeScaffoldKey: homeScaffoldKey,
@@ -139,7 +141,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             TodoBoard(),
             DataBoard(),
-            UserProfilePage(),
+            UserProfilePage(
+              navigateToMyProfile: () {
+                Navigator.popUntil(context, ModalRoute.withName('/home'));
+                onPageChange(3);
+              },
+            ),
             Settings(scrollController: scrollController,),
           ],
           controller: _tabController,

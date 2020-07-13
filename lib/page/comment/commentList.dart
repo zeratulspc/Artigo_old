@@ -20,8 +20,9 @@ class CommentList extends StatefulWidget {
   final String attachKey;
   final FirebaseUser currentUser;
   final VoidCallback getPost;
+  final VoidCallback navigateToMyProfile;
 
-  CommentList({this.postKey, this.currentUser, this.attachKey, this.commentKey, this.getPost});
+  CommentList({this.postKey, this.currentUser, this.attachKey, this.commentKey, this.getPost, this.navigateToMyProfile});
   @override
   CommentListState createState() => CommentListState();
 }
@@ -223,6 +224,7 @@ class CommentListState extends State<CommentList> {
                             },
                           );
                         },
+                        navigateToMyProfile: this.widget.navigateToMyProfile,
                         moreOption: (){
                           if(widget.currentUser.uid == comment.uploaderUID)
                             commentMoreOptionSheet(context, comment);
@@ -242,6 +244,7 @@ class CommentListState extends State<CommentList> {
                               postKey: widget.postKey,
                               commentKey: comment.key,
                               currentUser: widget.currentUser,
+                              navigateToMyProfile: widget.navigateToMyProfile,
                             );
                           },
                         ) : null : () => showModalBottomSheet( // Attach 댓글의 답글
@@ -254,6 +257,7 @@ class CommentListState extends State<CommentList> {
                               attachKey: widget.attachKey,
                               commentKey: comment.key,
                               currentUser: widget.currentUser,
+                              navigateToMyProfile: widget.navigateToMyProfile,
                             );
                           },
                         ),

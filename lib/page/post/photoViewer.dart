@@ -15,6 +15,7 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
   GalleryPhotoViewWrapper({
     this.loadingChild,
     this.backgroundDecoration,
+    this.navigateToMyProfile,
     this.minScale,
     this.maxScale,
     this.initialIndex,
@@ -27,6 +28,7 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
 
   final Function loadingChild;
   final Decoration backgroundDecoration;
+  final VoidCallback navigateToMyProfile;
   final dynamic minScale;
   final dynamic maxScale;
   final int initialIndex;
@@ -266,6 +268,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                                       postKey: widget.postKey,
                                       currentUser: widget.currentUser,
                                       attachKey: items[currentIndex].key,
+                                      navigateToMyProfile: widget.navigateToMyProfile,
                                     );
                                   },
                                 );

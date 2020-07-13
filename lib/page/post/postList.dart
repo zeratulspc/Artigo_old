@@ -196,6 +196,7 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
                 context: context,
                 builder: (context) {
                   return CommentList(
+                    navigateToMyProfile: widget.navigateToMyProfile,
                     postKey: post.key,
                     currentUser: currentUser,
                   );

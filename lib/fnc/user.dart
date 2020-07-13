@@ -10,7 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class UserDBFNC {
   final userDBRef = FirebaseDatabase.instance.reference().child("Users");
-  final userStorageRef = FirebaseStorage.instance.ref().child("UserStorages");
+  final userStorageRef = FirebaseStorage.instance.ref().child("UserStorages"); //TODO UserStorages -> UserStorage 로 바꾸기 # 0.1.4
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   //TODO 이메일 인증
@@ -147,7 +147,7 @@ class UserDBFNC {
     userDBRef.child(myUid).child("following").child(targetUid).remove();
   }
 
-  // Auth
+  // 인증
   Future<AuthResult> loginUser({String email, String password, String loginDate}) async {
     try {
       AuthResult result = await auth.signInWithEmailAndPassword(email: email, password: password);

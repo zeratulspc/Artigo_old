@@ -41,8 +41,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
-
 class RemoveGrow extends ScrollBehavior {
   @override
   Widget buildViewportChrome(

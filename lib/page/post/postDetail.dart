@@ -19,8 +19,9 @@ class PostDetail extends StatefulWidget {
   final Post item;
   final User uploader;
   final FirebaseUser currentUser;
+  final VoidCallback navigateToMyProfile;
 
-  PostDetail({this.item, this.uploader, this.currentUser});
+  PostDetail({this.item, this.uploader, this.currentUser, this.navigateToMyProfile});
 
   @override
   _PostDetailState createState() => _PostDetailState(item);
@@ -252,6 +253,7 @@ class _PostDetailState extends State<PostDetail> {
                               context: context,
                               builder: (context) {
                                 return CommentList(
+                                  navigateToMyProfile: widget.navigateToMyProfile,
                                   postKey: item.key,
                                   currentUser: widget.currentUser,
                                 );
@@ -320,6 +322,7 @@ class _PostDetailState extends State<PostDetail> {
                                 return CommentList(
                                   postKey: item.key,
                                   currentUser: widget.currentUser,
+                                  navigateToMyProfile: widget.navigateToMyProfile,
                                 );
                               },
                             );
@@ -345,6 +348,7 @@ class _PostDetailState extends State<PostDetail> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => GalleryPhotoViewWrapper(
+                                navigateToMyProfile: widget.navigateToMyProfile,
                                 uploader: widget.uploader,
                                 currentUser: widget.currentUser,
                                 galleryItems: item.attach,
@@ -464,6 +468,7 @@ class _PostDetailState extends State<PostDetail> {
                                       postKey: item.key,
                                       currentUser: widget.currentUser,
                                       attachKey: item.attach[index].key,
+                                      navigateToMyProfile: widget.navigateToMyProfile,
                                     );
                                   },
                                 );
@@ -532,6 +537,7 @@ class _PostDetailState extends State<PostDetail> {
                                       postKey: item.key,
                                       currentUser: widget.currentUser,
                                       attachKey: item.attach[index].key,
+                                      navigateToMyProfile: widget.navigateToMyProfile,
                                     );
                                   },
                                 );

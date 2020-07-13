@@ -18,7 +18,8 @@ import 'package:nextor/page/profile/followList.dart';
 
 class UserProfilePage extends StatefulWidget { // 내 프로필 페이지
   final String targetUserUid;
-  UserProfilePage({this.targetUserUid});
+  final VoidCallback navigateToMyProfile;
+  UserProfilePage({this.targetUserUid, this.navigateToMyProfile});
   @override
   _UserProfilePageState createState() => _UserProfilePageState(targetUserUid: targetUserUid);
 }
@@ -544,6 +545,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 context: context,
                 builder: (context) {
                   return CommentList(
+                    navigateToMyProfile: widget.navigateToMyProfile,
                     postKey: post.key,
                     currentUser: currentUser,
                   );

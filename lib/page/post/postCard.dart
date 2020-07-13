@@ -118,6 +118,7 @@ class PostCard extends StatelessWidget {
                                   ),
                                 ),
                                 onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
+                                  Navigator.popUntil(context, ModalRoute.withName('/home'));
                                   showModalBottomSheet(
                                     backgroundColor: Colors.grey[300],
                                     isScrollControlled: true,
@@ -125,7 +126,7 @@ class PostCard extends StatelessWidget {
                                     builder: (context) {
                                       return Container(
                                         height: screenSize.height-50,
-                                        child: UserProfilePage(targetUserUid: uploader.key,),
+                                        child: UserProfilePage(targetUserUid: uploader.key, navigateToMyProfile: navigateToMyProfile,),
                                       );
                                     },
                                   );
@@ -162,6 +163,7 @@ class PostCard extends StatelessWidget {
                                   child: Text(uploader.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
                                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
                                   onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
+                                    Navigator.popUntil(context, ModalRoute.withName('/home'));
                                     showModalBottomSheet(
                                       backgroundColor: Colors.grey[300],
                                       isScrollControlled: true,
@@ -169,7 +171,7 @@ class PostCard extends StatelessWidget {
                                       builder: (context) {
                                         return Container(
                                           height: screenSize.height-50,
-                                          child: UserProfilePage(targetUserUid: uploader.key,),
+                                          child: UserProfilePage(targetUserUid: uploader.key, navigateToMyProfile: navigateToMyProfile,),
                                         );
                                       },
                                     );
@@ -219,7 +221,7 @@ class PostCard extends StatelessWidget {
                         Navigator.push(context,
                             PageTransition(
                               type: PageTransitionType.rightToLeftWithFade,
-                              child: PostDetail(item: item, uploader: uploader, currentUser: currentUser,),)
+                              child: PostDetail(item: item, uploader: uploader, currentUser: currentUser, navigateToMyProfile: navigateToMyProfile,),)
                         );
                       } : (){},
                     ),

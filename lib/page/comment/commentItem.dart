@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:nextor/fnc/comment.dart';
 import 'package:nextor/fnc/user.dart';
+import 'package:nextor/page/profile/userProfile.dart';
 
 
 class CommentItem extends StatelessWidget {
@@ -11,6 +12,7 @@ class CommentItem extends StatelessWidget {
         @required this.animation,
         this.currentUser,
         this.uploader,
+        this.navigateToMyProfile,
         this.moreOption,
         this.screenSize,
         this.seeLikeList,
@@ -23,6 +25,7 @@ class CommentItem extends StatelessWidget {
         super(key: key);
 
   final Animation<double> animation;
+  final VoidCallback navigateToMyProfile;
   final Function seeLikeList;
   final Function moreOption;
   final Function likeToComment;
@@ -71,13 +74,29 @@ class CommentItem extends StatelessWidget {
                                   )
                               ),
                               uploader.profileImageURL != null ?
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(80),
-                                child: Image.network(
-                                  uploader.profileImageURL,
-                                  height: 40.0,
-                                  width: 40.0,
+                              InkWell(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(80),
+                                  child: Image.network(
+                                    uploader.profileImageURL,
+                                    height: 40.0,
+                                    width: 40.0,
+                                  ),
                                 ),
+                                onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
+                                  Navigator.popUntil(context, ModalRoute.withName('/home'));
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.grey[300],
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return Container(
+                                        height: screenSize.height-50,
+                                        child: UserProfilePage(targetUserUid: uploader.key, navigateToMyProfile: navigateToMyProfile,),
+                                      );
+                                    },
+                                  );
+                                },
                               ) : ClipRRect(
                                   borderRadius: BorderRadius.circular(80),
                                   child: Container(
@@ -103,8 +122,19 @@ class CommentItem extends StatelessWidget {
                                   InkWell(
                                     child: Text(uploader.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
                                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
-                                    onTap: currentUser.uid == uploader.key ? (){} : (){
-                                      //TODO 유저 프로필 페이지로 네비게이트
+                                    onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
+                                      Navigator.popUntil(context, ModalRoute.withName('/home'));
+                                      showModalBottomSheet(
+                                        backgroundColor: Colors.grey[300],
+                                        isScrollControlled: true,
+                                        context: context,
+                                        builder: (context) {
+                                          return Container(
+                                            height: screenSize.height-50,
+                                            child: UserProfilePage(targetUserUid: uploader.key, navigateToMyProfile: navigateToMyProfile,),
+                                          );
+                                        },
+                                      );
                                     },
                                   ),
                                   Container(
