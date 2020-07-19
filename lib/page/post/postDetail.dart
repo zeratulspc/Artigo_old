@@ -40,7 +40,7 @@ class _PostDetailState extends State<PostDetail> {
   bool notNull(Object o) => o != null;
   likeToPost() {
     DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key);
-    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid);
+    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid, item.uploader.key);
     refreshPost();
   }
   dislikeToPost() {
@@ -50,7 +50,7 @@ class _PostDetailState extends State<PostDetail> {
   }
   likeToAttach(String key) {
     DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key).child("attach").child(key);
-    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid);
+    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid, item.uploader.key);
     refreshPost();
   }
   dislikeToAttach(String key) {

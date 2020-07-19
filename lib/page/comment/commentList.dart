@@ -230,7 +230,7 @@ class CommentListState extends State<CommentList> {
                             commentMoreOptionSheet(context, comment);
                         },
                         likeToComment: (){
-                          LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).like(widget.currentUser.uid);
+                          LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).like(widget.currentUser.uid, comment.uploaderUID);
                         },
                         dislikeToComment: (){
                           LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).dislike(widget.currentUser.uid);

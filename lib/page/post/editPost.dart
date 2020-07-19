@@ -8,6 +8,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
+import 'package:nextor/fnc/notification.dart';
 import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/editPostAttach.dart';
 
@@ -89,6 +90,11 @@ class EditPostState extends State<EditPost> {
       for(int i = 0;i < attach.length; i++) {
         await postDBFNC.addPhoto(attach[i], key); // photo 업로드 실패 예외처리
       }
+      NotificationFCMFnc().sendFollowerNotification(
+        senderUid: widget.currentUser.uid,
+        title: "${widget.uploader.userName}님이 새 게시글을 작성하셨습니다.",
+        body: textEditingController.text,
+      );
       Navigator.pop(context); // 로딩 다이알로그 pop
       Navigator.pop(context); // 페이지 pop
     } else {
@@ -123,6 +129,12 @@ class EditPostState extends State<EditPost> {
     for(int i = 0;i < newPhotoIndex.length; i++) {
       await postDBFNC.addPhoto(attach[newPhotoIndex[i]], widget.initialPost.key); // photo 업로드 실패 예외처리'
     }
+
+    NotificationFCMFnc().sendFollowerNotification(
+      senderUid: widget.currentUser.uid,
+      title: "${widget.uploader.userName}님이 게시글을 수정하셨습니다.",
+      body: textEditingController.text,
+    );
     Navigator.pop(context); // 로딩 다이알로그 pop
     Navigator.pop(context); // 페이지 pop
 

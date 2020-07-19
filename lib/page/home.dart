@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:nextor/fnc/postDB.dart';
 
 import 'package:page_transition/page_transition.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:nextor/fnc/user.dart';
+import 'package:nextor/fnc/notification.dart';
 import 'package:nextor/page/post/postList.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/todo/todoBoard.dart';
@@ -13,24 +15,25 @@ import 'package:nextor/page/settings/settings.dart';
 import 'package:nextor/page/profile/userProfile.dart';
 import 'package:nextor/page/post/searchPage.dart';
 
-//temp
-import 'package:nextor/fnc/postDB.dart';
-
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  //UI
   GlobalKey<ScaffoldState> homeScaffoldKey = GlobalKey<ScaffoldState>();
-  PostDBFNC postDBFNC = PostDBFNC();
-  UserDBFNC authDBFNC = UserDBFNC();
   ScrollController scrollController;
   TabController _tabController;
   bool isPageCanChanged = true;
 
+  //Auth
+  UserDBFNC authDBFNC = UserDBFNC();
   FirebaseUser currentUser;
   User currentUserInfo;
+
+  //FCM
+  FirebaseMessaging firebaseMessaging = FirebaseMessaging();
 
   void initState() {
     super.initState();
@@ -51,6 +54,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             currentUser = _currentUser;
           });
         }
+        firebaseMessaging.getToken().then((token){
+          authDBFNC.updateUserToken(uid: currentUser.uid, token: token);
+        });
         authDBFNC.getUserInfo(currentUser.uid).then((userInfo){
           if(this.mounted) {
             setState(() {
@@ -60,6 +66,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         });
       });
     }
+
+    firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) => NotificationFCMFnc.onMessage(context, message),
+      onResume: (Map<String, dynamic> message) => NotificationFCMFnc.onResume(context, message),
+      onLaunch: (Map<String, dynamic> message) => NotificationFCMFnc.onLaunch(context, message),
+    );
   }
 
 

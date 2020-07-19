@@ -536,7 +536,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             },
             likeToPost: (){
               DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
-              LikeDBFNC(likeDBRef: likeDBRef).like(currentUser.uid);
+              LikeDBFNC(likeDBRef: likeDBRef).like(currentUser.uid, post.uploaderUID);
             },
             showCommentSheet: () {
               showModalBottomSheet(

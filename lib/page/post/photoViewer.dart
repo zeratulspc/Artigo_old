@@ -57,7 +57,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
 
   likeToAttach(String key) {
     likeDBRef = postDBFNC.postDBRef.child(widget.postKey).child("attach").child(key);
-    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid);
+    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid, widget.uploader.key);
     refreshPost(widget.postKey);
   }
   dislikeToAttach(String key) {

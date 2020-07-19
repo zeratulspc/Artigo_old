@@ -117,6 +117,7 @@ class UserDBFNC {
     await userDBRef.child(uid).update({"recentLoginDate" : recentLoginDate,});
   }
 
+
   // 프로필 사진 관련
   Future<bool> uploadUserProfileImage({String uid, File profileImage}) async {
     StorageUploadTask task = userStorageRef.child(uid).child("profileImage").child(basename(profileImage.path)).putFile(profileImage);
@@ -129,10 +130,8 @@ class UserDBFNC {
     await userDBRef.child(uid).update({"profileImageURL" : profileImageURL,});
   }
 
-
   // 삭제
   Future deleteUser({FirebaseUser currentUser}) async {
-    await userDBRef.child(currentUser.uid).remove();
     await currentUser.delete();
   }
 
@@ -244,13 +243,15 @@ class User {
 class Follower {
   String followerUid; //팔로워 uid
   String followDate; //팔로우 한 날짜
+  String followerToken;
 
-  Follower({this.followDate, this.followerUid});
+  Follower({this.followDate, this.followerUid, this.followerToken});
 
   Follower fromLinkedHashMap(LinkedHashMap linkedHashMap){
     return Follower(
       followerUid : linkedHashMap["followerUid"],
       followDate : linkedHashMap["followDate"],
+      followerToken : linkedHashMap["followerToken"],
     );
   }
 
@@ -258,12 +259,15 @@ class Follower {
     return Follower(
       followerUid : snapshot.value["followerUid"],
       followDate : snapshot.value["followDate"],
+      followerToken: snapshot.value["followerToken"],
     );
   }
+
   toMap(){
     return {
       "followerUid" : followerUid,
       "followDate" : followDate,
+      "followerToken": followerToken,
     };
   }
 }

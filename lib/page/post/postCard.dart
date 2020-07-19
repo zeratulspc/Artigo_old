@@ -227,8 +227,9 @@ class PostCard extends StatelessWidget {
                     ),
                   ),
                   item.attach.length != 0? Container(
+                    alignment: Alignment.center,
                     width: screenSize.width,
-                    height: screenSize.width < screenSize.height ? screenSize.height/2.5 : screenSize.width/1.5,
+                    height: screenSize.width < screenSize.height ? screenSize.height/3.0 : screenSize.width/1.5,
                     child: InkWell(
                       onTap: uploader != null ?(){
                         Navigator.push(context,
@@ -294,9 +295,10 @@ class PostCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       item.like != null ? Container(
+                        alignment: Alignment.center,
                         margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                         height: 30,
-                        width: 80,
+                        width: 50,
                         child: InkWell(
                           child: Text("❤️ ${item.like.length} 명",
                             style: TextStyle(color: Colors.grey[700]),
@@ -305,9 +307,10 @@ class PostCard extends StatelessWidget {
                         ),
                       ) : null,
                       item.comment != null ? Container(
+                        alignment: Alignment.center,
                         margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                         height: 30,
-                        width: 80,
+                        width: 50,
                         child: InkWell(
                             child:Text("댓글 ${item.comment.length}개",
                               style: TextStyle(color: Colors.grey[700]),
@@ -318,6 +321,7 @@ class PostCard extends StatelessWidget {
                     ].where(notNull).toList(),
                   ),
                   SizedBox(
+                    height: 20,
                     width: screenSize.width -20,
                     child: Divider(thickness: 1,),
                   ),
