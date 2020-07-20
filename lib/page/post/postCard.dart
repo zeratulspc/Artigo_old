@@ -9,7 +9,6 @@ import 'package:nextor/fnc/user.dart';
 import 'package:nextor/page/post/postDetail.dart';
 import 'package:nextor/page/profile/userProfile.dart';
 
-
 class PostCard extends StatelessWidget {
   PostCard(
       {Key key,
@@ -291,34 +290,37 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                   ) : null,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      item.like != null ? Container(
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
-                        height: 30,
-                        width: 50,
-                        child: InkWell(
-                          child: Text("❤️ ${item.like.length} 명",
-                            style: TextStyle(color: Colors.grey[700]),
-                          ),
-                          onTap: showLikeSheet,
-                        ),
-                      ) : null,
-                      item.comment != null ? Container(
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
-                        height: 30,
-                        width: 50,
-                        child: InkWell(
-                            child:Text("댓글 ${item.comment.length}개",
+                  Container(
+                    margin: item.like != null || item.comment != null ? EdgeInsets.only(top: 45) : null,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        item.like != null ? Container(
+                          alignment: Alignment.center,
+                          margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
+                          height: 30,
+                          width: 50,
+                          child: InkWell(
+                            child: Text("❤️ ${item.like.length} 명",
                               style: TextStyle(color: Colors.grey[700]),
                             ),
-                            onTap:showCommentSheet
-                        ),
-                      ) : null,
-                    ].where(notNull).toList(),
+                            onTap: showLikeSheet,
+                          ),
+                        ) : null,
+                        item.comment != null ? Container(
+                          alignment: Alignment.center,
+                          margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
+                          height: 30,
+                          width: 50,
+                          child: InkWell(
+                              child:Text("댓글 ${item.comment.length}개",
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
+                              onTap:showCommentSheet
+                          ),
+                        ) : null,
+                      ].where(notNull).toList(),
+                    ),
                   ),
                   SizedBox(
                     height: 20,

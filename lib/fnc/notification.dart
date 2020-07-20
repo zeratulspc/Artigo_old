@@ -11,9 +11,14 @@ import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/fnc/user.dart';
 
 class NotificationFCMFnc {
-  final String serverToken = "AAAAFOdXhwY:APA91bGKrsekGpRI6ZAQa5MliMInuTvr3dwPsofF0ziiokPAOaLhqA4jzYhF8F5ST94ZmLBWAOKMdqmx4JYZsAPC1t1SaPx870qki5N2AER365NVnUPuhFyQ6f3stbs-I3wSChX8j6H6"; //TODO 보안
   final FirebaseMessaging fbMessaging = FirebaseMessaging();
   final NotificationDatabaseFnc notificationDBFnc = NotificationDatabaseFnc();
+  String serverToken;
+
+  Future<String> getServerToken() async {
+    DataSnapshot snapshot = await FirebaseDatabase.instance.reference().child("Version").child("Token").once();
+    return snapshot.value["fcmServerToken"];
+  }
 
   Future<bool> sendNotification({
     String receiverUid,
@@ -22,6 +27,7 @@ class NotificationFCMFnc {
     String title,
   }) async {
     User receiver = await UserDBFNC().getUserInfo(receiverUid);
+    serverToken = await getServerToken();
     String key = notificationDBFnc.sendNotification(NotificationUnit(
       title: title,
       body: body,
@@ -80,6 +86,7 @@ class NotificationFCMFnc {
     String title,
   }) async {
     User sender = await UserDBFNC().getUserInfo(senderUid);
+    serverToken = await getServerToken();
     for(int i = 0; i < sender.follower.length; i++) {
       String _followerToken;
       _followerToken = sender.follower[i].followerToken;
@@ -163,6 +170,15 @@ class NotificationDatabaseFnc {
     return key;
   }
 
+  void setIsChecked({
+    String key,
+    String userUid,
+    String notification,
+    bool isChecked,
+  }) {
+    notificationDbRef.child(userUid).child(notification).child(key).child("isChecked").set(isChecked);
+  }
+
   void setIsSent({
     String key, // DB에 성공여부 기록
     String receiverUid,
@@ -176,11 +192,10 @@ class NotificationDatabaseFnc {
 
 
 class Notifications {
-  String key; // 알림함 주인
   List<NotificationUnit> receivedNotifications = List();
   List<NotificationUnit> sentNotifications = List();
 
-  Notifications({this.key, this.receivedNotifications, this.sentNotifications});
+  Notifications({this.receivedNotifications, this.sentNotifications});
 
   fromSnapshot(DataSnapshot snapshot) {
     LinkedHashMap<dynamic, dynamic> _received = snapshot.value["receivedNotifications"];
@@ -200,7 +215,6 @@ class Notifications {
     }
 
     return Notifications(
-      key: snapshot.key,
       receivedNotifications: received,
       sentNotifications: sent,
     );
@@ -245,7 +259,6 @@ class NotificationUnit {
 
   fromLinkedHashMap(LinkedHashMap linkedHashMap){
     return NotificationUnit(
-      key: linkedHashMap["key"],
       receiverUid: linkedHashMap["receiverUid"],
       senderUid: linkedHashMap["senderUid"],
       title: linkedHashMap["title"],

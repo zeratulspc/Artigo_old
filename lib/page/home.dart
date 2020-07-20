@@ -14,6 +14,7 @@ import 'package:nextor/page/data/dataBoard.dart';
 import 'package:nextor/page/settings/settings.dart';
 import 'package:nextor/page/profile/userProfile.dart';
 import 'package:nextor/page/post/searchPage.dart';
+import 'package:nextor/page/profile/notificationList.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -116,6 +117,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => SearchPage()
+                    ));
+                  },
+                ),
+                IconButton(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  icon: Icon(Icons.notifications_none),
+                  color: Colors.black87,
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => NotificationList(currentUser.uid),
                     ));
                   },
                 ),
