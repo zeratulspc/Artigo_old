@@ -303,7 +303,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             highlightColor: Colors.transparent,
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
-              //TODO 회원가입 페이지 팝업
             },
           )
         ],

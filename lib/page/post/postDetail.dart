@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/like.dart';
+import 'package:nextor/fnc/dateTimeParser.dart';
 import 'package:nextor/page/like/likeList.dart';
 import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/editPost.dart';
@@ -75,6 +76,7 @@ class _PostDetailState extends State<PostDetail> {
         return LikeList(
           postKey: item.key,
           currentUser: widget.currentUser,
+          navigateToMyProfile: widget.navigateToMyProfile,
         );
       },
     );
@@ -192,8 +194,7 @@ class _PostDetailState extends State<PostDetail> {
                                       (){},//TODO 유저 프로필 페이지로 네비게이트
                                 ),
                               ),
-                              Text(DateTime.now().day == date.day && DateTime.now().month == date.month && DateTime.now().year == date.year ?
-                              "${date.hour} : ${date.minute >= 10 ? date.minute : "0"+date.minute.toString() }" : "${date.year}.${date.month}.${date.day}",
+                              Text(DateTimeParser().defaultParse(date),
                                 style: TextStyle(color: Colors.grey[600]),
                               ),
                             ],
@@ -443,6 +444,7 @@ class _PostDetailState extends State<PostDetail> {
                                       postKey: item.key,
                                       currentUser: widget.currentUser,
                                       attachKey: item.attach[index].key,
+                                      navigateToMyProfile: widget.navigateToMyProfile,
                                     );
                                   },
                                 );

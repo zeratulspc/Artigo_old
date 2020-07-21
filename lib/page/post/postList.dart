@@ -31,7 +31,6 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
   List<Post> posts = List();
   Query postQuery;
 
-
   // 현재 유저 정보
   UserDBFNC authDBFNC = UserDBFNC();
   FirebaseUser currentUser;
@@ -212,6 +211,7 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
                   return LikeList(
                     postKey: post.key,
                     currentUser: currentUser,
+                    navigateToMyProfile: widget.navigateToMyProfile,
                   );
                 },
               );

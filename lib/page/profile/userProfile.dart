@@ -505,7 +505,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 child: Column(
                   children: <Widget>[
                     Container(
-                      padding: EdgeInsets.only(left: 15, top: 6, bottom: 6),
+                      padding: EdgeInsets.only(left: 10, top: 6, bottom: 6),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -561,6 +561,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   return LikeList(
                     postKey: post.key,
                     currentUser: currentUser,
+                    navigateToMyProfile: widget.navigateToMyProfile,
                   );
                 },
               );

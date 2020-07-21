@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/like.dart';
+import 'package:nextor/fnc/dateTimeParser.dart';
 import 'package:nextor/page/comment/commentList.dart';
 
 import 'package:photo_view/photo_view.dart';
@@ -139,10 +140,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                               child: Text(widget.uploader.userName, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                             ),
                             Container(
-                              child: Text(
-                                date.year == DateTime.now().year ?
-                                "${date.month}월 ${date.day}일 ${date.hour}시 ${date.minute}분":
-                                "${date.year}. ${date.month}. ${date.day}",
+                              child: Text(DateTimeParser().defaultParse(date),
                                 style: TextStyle(color: Colors.grey[500]),),
                             ),
                           ],

@@ -7,16 +7,19 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/like.dart';
+import 'package:nextor/fnc/dateTimeParser.dart';
 import 'package:nextor/page/like/likeLoading.dart';
+import 'package:nextor/page/profile/userProfile.dart';
 
 class LikeList extends StatefulWidget {
+  final VoidCallback navigateToMyProfile;
   final String postKey;
   final FirebaseUser currentUser;
   final String attachKey;
   final String commentKey;
   final String replyKey;
 
-  LikeList({@required this.postKey, this.currentUser, this.attachKey, this.commentKey, this.replyKey});
+  LikeList({@required this.postKey, @required this.navigateToMyProfile, this.currentUser, this.attachKey, this.commentKey, this.replyKey,});
   @override
   LikeListState createState() => LikeListState();
 }
@@ -110,54 +113,68 @@ class LikeListState extends State<LikeList> {
                         animation: animation,
                       ); // loading
                     } else {
-                      return ListTile(
-                        contentPadding: EdgeInsets.only(top: 3.0, left: 10, right: 15),
-                        title: Row(
-                          children: <Widget>[
-                            Stack(
+                      return Container(
+                        child: InkWell(
+                          onTap: widget.currentUser.uid == uploader.key ? (){
+                            Navigator.popUntil(context, ModalRoute.withName('/home'));
+                          } : (){
+                            Navigator.popUntil(context, ModalRoute.withName('/home'));
+                            showModalBottomSheet(
+                              backgroundColor: Colors.grey[300],
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (context) {
+                                return Container(
+                                  height: screenSize.height-50,
+                                  child: UserProfilePage(targetUserUid: uploader.key, navigateToMyProfile: widget.navigateToMyProfile,),
+                                );
+                              },
+                            );
+                          },
+                          child: ListTile(
+                            contentPadding: EdgeInsets.only(top: 3.0, left: 10, right: 15),
+                            title: Row(
                               children: <Widget>[
-                                ClipRRect(
-                                    borderRadius: BorderRadius.circular(80),
-                                    child: Container(
-                                      height: 40,
-                                      width: 40,
-                                      color: Colors.grey[400],
-                                    )
+                                Stack(
+                                  children: <Widget>[
+                                    ClipRRect(
+                                        borderRadius: BorderRadius.circular(80),
+                                        child: Container(
+                                          height: 40,
+                                          width: 40,
+                                          color: Colors.grey[400],
+                                        )
+                                    ),
+                                    uploader.profileImageURL != null ?
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(80),
+                                      child: Image.network(
+                                        uploader.profileImageURL,
+                                        height: 40.0,
+                                        width: 40.0,
+                                      ),
+                                    ) : ClipRRect(
+                                        borderRadius: BorderRadius.circular(80),
+                                        child: Container(
+                                          height: 40,
+                                          width: 40,
+                                          color: Colors.grey[400],
+                                        )
+                                    ),
+                                  ],
                                 ),
-                                uploader.profileImageURL != null ?
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(80),
-                                  child: Image.network(
-                                    uploader.profileImageURL,
-                                    height: 40.0,
-                                    width: 40.0,
-                                  ),
-                                ) : ClipRRect(
-                                    borderRadius: BorderRadius.circular(80),
-                                    child: Container(
-                                      height: 40,
-                                      width: 40,
-                                      color: Colors.grey[400],
-                                    )
+                                Container(
+                                  width: 160,
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Text(uploader.userName??"", maxLines: 1,
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis,),
                                 ),
                               ],
                             ),
-                            Container(
-                              width: 160,
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: InkWell(
-                                child: Text(uploader.userName??"", maxLines: 1,
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis,),
-                                onTap: widget.currentUser.uid == uploader.key ? (){} : (){
-                                  //TODO 유저 프로필 페이지로 네비게이트
-                                },
-                              ),
+                            trailing: Text("${DateTimeParser().defaultParse(date)}에 좋아요를 누름",
+                              style: TextStyle(color: Colors.grey[600]),
                             ),
-                          ],
-                        ),
-                        trailing: Text(DateTime.now().day == date.day && DateTime.now().month == date.month && DateTime.now().year == date.year ?
-                        "${date.hour} : ${date.minute >= 10 ? date.minute : "0"+date.minute.toString() } 에 좋아요를 누름" : "${date.year}.${date.month}.${date.day} 에 좋아요를 누름",
-                          style: TextStyle(color: Colors.grey[600]),
+                          ),
                         ),
                       );
                     }

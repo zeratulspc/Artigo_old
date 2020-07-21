@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nextor/fnc/postDB.dart';
+import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/notification.dart';
 
 class CommentDBFNC {
@@ -35,6 +36,8 @@ class Comment {
   Attach attach;
   LinkedHashMap<dynamic, dynamic> like;
   LinkedHashMap<dynamic, dynamic> reply;
+
+  User uploaderInfo;
 
   Comment({this.key, this.body, this.uploaderUID, this.uploadDate, this.attach, this.like, this.reply});
 

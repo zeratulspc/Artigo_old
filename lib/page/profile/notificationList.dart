@@ -1,10 +1,14 @@
 import 'dart:collection';
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
+import 'package:nextor/page/profile/userProfile.dart';
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/notification.dart';
+import 'package:nextor/fnc/dateTimeParser.dart';
 
 class NotificationList extends StatefulWidget {
   final String currentUserUid;
@@ -40,10 +44,11 @@ class NotificationListState extends State<NotificationList> with SingleTickerPro
     });
   }
 
-  _rOnEntryAdded(Event event) {
+  _rOnEntryAdded(Event event) async {
     if(this.mounted){
       NotificationUnit unit = NotificationUnit().fromLinkedHashMap(event.snapshot.value);
       unit.key = event.snapshot.key;
+      unit.senderInfo = await UserDBFNC().getUserInfo(unit.senderUid);
       setState(() {
         notifications.receivedNotifications.insert(0, unit);
         notifications.receivedNotifications.sort((a, b){
@@ -55,10 +60,11 @@ class NotificationListState extends State<NotificationList> with SingleTickerPro
     }
   }
 
-  _rOnEntryChanged(Event event) {
+  _rOnEntryChanged(Event event) async {
     if(this.mounted){
       NotificationUnit unit = NotificationUnit().fromLinkedHashMap(event.snapshot.value);
       unit.key = event.snapshot.key;
+      unit.senderInfo = await UserDBFNC().getUserInfo(unit.senderUid);
       var oldEntry = notifications.receivedNotifications.singleWhere((entry) {
           return entry.key == unit.key;
       });
@@ -79,10 +85,11 @@ class NotificationListState extends State<NotificationList> with SingleTickerPro
     }
   }
 
-  _sOnEntryAdded(Event event) {
+  _sOnEntryAdded(Event event) async {
     if(this.mounted){
       NotificationUnit unit = NotificationUnit().fromLinkedHashMap(event.snapshot.value);
       unit.key = event.snapshot.key;
+      unit.receiverInfo = await UserDBFNC().getUserInfo(unit.receiverUid);
       setState(() {
         notifications.sentNotifications.insert(0, unit);
         notifications.sentNotifications.sort((a, b){
@@ -94,10 +101,11 @@ class NotificationListState extends State<NotificationList> with SingleTickerPro
     }
   }
 
-  _sOnEntryChanged(Event event) {
+  _sOnEntryChanged(Event event) async {
     if(this.mounted){
       NotificationUnit unit = NotificationUnit().fromLinkedHashMap(event.snapshot.value);
       unit.key = event.snapshot.key;
+      unit.receiverInfo = await UserDBFNC().getUserInfo(unit.receiverUid);
       var oldEntry = notifications.sentNotifications.singleWhere((entry) {
         return entry.key == unit.key;
       });
@@ -120,6 +128,10 @@ class NotificationListState extends State<NotificationList> with SingleTickerPro
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+    double profileImgRadius = 240;
+    double profileImgHeight = 60;
+    double profileImgWidth = 60;
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.black),
@@ -150,25 +162,71 @@ class NotificationListState extends State<NotificationList> with SingleTickerPro
             itemCount: notifications.receivedNotifications.length,
             itemBuilder: (context, index) {
               NotificationUnit unit = notifications.receivedNotifications[index];
+              DateTime date = DateTime.parse(unit.date);
               return InkWell(
-                onTap: (){
+                onTap: unit.isChecked ? (){} : (){
                   NotificationDatabaseFnc().setIsChecked(
-                      key: unit.key,
-                      userUid: currentUserInfo.key,
-                      notification: "receivedNotifications",
-                      isChecked: true,
+                    key: unit.key,
+                    userUid: currentUserInfo.key,
+                    notification: "receivedNotifications",
+                    isChecked: false,
                   );
                 },
                 child: Container(
-                  color: unit.isChecked ? Colors.white : Theme.of(context).accentColor,
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                        title: Text(unit.title),
-                        subtitle: Text(unit.body),
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  color: unit.isChecked ? Colors.white : Colors.lightGreenAccent,
+                  child: ListTile(
+                    leading: unit.senderInfo != null ? unit.senderInfo.profileImageURL != null ?
+                    ClipRRect( // User 정보가 있고, ProfileImage 가 존재할 때
+                      borderRadius: BorderRadius.circular(profileImgRadius),
+                      child: GestureDetector(
+                        child: Container(
+                          height: profileImgHeight,
+                          width: profileImgWidth,
+                          child: CachedNetworkImage(
+                            imageUrl: unit.senderInfo.profileImageURL,
+                          ),
+                        ),
+                        onTap: widget.currentUserUid == unit.senderInfo.key ? (){} : (){
+                          Navigator.popUntil(context, ModalRoute.withName('/home'));
+                          showModalBottomSheet(
+                            backgroundColor: Colors.grey[300],
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) {
+                              return Container(
+                                height: screenSize.height-50,
+                                child: UserProfilePage(targetUserUid: unit.senderInfo.key, navigateToMyProfile: (){},),
+                              );
+                            },
+                          );
+                        },
                       ),
-                      Divider(),
-                    ],
+                    ) :
+                    ClipRRect(// User 정보가 있고, ProfileImage 가 존재하지 않을 때
+                        borderRadius: BorderRadius.circular(profileImgRadius),
+                        child: Container(
+                          height: profileImgHeight,
+                          width: profileImgHeight,
+                          color: Colors.grey[400],
+                        )
+                    ) : ClipRRect(//user 정보가 없을 때
+                        borderRadius: BorderRadius.circular(profileImgRadius),
+                        child: Container(
+                          height: profileImgHeight,
+                          width: profileImgHeight,
+                          color: Colors.grey[400],
+                        )
+                    ),
+                    title: Text(unit.title),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(unit.body),
+                        SizedBox(height: 5,),
+                        Text(DateTimeParser().defaultParse(date)),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -180,24 +238,60 @@ class NotificationListState extends State<NotificationList> with SingleTickerPro
             itemCount: notifications.sentNotifications.length,
             itemBuilder: (context, index) {
               NotificationUnit unit = notifications.sentNotifications[index];
-              return InkWell(
-                onTap: (){
-                  NotificationDatabaseFnc().setIsChecked(
-                    key: unit.key,
-                    userUid: currentUserInfo.key,
-                    notification: "sentNotifications",
-                    isChecked: true,
-                  );
-                },
-                child: Container(
-                  color: unit.isChecked ? Colors.white : Theme.of(context).accentColor,
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                        title: Text(unit.title),
-                        subtitle: Text(unit.body),
+              DateTime date = DateTime.parse(unit.date);
+              return Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                color: Colors.white,
+                child: ListTile(
+                  leading: unit.receiverInfo != null ? unit.receiverInfo.profileImageURL != null ?
+                  ClipRRect( // User 정보가 있고, ProfileImage 가 존재할 때
+                    borderRadius: BorderRadius.circular(profileImgRadius),
+                    child: GestureDetector(
+                      child: Container(
+                        height: profileImgHeight,
+                        width: profileImgWidth,
+                        child: CachedNetworkImage(
+                          imageUrl: unit.receiverInfo.profileImageURL,
+                        ),
                       ),
-                      Divider(),
+                      onTap: widget.currentUserUid == unit.receiverInfo.key ? (){} : (){
+                        Navigator.popUntil(context, ModalRoute.withName('/home'));
+                        showModalBottomSheet(
+                          backgroundColor: Colors.grey[300],
+                          isScrollControlled: true,
+                          context: context,
+                          builder: (context) {
+                            return Container(
+                              height: screenSize.height-50,
+                              child: UserProfilePage(targetUserUid: unit.receiverInfo.key, navigateToMyProfile: (){},),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ) :
+                  ClipRRect(// User 정보가 있고, ProfileImage 가 존재하지 않을 때
+                      borderRadius: BorderRadius.circular(profileImgRadius),
+                      child: Container(
+                        height: profileImgHeight,
+                        width: profileImgHeight,
+                        color: Colors.grey[400],
+                      )
+                  ) : ClipRRect(//user 정보가 없을 때
+                      borderRadius: BorderRadius.circular(profileImgRadius),
+                      child: Container(
+                        height: profileImgHeight,
+                        width: profileImgHeight,
+                        color: Colors.grey[400],
+                      )
+                  ),
+                  title: Text(unit.receiverInfo.userName),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(unit.body),
+                      SizedBox(height: 5,),
+                      Text(DateTimeParser().defaultParse(date)),
                     ],
                   ),
                 ),

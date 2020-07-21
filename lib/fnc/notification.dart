@@ -27,10 +27,11 @@ class NotificationFCMFnc {
     String title,
   }) async {
     User receiver = await UserDBFNC().getUserInfo(receiverUid);
+    User sender = await UserDBFNC().getUserInfo(senderUid);
     serverToken = await getServerToken();
     String key = notificationDBFnc.sendNotification(NotificationUnit(
       title: title,
-      body: body,
+      body: "${sender.userName}$body",
       receiverUid: receiverUid,
       senderUid: senderUid,
       date: DateTime.now().toIso8601String(),
@@ -46,14 +47,14 @@ class NotificationFCMFnc {
         <String, dynamic>{
           'notification': <String, dynamic>{
             'title': title,
-            'body': "${receiver.userName}$body",
+            'body': "${sender.userName}$body",
           },
           'priority': 'high',
           'data': <String, dynamic>{
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'receiverUid' : receiverUid,
             'senderUid' : senderUid,
-            'body' : "${receiver.userName}$body",
+            'body' : "${sender.userName}$body",
             'title' : title
           },
           'to': receiver.token,
@@ -231,6 +232,9 @@ class NotificationUnit {
   String date; // 알림 송수신일
   bool isChecked; // 송수신자의 알림 확인 여부
   bool isSent; // FCM 전달이 성공했는지
+
+  User senderInfo;
+  User receiverInfo;
 
   NotificationUnit({this.key, this.receiverUid, this.senderUid,this.title, this.body, this.date, this.isChecked, this.isSent});
 

@@ -9,7 +9,6 @@ import 'package:connectivity/connectivity.dart';
 
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/page/basicDialogs.dart';
-// TODO 회원가입 구현.
 // 별도의 관리자 개입이 없는이상 첫 role 은 GUEST 임.
 // 회원가입 페이지는 설문조사 항목을 포함하고 있음.
 
@@ -96,7 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
           if(form.validate()) {
             showLoading(context);
             var connectivityResult = await (Connectivity().checkConnectivity()); // 인터넷 연결상태 확인
-           if(connectivityResult != ConnectivityResult.none) {//TODO 이메일 인증 구현
+           if(connectivityResult != ConnectivityResult.none) {
              authDBFNC.createUser(email: _email, password: _password).then((user) async {
                await authDBFNC.createUserInfo(user: user.user, username: userName,
                description: "", registerDate: DateTime.now().toIso8601String(),

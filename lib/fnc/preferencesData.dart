@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<bool> getAutoLogin() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isAutoLogin = prefs.getBool("isAutoLogin") ?? false;
-  print("AutoLogin Get : $isAutoLogin");
   return isAutoLogin;
 }
 

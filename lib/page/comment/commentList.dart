@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 
 import 'package:nextor/fnc/user.dart';
@@ -11,7 +10,6 @@ import 'package:nextor/fnc/comment.dart';
 import 'package:nextor/fnc/like.dart';
 import 'package:nextor/page/like/likeList.dart';
 import 'package:nextor/page/comment/commentItem.dart';
-import 'package:nextor/page/comment/commentLoading.dart';
 import 'package:nextor/page/basicDialogs.dart';
 
 class CommentList extends StatefulWidget {
@@ -42,6 +40,9 @@ class CommentListState extends State<CommentList> {
   bool isValid = false;
   bool isAttachComment = false;
 
+  Query commentQuery;
+  List<Comment> commentList = List();
+
   @override
   void initState() {
     super.initState();
@@ -49,17 +50,21 @@ class CommentListState extends State<CommentList> {
       if(widget.commentKey == null) { // Post 댓글
         commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.postKey).child("comment");
         commentDBFNC = CommentDBFNC(commentDBRef: commentDBRef);
+        commentQuery = commentDBRef;
       } else { // Post 댓글의 답글
         commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.postKey).child("comment").child(widget.commentKey).child("reply");
         commentDBFNC = CommentDBFNC(commentDBRef: commentDBRef);
+        commentQuery = commentDBRef;
       }
     } else {
       if(widget.commentKey == null) { // attach 댓글
         commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.postKey).child("attach").child(widget.attachKey).child("comment");
         commentDBFNC = CommentDBFNC(commentDBRef: commentDBRef);
+        commentQuery = commentDBRef;
       } else { // attach 댓글의 답글
         commentDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.postKey).child("attach").child(widget.attachKey).child("comment").child(widget.commentKey).child("reply");
         commentDBFNC = CommentDBFNC(commentDBRef: commentDBRef);
+        commentQuery = commentDBRef;
       }
     }
     newCommentController.addListener((){
@@ -75,6 +80,9 @@ class CommentListState extends State<CommentList> {
           });
       }
     });
+    commentQuery.onChildAdded.listen(_onEntryAdded);
+    commentQuery.onChildChanged.listen(_onEntryChanged);
+    commentQuery.onChildRemoved.listen(_onEntryRemoved);
   }
 
   @override
@@ -83,6 +91,45 @@ class CommentListState extends State<CommentList> {
       widget.getPost();
     }
     super.dispose();
+  }
+
+  _onEntryAdded(Event event) async {
+    if(this.mounted){
+      Comment comment = Comment.fromSnapShot(event.snapshot);
+      comment.uploaderInfo = await UserDBFNC().getUserInfo(comment.uploaderUID);
+      setState(() {
+        commentList.insert(0, comment);
+        commentList.sort((a, b){
+          DateTime dateA = DateTime.parse(a.uploadDate);
+          DateTime dateB = DateTime.parse(b.uploadDate);
+          return dateB.compareTo(dateA);
+        });
+      });
+    }
+  }
+
+  _onEntryChanged(Event event) async {
+    if(this.mounted){
+      Comment comment = Comment.fromSnapShot(event.snapshot);
+      comment.uploaderInfo = await UserDBFNC().getUserInfo(comment.uploaderUID);
+      var oldEntry = commentList.singleWhere((entry) {
+        return entry.key == comment.key;
+      });
+      setState(() {
+        commentList[commentList.indexOf(oldEntry)] = comment;
+      });
+    }
+  }
+
+  _onEntryRemoved(Event event) {
+    if(this.mounted){
+      Comment comment = Comment.fromSnapShot(event.snapshot);
+      setState(() {
+        commentList.removeWhere((element) =>
+        element.key == comment.key,
+        );
+      });
+    }
   }
 
   void commentMoreOptionSheet(context, Comment comment) {
@@ -190,81 +237,69 @@ class CommentListState extends State<CommentList> {
         children: <Widget>[
           Container(
             height: screenSize.height-105,
-            child:FirebaseAnimatedList(
-              query: commentDBFNC.commentDBRef,
-              sort: (a , b) => DateTime.parse(b.value["uploadDate"]).compareTo(DateTime.parse(a.value["uploadDate"])),
-              itemBuilder: (context, snapshot, animation, index) {
-                Comment comment = Comment.fromSnapShot(snapshot);
-                return FutureBuilder(
-                  future: authDBFNC.getUserInfo(comment.uploaderUID),
-                  builder: (context, asyncSnapshot) {
-                    if(!asyncSnapshot.hasData) {
-                      return CommentSkeleton(
-                        animation: animation,
-                      );
-                    } else {
-                      return CommentItem(
-                        animation: animation,
-                        currentUser: widget.currentUser,
-                        uploader: asyncSnapshot.data,
-                        screenSize: screenSize,
-                        seeLikeList: () {
-                          showModalBottomSheet(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
-                            isScrollControlled: true,
-                            context: context,
-                            builder: (context) {
-                              return LikeList( //TODO Like list 표시법 수정
-                                postKey: widget.postKey,
-                                currentUser: widget.currentUser,
-                                commentKey: widget.commentKey,
-                                attachKey: widget.attachKey,
-                                replyKey: comment.key,
-                              );
-                            },
-                          );
-                        },
-                        navigateToMyProfile: this.widget.navigateToMyProfile,
-                        moreOption: (){
-                          if(widget.currentUser.uid == comment.uploaderUID)
-                            commentMoreOptionSheet(context, comment);
-                        },
-                        likeToComment: (){
-                          LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).like(widget.currentUser.uid, comment.uploaderUID);
-                        },
-                        dislikeToComment: (){
-                          LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).dislike(widget.currentUser.uid);
-                        },
-                        replyComment: widget.attachKey == null ? widget.commentKey == null ? ()=> showModalBottomSheet( // post 댓글의 답글
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (context) {
-                            return CommentList(
-                              postKey: widget.postKey,
-                              commentKey: comment.key,
-                              currentUser: widget.currentUser,
-                              navigateToMyProfile: widget.navigateToMyProfile,
-                            );
-                          },
-                        ) : null : () => showModalBottomSheet( // Attach 댓글의 답글
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (context) {
-                            return CommentList(
-                              postKey: widget.postKey,
-                              attachKey: widget.attachKey,
-                              commentKey: comment.key,
-                              currentUser: widget.currentUser,
-                              navigateToMyProfile: widget.navigateToMyProfile,
-                            );
-                          },
-                        ),
-                        item: comment,
-                      );
-                    }
+            child: ListView.builder(
+              itemCount: commentList.length,
+              itemBuilder: (context, index) {
+                Comment comment = commentList[index];
+                return CommentItem(
+                  currentUser: widget.currentUser,
+                  uploader: comment.uploaderInfo,
+                  screenSize: screenSize,
+                  seeLikeList: () {
+                    showModalBottomSheet(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (context) {
+                        return LikeList(
+                          postKey: widget.postKey,
+                          currentUser: widget.currentUser,
+                          commentKey: widget.commentKey,
+                          attachKey: widget.attachKey,
+                          replyKey: comment.key,
+                          navigateToMyProfile: widget.navigateToMyProfile,
+                        );
+                      },
+                    );
                   },
+                  navigateToMyProfile: widget.navigateToMyProfile,
+                  moreOption: (){
+                    if(widget.currentUser.uid == comment.uploaderUID)
+                      commentMoreOptionSheet(context, comment);
+                  },
+                  likeToComment: (){
+                    LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).like(widget.currentUser.uid, comment.uploaderUID);
+                  },
+                  dislikeToComment: (){
+                    LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).dislike(widget.currentUser.uid);
+                  },
+                  replyComment: widget.attachKey == null ? widget.commentKey == null ? ()=> showModalBottomSheet( // post 댓글의 답글
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (context) {
+                      return CommentList(
+                        postKey: widget.postKey,
+                        commentKey: comment.key,
+                        currentUser: widget.currentUser,
+                        navigateToMyProfile: widget.navigateToMyProfile,
+                      );
+                    },
+                  ) : null : () => showModalBottomSheet( // Attach 댓글의 답글
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (context) {
+                      return CommentList(
+                        postKey: widget.postKey,
+                        attachKey: widget.attachKey,
+                        commentKey: comment.key,
+                        currentUser: widget.currentUser,
+                        navigateToMyProfile: widget.navigateToMyProfile,
+                      );
+                    },
+                  ),
+                  item: comment,
                 );
               },
             ),

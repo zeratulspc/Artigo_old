@@ -13,7 +13,6 @@ class UserDBFNC {
   final userStorageRef = FirebaseStorage.instance.ref().child("UserStorages"); //TODO UserStorages -> UserStorage 로 바꾸기 # 0.1.4
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  //TODO 이메일 인증
 
   // 에러 메세지 한글화
   String errorKr(String code) {
@@ -182,7 +181,7 @@ class User {
   String recentLoginDate; // 최근 로그인 날짜
   String profileImageURL; // 프로필사진 FireStorage URL
   String role; // GUEST, MEMBER, ADMIN
-  String token; //TODO FCM
+  String token;
 
   List<Follower> follower = List(); // 팔로워
   List<Following> following = List(); // 팔로잉

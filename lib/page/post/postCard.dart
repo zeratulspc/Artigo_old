@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/user.dart';
+import 'package:nextor/fnc/dateTimeParser.dart';
 import 'package:nextor/page/post/postDetail.dart';
 import 'package:nextor/page/profile/userProfile.dart';
 
@@ -185,8 +186,7 @@ class PostCard extends StatelessWidget {
                                   onTap:(){},
                                 ),
                               ),
-                              Text(DateTime.now().day == date.day && DateTime.now().month == date.month && DateTime.now().year == date.year ?
-                              "${date.hour} : ${date.minute >= 10 ? date.minute : "0"+date.minute.toString() }" : "${date.year}.${date.month}.${date.day}",
+                              Text(DateTimeParser().defaultParse(date),
                                 style: TextStyle(color: Colors.grey[600]),
                               ),
                             ],

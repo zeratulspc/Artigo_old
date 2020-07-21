@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:nextor/fnc/user.dart';
-
+import 'package:nextor/fnc/dateTimeParser.dart';
 
 class FollowListPage extends StatefulWidget {
   final User targetUserInfo;
@@ -123,8 +123,7 @@ class _FollowListPageState extends State<FollowListPage> {
                   ),
                 ],
               ),
-              trailing: Text(DateTime.now().day == date.day && DateTime.now().month == date.month && DateTime.now().year == date.year ?
-              "${date.hour} : ${date.minute >= 10 ? date.minute : "0"+date.minute.toString() } 에 팔로우 함" : "${date.year}.${date.month}.${date.day} 에 팔로우 함",
+              trailing: Text("${DateTimeParser().defaultParse(date)}에 팔로우 함",
                 style: TextStyle(color: Colors.grey[600]),
               ),
             ),
