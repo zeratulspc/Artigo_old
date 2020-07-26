@@ -66,24 +66,21 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
         });
       });
       postDBFNC.postDBRef.once().then((snapshot) {
-        LinkedHashMap<dynamic, dynamic>linkedHashMap = snapshot.value;
-        linkedHashMap.forEach((key, value) {
+        LinkedHashMap<dynamic, dynamic> linkedHashMap = snapshot.value;
+        linkedHashMap.forEach((key, value) async {
           Post post = Post().fromLinkedHashMap(value, key);
-          authDBFNC.getUserInfo(post.uploaderUID).then((data) {
-            post.uploader = data;
-            backPosts.add(post);
-            setState(() {
-              backPosts.sort((a, b){
-                DateTime dateA = DateTime.parse(a.uploadDate);
-                DateTime dateB = DateTime.parse(b.uploadDate);
-                return dateB.compareTo(dateA);
-              });
+          User data = await authDBFNC.getUserInfo(post.uploaderUID);
+          post.uploader = data;
+          backPosts.add(post);
+          setState(() {
+            backPosts.sort((a, b){
+              DateTime dateA = DateTime.parse(a.uploadDate);
+              DateTime dateB = DateTime.parse(b.uploadDate);
+              return dateB.compareTo(dateA);
             });
           });
         });
-        //상황 : 초기 로딩 끝나고 게시글 10개만 프론트 포스트 안에 넣어주는 작업임
-        // 근데 안됨, 왜지?????????????????????????????????
-        setState(() { //TODO 얘 왜 안됨?
+        setState(() {
           frontPosts.clear();
           frontPosts.insertAll(0, backPosts.getRange(present, perPage));
         });
@@ -95,6 +92,7 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
       });
     }
   }
+
 
   _onEntryAdded(Event event) {
     if(this.mounted){
