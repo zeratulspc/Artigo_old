@@ -6,12 +6,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/like.dart';
+import 'package:nextor/fnc/emotion.dart';
 import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/postCard.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/comment/commentList.dart';
-import 'package:nextor/page/like/likeList.dart';
+import 'package:nextor/page/emotion/emotionList.dart';
+import 'package:nextor/page/emotion/emotionInput.dart';
 import 'package:nextor/page/settings/editProfile.dart';
 import 'package:nextor/page/profile/profileImageViewer.dart';
 import 'package:nextor/page/profile/followList.dart';
@@ -531,12 +532,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 postModalBottomSheet(context, post);
             },
             dislikeToPost: (){
-              DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
-              LikeDBFNC(likeDBRef: likeDBRef).dislike(currentUser.uid);
+              DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
+              EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(currentUser.uid);
             },
             likeToPost: (){
-              DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
-              LikeDBFNC(likeDBRef: likeDBRef).like(currentUser.uid, post.uploaderUID);
+              DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
+              EmotionInput(emotionDBRef, currentUser.uid, post.uploaderUID, (){}).showEmotionPicker(context);
             },
             showCommentSheet: () {
               showModalBottomSheet(
@@ -558,7 +559,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 isScrollControlled: true,
                 context: context,
                 builder: (context) {
-                  return LikeList(
+                  return EmotionList(
                     postKey: post.key,
                     currentUser: currentUser,
                     navigateToMyProfile: widget.navigateToMyProfile,

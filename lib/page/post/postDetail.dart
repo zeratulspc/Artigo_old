@@ -8,9 +8,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/like.dart';
+import 'package:nextor/fnc/emotion.dart';
 import 'package:nextor/fnc/dateTimeParser.dart';
-import 'package:nextor/page/like/likeList.dart';
+import 'package:nextor/page/emotion/emotionBoard.dart';
+import 'package:nextor/page/emotion/emotionInput.dart';
+import 'package:nextor/page/emotion/emotionList.dart';
 import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/post/photoViewer.dart';
@@ -39,24 +41,24 @@ class _PostDetailState extends State<PostDetail> {
 
   _PostDetailState(this.item);
   bool notNull(Object o) => o != null;
-  likeToPost() {
-    DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key);
-    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid, item.uploader.key);
+  likeToPost() { //TODO Emotion pick 완료된 이후에 refresh
+    DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key);
+    EmotionInput(emotionDBRef, widget.currentUser.uid, item.uploaderUID, refreshPost).showEmotionPicker(context);
     refreshPost();
   }
   dislikeToPost() {
-    DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key);
-    LikeDBFNC(likeDBRef: likeDBRef).dislike(widget.currentUser.uid);
+    DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key);
+    EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(widget.currentUser.uid);
     refreshPost();
   }
   likeToAttach(String key) {
-    DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key).child("attach").child(key);
-    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid, item.uploader.key);
+    DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key).child("attach").child(key);
+    EmotionInput(emotionDBRef, widget.currentUser.uid, item.uploaderUID,refreshPost).showEmotionPicker(context);
     refreshPost();
   }
   dislikeToAttach(String key) {
-    DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key).child("attach").child(key);
-    LikeDBFNC(likeDBRef: likeDBRef).dislike(widget.currentUser.uid);
+    DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key).child("attach").child(key);
+    EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(widget.currentUser.uid);
     refreshPost();
   }
   refreshPost() {
@@ -67,13 +69,29 @@ class _PostDetailState extends State<PostDetail> {
     });
   }
 
-  showLikeList() {
+  String emotionCount(List<Emotion> list) {
+    String _emotions = "";
+    int count = 0;
+    list.forEach((value) {
+      count++;
+      if(count < 4) {
+        _emotions+=value.emotionCode;
+      }
+    });
+    if(!(count < 4)) {
+      _emotions+=" 외 ${list.length - 3}개";
+    }
+    return _emotions;
+  }
+
+
+  showLikeSheet() {
     showModalBottomSheet(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
       isScrollControlled: true,
       context: context,
       builder: (context) {
-        return LikeList(
+        return EmotionList(
           postKey: item.key,
           currentUser: widget.currentUser,
           navigateToMyProfile: widget.navigateToMyProfile,
@@ -231,15 +249,16 @@ class _PostDetailState extends State<PostDetail> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      item.like != null ? Container(
+                      item.emotion != null ? Container(
+                        alignment: Alignment.centerLeft,
                         margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                         height: 30,
-                        width: 80,
+                        width: 150,
                         child: InkWell(
-                          child: Text("❤️ ${item.like.length} 명",
-                            style: TextStyle(color: Colors.grey[700]),
+                          child: Text(emotionCount(item.emotion),
+                            style: TextStyle(color: Colors.grey[700], fontSize: 14),
                           ),
-                          onTap: showLikeList,
+                          onTap: showLikeSheet,
                         ),
                       ) : null,
                       item.comment != null ? Container(
@@ -272,65 +291,14 @@ class _PostDetailState extends State<PostDetail> {
                     width: screenSize.width -20,
                     child: Divider(thickness: 1,),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(
-                        width: screenSize.width/2,
-                        child: FlatButton(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(item.like != null ?
-                              item.like[widget.currentUser.uid] != null ?
-                              Icons.favorite : // 좋아요가 존재할 때
-                              Icons.favorite_border : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                              Icons.favorite_border, // 좋아요 목록이 존재하지 않을 때
-                                color: item.like != null ?
-                                item.like[widget.currentUser.uid] != null ?
-                                Colors.red[600] : // 좋아요가 존재할 때
-                                Colors.grey[600] : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                                Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
-                              ),
-                              SizedBox(width: 5,),
-                              Text("좋아요", style: Theme.of(context).textTheme.subtitle2,)
-                            ],
-                          ),
-                          onPressed: item.like != null ?
-                          item.like[widget.currentUser.uid] != null ?
-                          dislikeToPost : // 좋아요가 존재할 때
-                          likeToPost : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                          likeToPost, // 좋아요 목록이 존재하지 않을 때
-                        ),
-                      ),
-                      Container(
-                        width: screenSize.width/2,
-                        child: FlatButton(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(Icons.comment, color: Colors.grey[600],),
-                              SizedBox(width: 5,),
-                              Text("댓글 달기",style: Theme.of(context).textTheme.subtitle2,)
-                            ],
-                          ),
-                          onPressed: (){
-                            showModalBottomSheet(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
-                              isScrollControlled: true,
-                              context: context,
-                              builder: (context) {
-                                return CommentList(
-                                  postKey: item.key,
-                                  currentUser: widget.currentUser,
-                                  navigateToMyProfile: widget.navigateToMyProfile,
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                  EmotionBoard(
+                    currentUser: widget.currentUser,
+                    navigateToMyProfile: widget.navigateToMyProfile,
+                    postKey: item.key,
+                    emotion: item.emotion,
+                    comment: item.comment,
+                    dislikeToPost: dislikeToPost,
+                    likeToPost: likeToPost,
                   ),
                 ],
               ),
@@ -359,6 +327,9 @@ class _PostDetailState extends State<PostDetail> {
                                 ),
                                 initialIndex: index,
                                 scrollDirection: Axis.horizontal,
+                                getPost: (){
+                                  refreshPost();
+                                },
                               ),
                             ),
                           ),
@@ -429,7 +400,7 @@ class _PostDetailState extends State<PostDetail> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          item.attach[index].like != null ? Container(
+                          item.attach[index].emotion != null ? Container(
                             margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                             height: 30,
                             width: 80,
@@ -440,7 +411,7 @@ class _PostDetailState extends State<PostDetail> {
                                   isScrollControlled: true,
                                   context: context,
                                   builder: (context) {
-                                    return LikeList(
+                                    return EmotionList(
                                       postKey: item.key,
                                       currentUser: widget.currentUser,
                                       attachKey: item.attach[index].key,
@@ -449,8 +420,8 @@ class _PostDetailState extends State<PostDetail> {
                                   },
                                 );
                               },
-                              child: Text("❤️ ${item.attach[index].like.length} 명",
-                                style: TextStyle(color: Colors.grey[700]),
+                              child: Text(emotionCount(item.attach[index].emotion),
+                                style: TextStyle(color: Colors.grey[700], fontSize: 14),
                               ),
                             ),
                           ) : null,
@@ -486,67 +457,15 @@ class _PostDetailState extends State<PostDetail> {
                         width: screenSize.width -20,
                         child: Divider(thickness: 1,),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Container(
-                            width: screenSize.width/2,
-                            child: FlatButton(
-                              child: Row( //Icons.favorite_border : Icons.favorite
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Icon(item.attach[index].like != null ?
-                                  item.attach[index].like[widget.currentUser.uid] != null ?
-                                  Icons.favorite : // 좋아요가 존재할 때
-                                  Icons.favorite_border : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                                  Icons.favorite_border, // 좋아요 목록이 존재하지 않을 때
-                                    color: item.attach[index].like != null ?
-                                    item.attach[index].like[widget.currentUser.uid] != null ?
-                                    Colors.red[600] : // 좋아요가 존재할 때
-                                    Colors.grey[600] : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                                    Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
-                                  ),
-                                  SizedBox(width: 5,),
-                                  Text("좋아요", style: Theme.of(context).textTheme.subtitle2,)
-                                ],
-                              ),
-                              onPressed: item.attach[index].like != null ?
-                              item.attach[index].like[widget.currentUser.uid] != null ?
-                              ()=>dislikeToAttach(item.attach[index].key) : // 좋아요가 존재할 때
-                              ()=>likeToAttach(item.attach[index].key) : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                              ()=>likeToAttach(item.attach[index].key), // 좋아요 목록이 존재하지 않을 때
-                            ),
-                          ),
-                          Container(
-                            width: screenSize.width/2,
-                            child: FlatButton(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Icon(Icons.comment, color: Colors.grey[600],),
-                                  SizedBox(width: 5,),
-                                  Text("댓글 달기",style: Theme.of(context).textTheme.subtitle2,)
-                                ],
-                              ),
-                              onPressed: (){
-                                showModalBottomSheet(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
-                                  isScrollControlled: true,
-                                  context: context,
-                                  builder: (context) {
-                                    return CommentList(
-                                      getPost: () => refreshPost(),
-                                      postKey: item.key,
-                                      currentUser: widget.currentUser,
-                                      attachKey: item.attach[index].key,
-                                      navigateToMyProfile: widget.navigateToMyProfile,
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
+                      EmotionBoard(
+                        currentUser: widget.currentUser,
+                        postKey: item.key,
+                        attachKey: item.attach[index].key,
+                        likeToPost: (){likeToAttach(item.attach[index].key);},
+                        dislikeToPost: (){dislikeToAttach(item.attach[index].key);},
+                        navigateToMyProfile: widget.navigateToMyProfile,
+                        emotion: item.attach[index].emotion,
+                        comment: item.attach[index].comment,
                       ),
                     ].where(notNull).toList(),
                   ),

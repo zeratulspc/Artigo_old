@@ -43,7 +43,7 @@ class EditPostState extends State<EditPost> {
       DeviceOrientation.portraitUp,
     ]);
     super.initState();
-    if(widget.postCase == 2)
+    if(widget.postCase == 2) {
       setState(() {
         if(widget.initialPost.attach != null) {
           attach.addAll(widget.initialPost.attach);
@@ -51,6 +51,7 @@ class EditPostState extends State<EditPost> {
         }
         textEditingController.text = widget.initialPost.body;
       });
+    }
     if(this.mounted){
       textEditingController.addListener(() {
         if(this.mounted){
@@ -111,7 +112,7 @@ class EditPostState extends State<EditPost> {
         body: textEditingController.text,
         uploaderUID: widget.currentUser.uid,
         uploadDate: DateTime.now().toIso8601String(),
-        like: widget.initialPost.like,
+        emotion: widget.initialPost.emotion,
         attach: widget.initialPost.attach,
         comment: widget.initialPost.comment,
         isEdited: true,
@@ -211,7 +212,6 @@ class EditPostState extends State<EditPost> {
     bool _isComplete = false;
     File tempImage;
     PickedFile pickedFile;
-
     pickedFile = await ImagePicker().getImage(source: source, imageQuality: imageUploadQuality);
     if(pickedFile != null) {
       tempImage = File(pickedFile.path);
@@ -269,7 +269,7 @@ class EditPostState extends State<EditPost> {
         );
       } else {
         return Container(
-          child: Image.network( //TODO Loading Container
+          child: Image.network(
             attach[index].filePath,
             fit: BoxFit.cover,
           ),

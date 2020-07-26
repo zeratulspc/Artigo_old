@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -6,12 +8,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/like.dart';
+import 'package:nextor/fnc/emotion.dart';
 import 'package:nextor/page/basicDialogs.dart';
+import 'package:nextor/page/emotion/emotionInput.dart';
 import 'package:nextor/page/post/postCard.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/comment/commentList.dart';
-import 'package:nextor/page/like/likeList.dart';
+import 'package:nextor/page/emotion/emotionList.dart';
 
 class PostList extends StatefulWidget {
   final GlobalKey<ScaffoldState> homeScaffoldKey;
@@ -27,8 +30,13 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
   BasicDialogs basicDialogs = BasicDialogs();
 
   //리스트 로딩 관련 변수
+  ScrollController scrollController = ScrollController();
+  bool isChanged = false;
+  int present = 0;
+  int perPage = 10;
   PostDBFNC postDBFNC = PostDBFNC();
-  List<Post> posts = List();
+  List<Post> backPosts = List();
+  List<Post> frontPosts = List();
   Query postQuery;
 
   // 현재 유저 정보
@@ -57,42 +65,74 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
           }
         });
       });
-      postQuery = postDBFNC.postDBRef;
-      postQuery.onChildAdded.listen(_onEntryAdded);
-      postQuery.onChildChanged.listen(_onEntryChanged);
-      postQuery.onChildRemoved.listen(_onEntryRemoved);
-    }
-  }
-
-  _onEntryAdded(Event event) {
-    if(this.mounted){
-      Post _post = Post().fromSnapShot(event.snapshot);
-      authDBFNC.getUserInfo(_post.uploaderUID).then(
-              (userInfo) {
-            _post.uploader = userInfo;
-            posts.insert(0 , _post);
+      postDBFNC.postDBRef.once().then((snapshot) {
+        LinkedHashMap<dynamic, dynamic>linkedHashMap = snapshot.value;
+        linkedHashMap.forEach((key, value) {
+          Post post = Post().fromLinkedHashMap(value, key);
+          authDBFNC.getUserInfo(post.uploaderUID).then((data) {
+            post.uploader = data;
+            backPosts.add(post);
             setState(() {
-              posts.sort((a, b){
+              backPosts.sort((a, b){
                 DateTime dateA = DateTime.parse(a.uploadDate);
                 DateTime dateB = DateTime.parse(b.uploadDate);
                 return dateB.compareTo(dateA);
               });
             });
           });
+        });
+        //상황 : 초기 로딩 끝나고 게시글 10개만 프론트 포스트 안에 넣어주는 작업임
+        // 근데 안됨, 왜지?????????????????????????????????
+        setState(() { //TODO 얘 왜 안됨?
+          frontPosts.clear();
+          frontPosts.insertAll(0, backPosts.getRange(present, perPage));
+        });
+        present += perPage;
+        postQuery = postDBFNC.postDBRef;
+        postQuery.onChildAdded.listen(_onEntryAdded);
+        postQuery.onChildChanged.listen(_onEntryChanged);
+        postQuery.onChildRemoved.listen(_onEntryRemoved);
+      });
+    }
+  }
+
+  _onEntryAdded(Event event) {
+    if(this.mounted){
+      bool flag = true;
+      Post _post = Post().fromSnapShot(event.snapshot);
+      authDBFNC.getUserInfo(_post.uploaderUID).then((userInfo) {
+            _post.uploader = userInfo;
+            backPosts.forEach((element) {
+              if(element.key == _post.key) { // contain 확인
+                flag = false;
+              }
+            });
+            if(flag) { // 쿼리에서 감지한 post 가 backPost 에 존재하는 post 라면 추가하지 않음
+              backPosts.add(_post);
+              setState(() {
+                backPosts.sort((a, b){
+                  DateTime dateA = DateTime.parse(a.uploadDate);
+                  DateTime dateB = DateTime.parse(b.uploadDate);
+                  return dateB.compareTo(dateA);
+                });
+              });
+            }
+          });
     }
   }
 
   _onEntryChanged(Event event) {
     if(this.mounted){
+      isChanged = true;
       Post _post = Post().fromSnapShot(event.snapshot);
       authDBFNC.getUserInfo(_post.uploaderUID).then(
               (userInfo) {
             _post.uploader = userInfo;
             setState(() {
-              var oldEntry = posts.singleWhere((entry) {
+              var oldEntry = backPosts.singleWhere((entry) {
                 return entry.key == _post.key;
               });
-              posts[posts.indexOf(oldEntry)] = _post;
+              backPosts[backPosts.indexOf(oldEntry)] = _post;
             });
           }
       );
@@ -101,13 +141,24 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
 
   _onEntryRemoved(Event event) {
     if(this.mounted){
+      isChanged = true;
       setState(() {
-        posts.removeWhere((posts) =>
+        backPosts.removeWhere((posts) =>
         posts.key == Post()
             .fromSnapShot(event.snapshot)
             .key);
       });
     }
+  }
+
+  Future<Null> _handleRefresh() async {
+    setState(() {
+      isChanged = false;
+      present = 0;// present reset
+      frontPosts.clear();
+      frontPosts.insertAll(0, backPosts.getRange(present, perPage));
+    });
+    return null;
   }
 
   void postModalBottomSheet(context, Post post) {
@@ -133,8 +184,7 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
                   onTap: () {
                     Navigator.pop(context);
                     basicDialogs.dialogWithFunction(
-                        context, "게시글 삭제", "게시글을 삭제하시겠습니까?",
-                        () {
+                        context, "게시글 삭제", "게시글을 삭제하시겠습니까?", () {
                           Navigator.pop(context);
                           basicDialogs.showLoading(context, "게시글을 삭제하는 중입니다.");
                           if(post.attach != null) {
@@ -153,12 +203,6 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  Future<Null> _handleRefresh() async {
-    setState(() {
-
-    });
-    return null;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,15 +210,16 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
     return RefreshIndicator(
       onRefresh: _handleRefresh,
       child: ListView.builder(
+        //controller: scrollController,
         padding: EdgeInsets.only(top: 6),
-        itemCount: posts.length,
+        itemCount: frontPosts.length,
         itemBuilder: (BuildContext context, int index) {
-          Post post = posts[index];
+          Post post = frontPosts[index];
           return PostCard(
             screenSize: screenSize,
             item: post,
             navigateToMyProfile: this.widget.navigateToMyProfile,
-            uploader: posts[index].uploader,
+            uploader: frontPosts[index].uploader,
             currentUser: currentUser,
             moreOption: (){
               if(currentUser.uid == post.uploaderUID || user.role == "ADMIN")
@@ -182,11 +227,11 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
             },
             dislikeToPost: (){
               DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
-              LikeDBFNC(likeDBRef: likeDBRef).dislike(currentUser.uid);
+              EmotionDBFNC(emotionDBRef: likeDBRef).dislike(currentUser.uid);
             },
-            likeToPost: (){
+            likeToPost: () {
               DatabaseReference likeDBRef = FirebaseDatabase.instance.reference().child("Posts").child(post.key);
-              LikeDBFNC(likeDBRef: likeDBRef).like(currentUser.uid, post.uploaderUID);
+              EmotionInput(likeDBRef, currentUser.uid, post.uploaderUID, (){}).showEmotionPicker(context);
             },
             showCommentSheet: () {
               showModalBottomSheet(
@@ -195,6 +240,12 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
                 context: context,
                 builder: (context) {
                   return CommentList(
+                    getPost: () async {
+                      Post data = await postDBFNC.getPost(post.key);
+                      setState(() {
+                        post = data;
+                      });
+                    },
                     navigateToMyProfile: widget.navigateToMyProfile,
                     postKey: post.key,
                     currentUser: currentUser,
@@ -208,7 +259,7 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
                 isScrollControlled: true,
                 context: context,
                 builder: (context) {
-                  return LikeList(
+                  return EmotionList(
                     postKey: post.key,
                     currentUser: currentUser,
                     navigateToMyProfile: widget.navigateToMyProfile,

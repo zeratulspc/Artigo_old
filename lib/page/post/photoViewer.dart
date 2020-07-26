@@ -5,9 +5,10 @@ import 'package:flutter/gestures.dart';
 
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/like.dart';
+import 'package:nextor/fnc/emotion.dart';
 import 'package:nextor/fnc/dateTimeParser.dart';
 import 'package:nextor/page/comment/commentList.dart';
+import 'package:nextor/page/emotion/emotionInput.dart';
 
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -21,6 +22,7 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
     this.maxScale,
     this.initialIndex,
     this.postKey,
+    this.getPost,
     @required this.currentUser,
     @required this.galleryItems,
     @required this.uploader,
@@ -30,6 +32,7 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
   final Function loadingChild;
   final Decoration backgroundDecoration;
   final VoidCallback navigateToMyProfile;
+  final VoidCallback getPost;
   final dynamic minScale;
   final dynamic maxScale;
   final int initialIndex;
@@ -52,18 +55,18 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
   List<Attach> items = List();
   List<bool> seeMore = List();
   bool notNull(Object o) => o != null;
-  LikeDBFNC likeDBFNC;
+  EmotionDBFNC likeDBFNC;
   PostDBFNC postDBFNC = PostDBFNC();
-  DatabaseReference likeDBRef;
+  DatabaseReference emotionDBRef;
 
   likeToAttach(String key) {
-    likeDBRef = postDBFNC.postDBRef.child(widget.postKey).child("attach").child(key);
-    LikeDBFNC(likeDBRef: likeDBRef).like(widget.currentUser.uid, widget.uploader.key);
+    emotionDBRef = postDBFNC.postDBRef.child(widget.postKey).child("attach").child(key);
+    EmotionInput(emotionDBRef, widget.currentUser.uid, widget.uploader.key, widget.getPost).showEmotionPicker(context);
     refreshPost(widget.postKey);
   }
   dislikeToAttach(String key) {
-    likeDBRef = postDBFNC.postDBRef.child(widget.postKey).child("attach").child(key);
-    LikeDBFNC(likeDBRef: likeDBRef).dislike(widget.currentUser.uid);
+    emotionDBRef = postDBFNC.postDBRef.child(widget.postKey).child("attach").child(key);
+    EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(widget.currentUser.uid);
     refreshPost(widget.postKey);
   }
 
@@ -73,6 +76,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
         items = data.attach;
       });
     });
+    widget.getPost();
   }
 
   @override
@@ -220,13 +224,13 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Icon(items[currentIndex].like != null ?
-                                  items[currentIndex].like[widget.currentUser.uid] != null ?
+                                  Icon(items[currentIndex].emotion != null ?
+                                  items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: null) != null ?
                                   Icons.favorite : // 좋아요가 존재할 때
                                   Icons.favorite_border : // 좋아요 목록에 현재 유저 아이디가 없을 때
                                   Icons.favorite_border, // 좋아요 목록이 존재하지 않을 때
-                                    color: items[currentIndex].like != null ?
-                                    items[currentIndex].like[widget.currentUser.uid] != null ?
+                                    color: items[currentIndex].emotion != null ?
+                                    items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: null) != null ?
                                     Colors.red[600] : // 좋아요가 존재할 때
                                     Colors.grey[600] : // 좋아요 목록에 현재 유저 아이디가 없을 때
                                     Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
@@ -235,8 +239,8 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                                   Text("좋아요", style: TextStyle(color: Colors.white),)
                                 ],
                               ),
-                              onPressed: items[currentIndex].like != null ?
-                              items[currentIndex].like[widget.currentUser.uid] != null ?
+                              onPressed: items[currentIndex].emotion != null ?
+                              items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: null) != null ?
                                   ()=>dislikeToAttach(items[currentIndex].key) : // 좋아요가 존재할 때
                                   ()=>likeToAttach(items[currentIndex].key) : // 좋아요 목록에 현재 유저 아이디가 없을 때
                                   ()=>likeToAttach(items[currentIndex].key), // 좋아요 목록이 존재하지 않을 때

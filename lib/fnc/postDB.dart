@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:nextor/fnc/comment.dart';
+import 'package:nextor/fnc/emotion.dart';
 import 'package:nextor/fnc/user.dart';
 import 'package:uuid/uuid.dart';
 
@@ -67,28 +69,90 @@ class Post {
   bool isEdited;
 
   List<Attach> attach;
-  LinkedHashMap<dynamic, dynamic> like;
-  LinkedHashMap<dynamic, dynamic> comment;
+  List<Emotion> emotion;
+  List<Comment> comment;
 
   Post({this.key, this.body, this.uploaderUID, this.uploadDate, this.attach,
-    this.like, this.comment, this.isEdited,});
+    this.emotion, this.comment, this.isEdited,});
+
+  fromLinkedHashMap(LinkedHashMap linkedHashMap, String key) {
+    LinkedHashMap<dynamic, dynamic> _attachList = linkedHashMap["attach"];
+    List<Attach> attachList;
+    if(_attachList != null) {
+      attachList = List();
+      _attachList.forEach((k, v) {
+        attachList.add(Attach().fromLinkedHashMap(v));
+      });
+      attachList.sort((a, b)=>DateTime.parse(a.uploadDate).compareTo(DateTime.parse(b.uploadDate)));
+    }
+
+    LinkedHashMap<dynamic, dynamic> _emotionList = linkedHashMap["emotion"];
+    List<Emotion> emotionList;
+    if(_emotionList != null) {
+      emotionList = List();
+      _emotionList.forEach((k, v) {
+        emotionList.add(Emotion.fromLinkedHashMap(v));
+      });
+      emotionList.sort((a, b)=>DateTime.parse(a.date).compareTo(DateTime.parse(b.date)));
+    }
+
+    LinkedHashMap<dynamic, dynamic> _commentList = linkedHashMap["comment"];
+    List<Comment> commentList;
+    if(_commentList != null) {
+      commentList = List();
+      _commentList.forEach((k, v) {
+        commentList.add(Comment().fromLinkedHashMap(v));
+      });
+      commentList.sort((a, b)=>DateTime.parse(a.uploadDate).compareTo(DateTime.parse(b.uploadDate)));
+    }
+    return Post(
+      key: key,
+      body : linkedHashMap["body"],
+      uploaderUID : linkedHashMap["uploaderUID"],
+      attach : attachList,
+      emotion : emotionList,
+      comment : commentList,
+      uploadDate : linkedHashMap["uploadDate"],
+    );
+  }
 
   fromSnapShot(DataSnapshot snapshot) {
-    LinkedHashMap<dynamic, dynamic> _list = snapshot.value["attach"];
-    List<Attach> attachList = List();
-    if(_list != null) {
-      _list.forEach((k, v) {
-        attachList.add(Attach.fromLinkedHashMap(v));
+    LinkedHashMap<dynamic, dynamic> _attachList = snapshot.value["attach"];
+    List<Attach> attachList;
+    if(_attachList != null) {
+      attachList = List();
+      _attachList.forEach((k, v) {
+        attachList.add(Attach().fromLinkedHashMap(v));
       });
+      attachList.sort((a, b)=>DateTime.parse(a.uploadDate).compareTo(DateTime.parse(b.uploadDate)));
     }
-    attachList.sort((a, b)=>DateTime.parse(a.uploadDate).compareTo(DateTime.parse(b.uploadDate)));
+
+    LinkedHashMap<dynamic, dynamic> _emotionList = snapshot.value["emotion"];
+    List<Emotion> emotionList;
+    if(_emotionList != null) {
+      emotionList = List();
+      _emotionList.forEach((k, v) {
+        emotionList.add(Emotion.fromLinkedHashMap(v));
+      });
+      emotionList.sort((a, b)=>DateTime.parse(a.date).compareTo(DateTime.parse(b.date)));
+    }
+
+    LinkedHashMap<dynamic, dynamic> _commentList = snapshot.value["comment"];
+    List<Comment> commentList;
+    if(_commentList != null) {
+      commentList = List();
+      _commentList.forEach((k, v) {
+        commentList.add(Comment().fromLinkedHashMap(v));
+      });
+      commentList.sort((a, b)=>DateTime.parse(a.uploadDate).compareTo(DateTime.parse(b.uploadDate)));
+    }
     return Post(
       key: snapshot.key,
         body : snapshot.value["body"],
         uploaderUID : snapshot.value["uploaderUID"],
         attach : attachList,
-        like : snapshot.value["like"],
-        comment : snapshot.value["comment"],
+        emotion : emotionList,
+        comment : commentList,
         uploadDate : snapshot.value["uploadDate"],
     );
   }
@@ -108,7 +172,7 @@ class Post {
       "uploadDate" : uploadDate,
       "attach" : attaches,
       "comment" : comment,
-      "like" : like
+      "emotion" : emotion
     };
   }
 
@@ -123,35 +187,45 @@ class Attach {
   String description;
   String uploaderUID;
   String uploadDate;
-  LinkedHashMap<dynamic, dynamic> like;
-  LinkedHashMap<dynamic, dynamic> comment;
+  List<Emotion> emotion;
+  List<Comment> comment;
   File tempPhoto;
   bool seeMore = false;
 
-  Attach({this.key, this.fileName, this.filePath, this.description,
-    this.uploaderUID, this.tempPhoto, this.uploadDate, this.like, this.comment});
+  Attach({this.key, this.fileName, this.filePath, this.description, this.id,
+    this.uploaderUID, this.tempPhoto, this.uploadDate, this.emotion, this.comment});
 
-  Attach.fromLinkedHashMap(LinkedHashMap linkedHashMap)
-    :key = linkedHashMap["key"],
-      id = linkedHashMap["id"],
-      fileName = linkedHashMap["fileName"],
-      filePath = linkedHashMap["filePath"],
-      description = linkedHashMap["description"],
-      like = linkedHashMap["like"],
-      comment = linkedHashMap["comment"],
-      uploadDate = linkedHashMap["uploadDate"],
-      uploaderUID = linkedHashMap["uploaderUID"];
+  fromLinkedHashMap(LinkedHashMap linkedHashMap) {
+    LinkedHashMap<dynamic, dynamic> _emotionList = linkedHashMap["emotion"];
+    List<Emotion> emotionList;
+    if(_emotionList != null) {
+      emotionList = List();
+      _emotionList.forEach((k, v) {
+        emotionList.add(Emotion.fromLinkedHashMap(v));
+      });
+      emotionList.sort((a, b)=>DateTime.parse(a.date).compareTo(DateTime.parse(b.date)));
+    }
 
-  factory Attach.fromJson(dynamic parsedJson) {
+    LinkedHashMap<dynamic, dynamic> _commentList = linkedHashMap["comment"];
+    List<Comment> commentList;
+    if(_commentList != null) {
+      commentList = List();
+      _commentList.forEach((k, v) {
+        commentList.add(Comment().fromLinkedHashMap(v));
+      });
+      commentList.sort((a, b)=>DateTime.parse(a.uploadDate).compareTo(DateTime.parse(b.uploadDate)));
+    }
+
     return Attach(
-      key: parsedJson["key"],
-      fileName: parsedJson["fileName"],
-      filePath: parsedJson["filePath"],
-      description: parsedJson["description"],
-      like: parsedJson["like"],
-      comment: parsedJson["comment"],
-      uploadDate: parsedJson["uploadDate"],
-      uploaderUID: parsedJson["uploaderUID"],
+        key : linkedHashMap["key"],
+        id : linkedHashMap["id"],
+        fileName : linkedHashMap["fileName"],
+        filePath : linkedHashMap["filePath"],
+        description : linkedHashMap["description"],
+        emotion : emotionList,
+        comment : commentList,
+        uploadDate : linkedHashMap["uploadDate"],
+        uploaderUID : linkedHashMap["uploaderUID"]
     );
   }
 
@@ -162,7 +236,7 @@ class Attach {
       "fileName" : fileName,
       "filePath" : filePath,
       "description" : description,
-      "like" : like,
+      "emotion" : emotion,
       "comment" : comment,
       "uploadDate" : uploadDate,
       "uploaderUID" : uploaderUID

@@ -2,9 +2,9 @@ import 'dart:collection';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:nextor/fnc/emotion.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/notification.dart';
 
 class CommentDBFNC {
   CommentDBFNC(
@@ -34,21 +34,73 @@ class Comment {
   String uploaderUID;
   String uploadDate;
   Attach attach;
-  LinkedHashMap<dynamic, dynamic> like;
-  LinkedHashMap<dynamic, dynamic> reply;
+  List<Emotion> emotion;
+  List<Comment> reply;
 
   User uploaderInfo;
 
-  Comment({this.key, this.body, this.uploaderUID, this.uploadDate, this.attach, this.like, this.reply});
+  Comment({this.key, this.body, this.uploaderUID, this.uploadDate, this.attach, this.emotion, this.reply});
 
-  Comment.fromSnapShot(DataSnapshot snapshot)
-  :key = snapshot.key,
-    body = snapshot.value["body"],
-    uploaderUID = snapshot.value["uploaderUID"],
-    uploadDate = snapshot.value["uploadDate"],
-    attach = snapshot.value["attach"],
-    like = snapshot.value["like"],
-    reply = snapshot.value["reply"];
+  fromLinkedHashMap(LinkedHashMap linkedHashMap) {
+    LinkedHashMap<dynamic, dynamic> _emotionList = linkedHashMap["emotion"];
+    List<Emotion> emotionList;
+    if(_emotionList != null) {
+      emotionList = List();
+      _emotionList.forEach((k, v) {
+        emotionList.add(Emotion.fromLinkedHashMap(v));
+      });
+      emotionList.sort((a, b)=>DateTime.parse(a.date).compareTo(DateTime.parse(b.date)));
+    }
+
+    LinkedHashMap<dynamic, dynamic> _replyList = linkedHashMap["reply"];
+    List<Comment> replyList;
+    if(_replyList != null) {
+      replyList = List();
+      _replyList.forEach((k, v) {
+        replyList.add(Comment().fromLinkedHashMap(v));
+      });
+      replyList.sort((a, b)=>DateTime.parse(a.uploadDate).compareTo(DateTime.parse(b.uploadDate)));
+    }
+
+    return Comment(
+        body : linkedHashMap["body"],
+        uploaderUID : linkedHashMap["uploaderUID"],
+        uploadDate : linkedHashMap["uploadDate"],
+        emotion : emotionList,
+        reply : replyList,
+    );
+  }
+
+  fromSnapShot(DataSnapshot snapshot) {
+    LinkedHashMap<dynamic, dynamic> _emotionList = snapshot.value["emotion"];
+    List<Emotion> emotionList;
+    if(_emotionList != null) {
+      emotionList = List();
+      _emotionList.forEach((k, v) {
+        emotionList.add(Emotion.fromLinkedHashMap(v));
+      });
+      emotionList.sort((a, b)=>DateTime.parse(a.date).compareTo(DateTime.parse(b.date)));
+    }
+
+    LinkedHashMap<dynamic, dynamic> _commentList = snapshot.value["reply"];
+    List<Comment> replyList;
+    if(_commentList != null) {
+      replyList = List();
+      _commentList.forEach((k, v) {
+        replyList.add(Comment().fromLinkedHashMap(v));
+      });
+      replyList.sort((a, b)=>DateTime.parse(a.uploadDate).compareTo(DateTime.parse(b.uploadDate)));
+    }
+    return Comment(
+      key : snapshot.key,
+      body : snapshot.value["body"],
+      uploaderUID : snapshot.value["uploaderUID"],
+      uploadDate : snapshot.value["uploadDate"],
+      //attach = snapshot.value["attach"],
+      emotion : emotionList,
+      reply : replyList,
+    );
+  }
 
   toMap() {
     return {
@@ -57,7 +109,7 @@ class Comment {
       "uploaderUID" : uploaderUID,
       "uploadDate" : uploadDate,
       "attach" : attach,
-      "like" : like,
+      "like" : emotion,
       "reply" : reply
     };
   }

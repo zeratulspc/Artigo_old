@@ -1,6 +1,5 @@
 
 class DateTimeParser {
-
   String defaultParse(DateTime date) {
     DateTime currentTime = DateTime.now();
     if(date.year == currentTime.year && date.month == currentTime.month && date.day == currentTime.day &&

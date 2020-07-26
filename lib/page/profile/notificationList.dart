@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -169,7 +167,7 @@ class NotificationListState extends State<NotificationList> with SingleTickerPro
                     key: unit.key,
                     userUid: currentUserInfo.key,
                     notification: "receivedNotifications",
-                    isChecked: false,
+                    isChecked: true,
                   );
                 },
                 child: Container(

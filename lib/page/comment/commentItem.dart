@@ -151,16 +151,20 @@ class CommentItem extends StatelessWidget {
                       ),
                       SizedBox(width: 20,),
                       InkWell(
-                        child: Text("좋아요",
+                        child: Text(item.emotion != null ?
+                        item.emotion.singleWhere((e) => e.userUID == currentUser.uid, orElse: ()=> null) != null ?
+                        "${item.emotion.singleWhere((e)=> e.userUID == currentUser.uid,).emotionCode}" : // 좋아요가 존재할 때
+                        "공감하기" : // 좋아요 목록에 현재 유저 아이디가 없을 때
+                        "공감하기", // 좋아요 목록이 존재하지 않을 때
                           style: TextStyle(
-                            color: item.like != null ?
-                            item.like[currentUser.uid] != null ?
+                            color: item.emotion != null ?
+                            item.emotion.singleWhere((e) => e.userUID == currentUser.uid, orElse: ()=> null) != null ?
                             Colors.red[600] : // 좋아요가 존재할 때
                             Colors.grey[800] : // 좋아요 목록에 현재 유저 아이디가 없을 때
                             Colors.grey[800], // 좋아요 목록이 존재하지 않을 때
                           ),),
-                        onTap: item.like != null ?
-                        item.like[currentUser.uid] != null ?
+                        onTap: item.emotion != null ?
+                        item.emotion.singleWhere((e) => e.userUID == currentUser.uid, orElse: ()=> null) != null ?
                         dislikeToComment : // 좋아요가 존재할 때
                         likeToComment : // 좋아요 목록에 현재 유저 아이디가 없을 때
                         likeToComment, // 좋아요 목록이 존재하지 않을 때
@@ -172,10 +176,10 @@ class CommentItem extends StatelessWidget {
                         onTap: replyComment,
                       ) : null ,
                       replyComment != null ? SizedBox(width: 20,) : null,
-                      item.like != null ?
+                      item.emotion != null ?
                       InkWell(
                         onTap: seeLikeList,
-                        child: Text("좋아요 ${item.like.length}개",
+                        child: Text("공감 ${item.emotion.length}개",
                           style: TextStyle(color: Colors.grey[600], fontSize: 12),),
                       ) : null,
                       item.reply != null ? SizedBox(width: 20,) : null,

@@ -7,8 +7,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/dateTimeParser.dart';
+import 'package:nextor/fnc/emotion.dart';
 import 'package:nextor/page/post/postDetail.dart';
 import 'package:nextor/page/profile/userProfile.dart';
+import 'package:nextor/page/emotion/emotionBoard.dart';
 
 class PostCard extends StatelessWidget {
   PostCard(
@@ -76,6 +78,21 @@ class PostCard extends StatelessWidget {
         break;
 
     }
+  }
+
+  String emotionCount(List<Emotion> list) {
+    String _emotions = "";
+    int count = 0;
+    list.forEach((value) {
+      count++;
+      if(count < 4) {
+        _emotions+=value.emotionCode;
+      }
+    });
+    if(!(count < 4)) {
+      _emotions+=" 외 ${list.length - 3}개";
+    }
+    return _emotions;
   }
 
 
@@ -225,7 +242,7 @@ class PostCard extends StatelessWidget {
                       } : (){},
                     ),
                   ),
-                  item.attach.length != 0? Container(
+                  item.attach != null? Container(
                     alignment: Alignment.center,
                     width: screenSize.width,
                     height: screenSize.width < screenSize.height ? screenSize.height/3.0 : screenSize.width/1.5,
@@ -293,14 +310,14 @@ class PostCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      item.like != null ? Container(
-                        alignment: Alignment.center,
+                      item.emotion != null ? Container(
+                        alignment: Alignment.centerLeft,
                         margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
                         height: 30,
-                        width: 50,
+                        width: 150,
                         child: InkWell(
-                          child: Text("❤️ ${item.like.length} 명",
-                            style: TextStyle(color: Colors.grey[700]),
+                          child: Text(emotionCount(item.emotion),
+                            style: TextStyle(color: Colors.grey[700], fontSize: 14),
                           ),
                           onTap: showLikeSheet,
                         ),
@@ -324,56 +341,15 @@ class PostCard extends StatelessWidget {
                     width: screenSize.width -20,
                     child: Divider(thickness: 1,),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(
-                        width: screenSize.width/2,
-                        child: FlatButton(
-                          child: Row( //Icons.favorite_border : Icons.favorite
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(item.like != null ?
-                              item.like[currentUser.uid] != null ?
-                              Icons.favorite : // 좋아요가 존재할 때
-                              Icons.favorite_border : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                              Icons.favorite_border, // 좋아요 목록이 존재하지 않을 때
-                                color: item.like != null ?
-                                item.like[currentUser.uid] != null ?
-                                Colors.red[600] : // 좋아요가 존재할 때
-                                Colors.grey[600] : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                                Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
-                              ),
-                              SizedBox(width: 5,),
-                              InkWell(
-                                child: Text("좋아요", style: Theme.of(context).textTheme.subtitle2,),
-                                onTap: null,
-                              ),
-                            ],
-                          ),
-                          onPressed: item.like != null ?
-                          item.like[currentUser.uid] != null ?
-                          dislikeToPost : // 좋아요가 존재할 때
-                          likeToPost : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                          likeToPost, // 좋아요 목록이 존재하지 않을 때
-                        ),
-                      ),
-                      Container(
-                        width: screenSize.width/2,
-                        child: FlatButton(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(Icons.comment, color: Colors.grey[600],),
-                              SizedBox(width: 5,),
-                              Text("댓글 달기",style: Theme.of(context).textTheme.subtitle2,)
-                            ],
-                          ),
-                          onPressed: showCommentSheet,
-                        ),
-                      )
-                    ],
-                  )
+                  EmotionBoard(
+                    navigateToMyProfile: navigateToMyProfile,
+                    currentUser: currentUser,
+                    emotion: item.emotion,
+                    comment: item.comment,
+                    postKey: item.key,
+                    likeToPost: likeToPost,
+                    dislikeToPost: dislikeToPost,
+                  ),
                 ].where(notNull).toList(),
               )
           ),

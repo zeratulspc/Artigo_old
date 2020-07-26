@@ -150,7 +150,7 @@ class EditPostAttachState extends State<EditPostAttach> {
                       Container(
                         height: 300,
                         width: screenSize.width,
-                        child: Image.network( //TODO Loading Container
+                        child: Image.network(
                           attach[index].filePath,
                           fit: BoxFit.cover,
                         ),

@@ -7,8 +7,9 @@ import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/comment.dart';
-import 'package:nextor/fnc/like.dart';
-import 'package:nextor/page/like/likeList.dart';
+import 'package:nextor/fnc/emotion.dart';
+import 'package:nextor/page/emotion/emotionList.dart';
+import 'package:nextor/page/emotion/emotionInput.dart';
 import 'package:nextor/page/comment/commentItem.dart';
 import 'package:nextor/page/basicDialogs.dart';
 
@@ -27,7 +28,7 @@ class CommentList extends StatefulWidget {
 
 class CommentListState extends State<CommentList> {
   CommentDBFNC commentDBFNC;
-  LikeDBFNC likeDBFNC;
+  EmotionDBFNC likeDBFNC;
   PostDBFNC postDBFNC = PostDBFNC();
   UserDBFNC authDBFNC = UserDBFNC();
   BasicDialogs basicDialogs = BasicDialogs();
@@ -95,7 +96,7 @@ class CommentListState extends State<CommentList> {
 
   _onEntryAdded(Event event) async {
     if(this.mounted){
-      Comment comment = Comment.fromSnapShot(event.snapshot);
+      Comment comment = Comment().fromSnapShot(event.snapshot);
       comment.uploaderInfo = await UserDBFNC().getUserInfo(comment.uploaderUID);
       setState(() {
         commentList.insert(0, comment);
@@ -110,7 +111,7 @@ class CommentListState extends State<CommentList> {
 
   _onEntryChanged(Event event) async {
     if(this.mounted){
-      Comment comment = Comment.fromSnapShot(event.snapshot);
+      Comment comment = Comment().fromSnapShot(event.snapshot);
       comment.uploaderInfo = await UserDBFNC().getUserInfo(comment.uploaderUID);
       var oldEntry = commentList.singleWhere((entry) {
         return entry.key == comment.key;
@@ -123,7 +124,7 @@ class CommentListState extends State<CommentList> {
 
   _onEntryRemoved(Event event) {
     if(this.mounted){
-      Comment comment = Comment.fromSnapShot(event.snapshot);
+      Comment comment = Comment().fromSnapShot(event.snapshot);
       setState(() {
         commentList.removeWhere((element) =>
         element.key == comment.key,
@@ -251,12 +252,12 @@ class CommentListState extends State<CommentList> {
                       isScrollControlled: true,
                       context: context,
                       builder: (context) {
-                        return LikeList(
+                        return EmotionList(
                           postKey: widget.postKey,
                           currentUser: widget.currentUser,
-                          commentKey: widget.commentKey,
+                          commentKey: widget.commentKey != null ? widget.commentKey : comment.key,
                           attachKey: widget.attachKey,
-                          replyKey: comment.key,
+                          replyKey: widget.commentKey != null ? comment.key : null,
                           navigateToMyProfile: widget.navigateToMyProfile,
                         );
                       },
@@ -268,10 +269,11 @@ class CommentListState extends State<CommentList> {
                       commentMoreOptionSheet(context, comment);
                   },
                   likeToComment: (){
-                    LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).like(widget.currentUser.uid, comment.uploaderUID);
+                    DatabaseReference emotionDBRef = commentDBRef.child(comment.key);
+                    EmotionInput(emotionDBRef, widget.currentUser.uid, comment.uploaderUID, widget.getPost).showEmotionPicker(context);
                   },
                   dislikeToComment: (){
-                    LikeDBFNC(likeDBRef: commentDBRef.child(comment.key)).dislike(widget.currentUser.uid);
+                    EmotionDBFNC(emotionDBRef: commentDBRef.child(comment.key)).dislike(widget.currentUser.uid);
                   },
                   replyComment: widget.attachKey == null ? widget.commentKey == null ? ()=> showModalBottomSheet( // post 댓글의 답글
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
@@ -281,6 +283,7 @@ class CommentListState extends State<CommentList> {
                       return CommentList(
                         postKey: widget.postKey,
                         commentKey: comment.key,
+                        getPost: widget.getPost,
                         currentUser: widget.currentUser,
                         navigateToMyProfile: widget.navigateToMyProfile,
                       );
