@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,11 +8,11 @@ import 'package:nextor/fnc/user.dart';
 import 'package:nextor/fnc/postDB.dart';
 import 'package:nextor/fnc/emotion.dart';
 import 'package:nextor/page/basicDialogs.dart';
-import 'package:nextor/page/emotion/emotionInput.dart';
 import 'package:nextor/page/post/postCard.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/comment/commentList.dart';
 import 'package:nextor/page/emotion/emotionList.dart';
+import 'package:nextor/page/emotion/emotionInput.dart';
 
 class PostList extends StatefulWidget {
   final GlobalKey<ScaffoldState> homeScaffoldKey;
@@ -30,14 +28,10 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
   BasicDialogs basicDialogs = BasicDialogs();
 
   //리스트 로딩 관련 변수
-  ScrollController scrollController = ScrollController();
-  bool isChanged = false;
-  int present = 0;
-  int perPage = 10;
   PostDBFNC postDBFNC = PostDBFNC();
-  List<Post> backPosts = List();
-  List<Post> frontPosts = List();
+  List<Post> posts = List();
   Query postQuery;
+
 
   // 현재 유저 정보
   UserDBFNC authDBFNC = UserDBFNC();
@@ -65,72 +59,42 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
           }
         });
       });
-      postDBFNC.postDBRef.once().then((snapshot) {
-        LinkedHashMap<dynamic, dynamic> linkedHashMap = snapshot.value;
-        linkedHashMap.forEach((key, value) async {
-          Post post = Post().fromLinkedHashMap(value, key);
-          User data = await authDBFNC.getUserInfo(post.uploaderUID);
-          post.uploader = data;
-          backPosts.add(post);
-          setState(() {
-            backPosts.sort((a, b){
-              DateTime dateA = DateTime.parse(a.uploadDate);
-              DateTime dateB = DateTime.parse(b.uploadDate);
-              return dateB.compareTo(dateA);
-            });
-          });
-        });
-        setState(() {
-          frontPosts.clear();
-          frontPosts.insertAll(0, backPosts.getRange(present, perPage));
-        });
-        present += perPage;
-        postQuery = postDBFNC.postDBRef;
-        postQuery.onChildAdded.listen(_onEntryAdded);
-        postQuery.onChildChanged.listen(_onEntryChanged);
-        postQuery.onChildRemoved.listen(_onEntryRemoved);
-      });
+      postQuery = postDBFNC.postDBRef;
+      postQuery.onChildAdded.listen(_onEntryAdded);
+      postQuery.onChildChanged.listen(_onEntryChanged);
+      postQuery.onChildRemoved.listen(_onEntryRemoved);
     }
   }
 
-
   _onEntryAdded(Event event) {
     if(this.mounted){
-      bool flag = true;
       Post _post = Post().fromSnapShot(event.snapshot);
-      authDBFNC.getUserInfo(_post.uploaderUID).then((userInfo) {
+      authDBFNC.getUserInfo(_post.uploaderUID).then(
+              (userInfo) {
             _post.uploader = userInfo;
-            backPosts.forEach((element) {
-              if(element.key == _post.key) { // contain 확인
-                flag = false;
-              }
-            });
-            if(flag) { // 쿼리에서 감지한 post 가 backPost 에 존재하는 post 라면 추가하지 않음
-              backPosts.add(_post);
-              setState(() {
-                backPosts.sort((a, b){
-                  DateTime dateA = DateTime.parse(a.uploadDate);
-                  DateTime dateB = DateTime.parse(b.uploadDate);
-                  return dateB.compareTo(dateA);
-                });
+            posts.insert(0 , _post);
+            setState(() {
+              posts.sort((a, b){
+                DateTime dateA = DateTime.parse(a.uploadDate);
+                DateTime dateB = DateTime.parse(b.uploadDate);
+                return dateB.compareTo(dateA);
               });
-            }
+            });
           });
     }
   }
 
   _onEntryChanged(Event event) {
     if(this.mounted){
-      isChanged = true;
       Post _post = Post().fromSnapShot(event.snapshot);
       authDBFNC.getUserInfo(_post.uploaderUID).then(
               (userInfo) {
             _post.uploader = userInfo;
             setState(() {
-              var oldEntry = backPosts.singleWhere((entry) {
+              var oldEntry = posts.singleWhere((entry) {
                 return entry.key == _post.key;
               });
-              backPosts[backPosts.indexOf(oldEntry)] = _post;
+              posts[posts.indexOf(oldEntry)] = _post;
             });
           }
       );
@@ -139,24 +103,13 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
 
   _onEntryRemoved(Event event) {
     if(this.mounted){
-      isChanged = true;
       setState(() {
-        backPosts.removeWhere((posts) =>
+        posts.removeWhere((posts) =>
         posts.key == Post()
             .fromSnapShot(event.snapshot)
             .key);
       });
     }
-  }
-
-  Future<Null> _handleRefresh() async {
-    setState(() {
-      isChanged = false;
-      present = 0;// present reset
-      frontPosts.clear();
-      frontPosts.insertAll(0, backPosts.getRange(present, perPage));
-    });
-    return null;
   }
 
   void postModalBottomSheet(context, Post post) {
@@ -182,7 +135,8 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
                   onTap: () {
                     Navigator.pop(context);
                     basicDialogs.dialogWithFunction(
-                        context, "게시글 삭제", "게시글을 삭제하시겠습니까?", () {
+                        context, "게시글 삭제", "게시글을 삭제하시겠습니까?",
+                        () {
                           Navigator.pop(context);
                           basicDialogs.showLoading(context, "게시글을 삭제하는 중입니다.");
                           if(post.attach != null) {
@@ -201,6 +155,12 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
     );
   }
 
+  Future<Null> _handleRefresh() async {
+    setState(() {
+
+    });
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -208,16 +168,15 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
     return RefreshIndicator(
       onRefresh: _handleRefresh,
       child: ListView.builder(
-        //controller: scrollController,
         padding: EdgeInsets.only(top: 6),
-        itemCount: frontPosts.length,
+        itemCount: posts.length,
         itemBuilder: (BuildContext context, int index) {
-          Post post = frontPosts[index];
+          Post post = posts[index];
           return PostCard(
             screenSize: screenSize,
             item: post,
             navigateToMyProfile: this.widget.navigateToMyProfile,
-            uploader: frontPosts[index].uploader,
+            uploader: posts[index].uploader,
             currentUser: currentUser,
             moreOption: (){
               if(currentUser.uid == post.uploaderUID || user.role == "ADMIN")
