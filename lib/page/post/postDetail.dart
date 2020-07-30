@@ -17,6 +17,7 @@ import 'package:nextor/page/basicDialogs.dart';
 import 'package:nextor/page/post/editPost.dart';
 import 'package:nextor/page/post/photoViewer.dart';
 import 'package:nextor/page/comment/commentList.dart';
+import 'package:nextor/page/profile/userProfile.dart';
 
 class PostDetail extends StatefulWidget {
   final Post item;
@@ -182,10 +183,28 @@ class _PostDetailState extends State<PostDetail> {
                             widget.uploader.profileImageURL != null ?
                             ClipRRect(
                               borderRadius: BorderRadius.circular(80),
-                              child: Image.network(
-                                widget.uploader.profileImageURL,
-                                height: 40.0,
-                                width: 40.0,
+                              child: GestureDetector(
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  child: CachedNetworkImage(
+                                    imageUrl: widget.uploader.profileImageURL,
+                                  ),
+                                ),
+                                onTap: widget.currentUser.uid == widget.uploader.key ?
+                                widget.navigateToMyProfile : (){
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.grey[300],
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return Container(
+                                        height: screenSize.height-50,
+                                        child: UserProfilePage(targetUserUid: item.uploader.key, navigateToMyProfile: widget.navigateToMyProfile,),
+                                      );
+                                    },
+                                  );
+                                },
                               ),
                             ) : ClipRRect(
                                 borderRadius: BorderRadius.circular(80),
@@ -206,14 +225,28 @@ class _PostDetailState extends State<PostDetail> {
                                 width: screenSize.width / 1.7,
                                 child: InkWell(
                                   child: Text(widget.uploader.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),),
                                   onTap: widget.currentUser.uid == widget.uploader.key ?
-                                      (){} :
-                                      (){},//TODO 유저 프로필 페이지로 네비게이트
+                                      widget.navigateToMyProfile : (){
+                                    showModalBottomSheet(
+                                        backgroundColor: Colors.grey[300],
+                                        isScrollControlled: true,
+                                        context: context,
+                                        builder: (context) {
+                                          return Container(
+                                            height: screenSize.height-50,
+                                            child: UserProfilePage(targetUserUid: item.uploader.key, navigateToMyProfile: widget.navigateToMyProfile,),
+                                          );
+                                        },
+                                      );
+                                    },
                                 ),
                               ),
-                              Text(DateTimeParser().defaultParse(date),
-                                style: TextStyle(color: Colors.grey[600]),
+                              Container(
+                                child: Text(
+                                  DateTimeParser().defaultParse(date),
+                                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                                ),
                               ),
                             ],
                           ),
@@ -236,10 +269,13 @@ class _PostDetailState extends State<PostDetail> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: <Widget>[
-                              Expanded(child: Text(
-                                item.body,
-                                style: TextStyle(fontSize: item.body.length>=250?16:18),
-                                textAlign: TextAlign.left,),)
+                              Expanded(
+                                child: Text(
+                                  item.body,
+                                  style: TextStyle(fontSize: item.body.length>=250?16:18),
+                                  textAlign: TextAlign.left,
+                                ),
+                              )
                             ],
                           ),
                         ],

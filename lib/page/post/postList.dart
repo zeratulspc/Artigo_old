@@ -87,8 +87,7 @@ class _PostListState extends State<PostList> with AutomaticKeepAliveClientMixin 
   _onEntryChanged(Event event) {
     if(this.mounted){
       Post _post = Post().fromSnapShot(event.snapshot);
-      authDBFNC.getUserInfo(_post.uploaderUID).then(
-              (userInfo) {
+      authDBFNC.getUserInfo(_post.uploaderUID).then((userInfo) {
             _post.uploader = userInfo;
             setState(() {
               var oldEntry = posts.singleWhere((entry) {

@@ -10,7 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class UserDBFNC {
   final userDBRef = FirebaseDatabase.instance.reference().child("Users");
-  final userStorageRef = FirebaseStorage.instance.ref().child("UserStorages"); //TODO UserStorages -> UserStorage 로 바꾸기 # 0.1.4
+  final userStorageRef = FirebaseStorage.instance.ref().child("UserStorages");
   final FirebaseAuth auth = FirebaseAuth.instance;
 
 

@@ -109,7 +109,7 @@ class PostCard extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   ListTile(
-                    contentPadding: EdgeInsets.only(top: 3.0, left: 10, right: 15),
+                    contentPadding: EdgeInsets.only(top: 3.0, left: 10),
                     title: Row(
                       children: <Widget>[
                         Stack(
@@ -178,7 +178,7 @@ class PostCard extends StatelessWidget {
                                 width: screenSize.width / 1.7,
                                 child: InkWell(
                                   child: Text(uploader.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),),
                                   onTap: currentUser.uid == uploader.key ? navigateToMyProfile : (){
                                     Navigator.popUntil(context, ModalRoute.withName('/home'));
                                     showModalBottomSheet(
@@ -199,12 +199,15 @@ class PostCard extends StatelessWidget {
                                 width: screenSize.width / 1.7,
                                 child: InkWell(
                                   child: Text("", maxLines: 1, overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),),
                                   onTap:(){},
                                 ),
                               ),
-                              Text(DateTimeParser().defaultParse(date),
-                                style: TextStyle(color: Colors.grey[600]),
+                              Container(
+                                child: Text(
+                                  DateTimeParser().defaultParse(date),
+                                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                                ),
                               ),
                             ],
                           ),
@@ -224,10 +227,13 @@ class PostCard extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
-                                Expanded(child: Text(item.body, maxLines: 7,
-                                  style: TextStyle(fontSize: item.body.length>=250?14:18),
-                                  textAlign: TextAlign.left,
-                                  overflow: TextOverflow.ellipsis,),)
+                                Expanded(
+                                  child: Text(item.body, maxLines: 7,
+                                    style: TextStyle(fontSize: item.body.length>=250?14:18),
+                                    textAlign: TextAlign.left,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -245,7 +251,7 @@ class PostCard extends StatelessWidget {
                   item.attach != null? Container(
                     alignment: Alignment.center,
                     width: screenSize.width,
-                    height: screenSize.width < screenSize.height ? screenSize.height/3.0 : screenSize.width/1.5,
+                    height: screenSize.width < screenSize.height ? 270 : screenSize.width/1.5,
                     child: InkWell(
                       onTap: uploader != null ?(){
                         Navigator.push(context,
@@ -307,37 +313,39 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                   ) : null,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      item.emotion != null ? Container(
-                        alignment: Alignment.centerLeft,
-                        margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
-                        height: 30,
-                        width: 150,
-                        child: InkWell(
-                          child: Text(emotionCount(item.emotion),
-                            style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                          ),
-                          onTap: showLikeSheet,
-                        ),
-                      ) : null,
-                      item.comment != null ? Container(
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
-                        height: 30,
-                        width: 50,
-                        child: InkWell(
-                            child:Text("댓글 ${item.comment.length}개",
-                              style: TextStyle(color: Colors.grey[700]),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        item.emotion != null ? Container(
+                          alignment: Alignment.centerLeft,
+                          margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
+                          height: 30,
+                          width: 150,
+                          child: InkWell(
+                            child: Text(emotionCount(item.emotion),
+                              style: TextStyle(color: Colors.grey[700], fontSize: 14),
                             ),
-                            onTap:showCommentSheet
-                        ),
-                      ) : null,
-                    ].where(notNull).toList(),
+                            onTap: showLikeSheet,
+                          ),
+                        ) : null,
+                        item.comment != null ? Container(
+                          alignment: Alignment.center,
+                          margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
+                          height: 30,
+                          width: 50,
+                          child: InkWell(
+                              child:Text("댓글 ${item.comment.length}개",
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
+                              onTap:showCommentSheet
+                          ),
+                        ) : null,
+                      ].where(notNull).toList(),
+                    ),
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 5,
                     width: screenSize.width -20,
                     child: Divider(thickness: 1,),
                   ),
