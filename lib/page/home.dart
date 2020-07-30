@@ -14,6 +14,8 @@ import 'package:nextor/page/settings/settings.dart';
 import 'package:nextor/page/profile/userProfile.dart';
 import 'package:nextor/page/post/searchPage.dart';
 import 'package:nextor/page/profile/notificationList.dart';
+//TEMP
+import 'package:nextor/page/post/postListTest.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -154,7 +156,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         },
         body: TabBarView(
           children: <Widget>[
-            PostList(
+            PostListTest(
               navigateToMyProfile: () {
                 Navigator.popUntil(context, ModalRoute.withName('/home'));
                 onPageChange(3);
