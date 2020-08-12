@@ -68,14 +68,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         });
       });
     }
-
     firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) => NotificationFCMFnc.onMessage(context, message),
       onResume: (Map<String, dynamic> message) => NotificationFCMFnc.onResume(context, message),
       onLaunch: (Map<String, dynamic> message) => NotificationFCMFnc.onLaunch(context, message),
     );
   }
-
 
   onPageChange(int index) async {
     _tabController.animateTo(index);
