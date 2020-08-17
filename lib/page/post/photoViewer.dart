@@ -3,12 +3,12 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
-import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/emotion.dart';
-import 'package:nextor/fnc/dateTimeParser.dart';
-import 'package:nextor/page/comment/commentList.dart';
-import 'package:nextor/page/emotion/emotionInput.dart';
+import 'package:Artigo/fnc/postDB.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/fnc/emotion.dart';
+import 'package:Artigo/fnc/dateTimeParser.dart';
+import 'package:Artigo/page/comment/commentList.dart';
+import 'package:Artigo/page/emotion/emotionInput.dart';
 
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';

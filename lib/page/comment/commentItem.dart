@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'package:nextor/fnc/comment.dart';
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/dateTimeParser.dart';
-import 'package:nextor/page/profile/userProfile.dart';
+import 'package:Artigo/fnc/comment.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/fnc/dateTimeParser.dart';
+import 'package:Artigo/page/profile/userProfile.dart';
 
 
 class CommentItem extends StatelessWidget {
@@ -171,25 +171,32 @@ class CommentItem extends StatelessWidget {
                       ),
                       SizedBox(width: 20,),
                       replyComment != null ?
-                      InkWell(
-                        child: Text("답글"),
-                        onTap: replyComment,
+                      Container(
+                        margin: EdgeInsets.only(right: 20),
+                        child: InkWell(
+                          child: Text("답글"),
+                          onTap: replyComment,
+                        ),
                       ) : null ,
-                      replyComment != null ? SizedBox(width: 20,) : null,
                       item.emotion != null ?
-                      InkWell(
-                        onTap: seeLikeList,
-                        child: Text("공감 ${item.emotion.length}개",
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        child: InkWell(
+                          onTap: seeLikeList,
+                          child: Text("공감 ${item.emotion.length}개",
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12),),
+                        ),
                       ) : null,
-                      item.reply != null ? SizedBox(width: 20,) : null,
                       item.reply != null ?
                       replyComment != null ?
-                      InkWell(
-                        onTap: replyComment,
-                        child: Text("답글 ${item.reply.length}개",
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),),
-                      ) : null : null,
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        child: InkWell(
+                          onTap: replyComment,
+                          child: Text("답글 ${item.reply.length}개",
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12),),
+                        ) ,
+                      ): null : null,
                     ].where(notNull).toList(),
                   ),
                 ),

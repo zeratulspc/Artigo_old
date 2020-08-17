@@ -2,13 +2,12 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/emotion.dart';
-import 'package:nextor/fnc/dateTimeParser.dart';
-import 'package:nextor/page/profile/userProfile.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/fnc/postDB.dart';
+import 'package:Artigo/fnc/emotion.dart';
+import 'package:Artigo/fnc/dateTimeParser.dart';
+import 'package:Artigo/page/profile/userProfile.dart';
 
 class EmotionList extends StatefulWidget {
   final VoidCallback navigateToMyProfile;

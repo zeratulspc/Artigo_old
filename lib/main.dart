@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:nextor/page/auth/login.dart';
-import 'package:nextor/page/home.dart';
-import 'package:nextor/page/splash.dart';
-import 'package:nextor/page/settings/settings.dart';
-import 'package:nextor/page/settings/editProfile.dart';
+import 'package:Artigo/page/auth/login.dart';
+import 'package:Artigo/page/home.dart';
+import 'package:Artigo/page/splash.dart';
+import 'package:Artigo/page/settings/settings.dart';
+import 'package:Artigo/page/settings/editProfile.dart';
 
 
 void main() => runApp(MyApp());

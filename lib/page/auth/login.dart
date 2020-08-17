@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:connectivity/connectivity.dart';
 
-import 'package:nextor/fnc/preferencesData.dart';
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/page/auth/register.dart';
-import 'package:nextor/page/basicDialogs.dart';
+import 'package:Artigo/fnc/preferencesData.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/page/auth/register.dart';
+import 'package:Artigo/page/basicDialogs.dart';
 
 class LoginPage extends StatefulWidget {
   @override

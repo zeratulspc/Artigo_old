@@ -7,8 +7,8 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 
-import 'package:nextor/page/basicDialogs.dart';
-import 'package:nextor/fnc/user.dart';
+import 'package:Artigo/page/basicDialogs.dart';
+import 'package:Artigo/fnc/user.dart';
 
 class NotificationFCMFnc {
   final FirebaseMessaging fbMessaging = FirebaseMessaging();

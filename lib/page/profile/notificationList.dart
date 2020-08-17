@@ -3,10 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'package:nextor/page/profile/userProfile.dart';
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/notification.dart';
-import 'package:nextor/fnc/dateTimeParser.dart';
+import 'package:Artigo/page/profile/userProfile.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/fnc/notification.dart';
+import 'package:Artigo/fnc/dateTimeParser.dart';
 
 class NotificationList extends StatefulWidget {
   final String currentUserUid;

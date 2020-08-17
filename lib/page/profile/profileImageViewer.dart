@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
-import 'package:nextor/fnc/user.dart';
+import 'package:Artigo/fnc/user.dart';
 
 import 'package:photo_view/photo_view.dart';
 

@@ -6,11 +6,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/notification.dart';
-import 'package:nextor/page/basicDialogs.dart';
-import 'package:nextor/page/post/editPostAttach.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/fnc/postDB.dart';
+import 'package:Artigo/fnc/notification.dart';
+import 'package:Artigo/page/basicDialogs.dart';
+import 'package:Artigo/page/post/editPostAttach.dart';
 
 class EditPost extends StatefulWidget {
   final int postCase; // 1: POST 2: EDIT

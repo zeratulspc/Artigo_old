@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:nextor/fnc/emotion.dart';
+import 'package:Artigo/fnc/emotion.dart';
 
 class EmotionInput extends StatelessWidget {
   final VoidCallback refreshPost;

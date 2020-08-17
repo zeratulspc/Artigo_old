@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/dateTimeParser.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/fnc/dateTimeParser.dart';
 
 class FollowListPage extends StatefulWidget {
   final User targetUserInfo;

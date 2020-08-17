@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:nextor/fnc/comment.dart';
-import 'package:nextor/fnc/emotion.dart';
-import 'package:nextor/fnc/user.dart';
+import 'package:Artigo/fnc/comment.dart';
+import 'package:Artigo/fnc/emotion.dart';
+import 'package:Artigo/fnc/user.dart';
 import 'package:uuid/uuid.dart';
 
 

@@ -4,14 +4,14 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/comment.dart';
-import 'package:nextor/fnc/emotion.dart';
-import 'package:nextor/page/emotion/emotionList.dart';
-import 'package:nextor/page/emotion/emotionInput.dart';
-import 'package:nextor/page/comment/commentItem.dart';
-import 'package:nextor/page/basicDialogs.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/fnc/postDB.dart';
+import 'package:Artigo/fnc/comment.dart';
+import 'package:Artigo/fnc/emotion.dart';
+import 'package:Artigo/page/emotion/emotionList.dart';
+import 'package:Artigo/page/emotion/emotionInput.dart';
+import 'package:Artigo/page/comment/commentItem.dart';
+import 'package:Artigo/page/basicDialogs.dart';
 
 class CommentList extends StatefulWidget {
   final String postKey;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/preferencesData.dart';
-import 'package:nextor/fnc/versionCheck.dart';
-import 'package:nextor/page/auth/login.dart';
-import 'package:nextor/page/basicDialogs.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/fnc/preferencesData.dart';
+import 'package:Artigo/fnc/versionCheck.dart';
+import 'package:Artigo/page/auth/login.dart';
+import 'package:Artigo/page/basicDialogs.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

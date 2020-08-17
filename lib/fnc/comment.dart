@@ -2,9 +2,9 @@ import 'dart:collection';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:nextor/fnc/emotion.dart';
-import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/user.dart';
+import 'package:Artigo/fnc/emotion.dart';
+import 'package:Artigo/fnc/postDB.dart';
+import 'package:Artigo/fnc/user.dart';
 
 class CommentDBFNC {
   CommentDBFNC(

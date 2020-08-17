@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/page/basicDialogs.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/page/basicDialogs.dart';
 
 class EditProfilePage extends StatefulWidget {
   final Function() callback;

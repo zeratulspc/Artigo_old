@@ -7,8 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:connectivity/connectivity.dart';
 
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/page/basicDialogs.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/page/basicDialogs.dart';
 // 별도의 관리자 개입이 없는이상 첫 role 은 GUEST 임.
 // 회원가입 페이지는 설문조사 항목을 포함하고 있음.
 

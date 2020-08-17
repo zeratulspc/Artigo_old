@@ -4,18 +4,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'package:nextor/fnc/user.dart';
-import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/fnc/emotion.dart';
-import 'package:nextor/page/basicDialogs.dart';
-import 'package:nextor/page/post/postCard.dart';
-import 'package:nextor/page/post/editPost.dart';
-import 'package:nextor/page/comment/commentList.dart';
-import 'package:nextor/page/emotion/emotionList.dart';
-import 'package:nextor/page/emotion/emotionInput.dart';
-import 'package:nextor/page/settings/editProfile.dart';
-import 'package:nextor/page/profile/profileImageViewer.dart';
-import 'package:nextor/page/profile/followList.dart';
+import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/fnc/postDB.dart';
+import 'package:Artigo/fnc/emotion.dart';
+import 'package:Artigo/page/basicDialogs.dart';
+import 'package:Artigo/page/post/postCard.dart';
+import 'package:Artigo/page/post/editPost.dart';
+import 'package:Artigo/page/comment/commentList.dart';
+import 'package:Artigo/page/emotion/emotionList.dart';
+import 'package:Artigo/page/emotion/emotionInput.dart';
+import 'package:Artigo/page/settings/editProfile.dart';
+import 'package:Artigo/page/profile/profileImageViewer.dart';
+import 'package:Artigo/page/profile/followList.dart';
 
 class UserProfilePage extends StatefulWidget { // 내 프로필 페이지
   final String targetUserUid;
@@ -46,20 +46,20 @@ class _UserProfilePageState extends State<UserProfilePage> {
     super.initState();
     postQuery = postDBFNC.postDBRef;
     userDBFNC.getUser().then((data) {
-          currentUser = data;
-          if(targetUserUid == null)
-            targetUserUid = currentUser.uid;
-          userDBFNC.getUserInfo(targetUserUid).then((data) {
-            if(this.mounted) {
-              postQuery.onChildAdded.listen(_onEntryAdded);
-              postQuery.onChildChanged.listen(_onEntryChanged);
-              postQuery.onChildRemoved.listen(_onEntryRemoved);
-              setState(() {
-                userInfo = data;
-              });
-            }
-          }
-          );
+      currentUser = data;
+      if(targetUserUid == null)
+        targetUserUid = currentUser.uid;
+      userDBFNC.getUserInfo(targetUserUid).then((data) {
+        if(this.mounted) {
+          postQuery.onChildAdded.listen(_onEntryAdded);
+          postQuery.onChildChanged.listen(_onEntryChanged);
+          postQuery.onChildRemoved.listen(_onEntryRemoved);
+          setState(() {
+            userInfo = data;
+          });
+        }
+      }
+      );
     });
   }
 
@@ -71,14 +71,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 (userInfo) {
               _post.uploader = userInfo;
               myPosts.insert(0 , _post);
-              setState(() {
-                myPosts.sort((a, b){
-                  DateTime dateA = DateTime.parse(a.uploadDate);
-                  DateTime dateB = DateTime.parse(b.uploadDate);
-                  return dateB.compareTo(dateA);
-                });
+              if(this.mounted) {
+                setState(() {
+                  myPosts.sort((a, b){
+                    DateTime dateA = DateTime.parse(a.uploadDate);
+                    DateTime dateB = DateTime.parse(b.uploadDate);
+                    return dateB.compareTo(dateA);
+                  });
 
-              });
+                });
+              }
             });
       }
     }
@@ -161,7 +163,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           return Container( // 팔로우 안했을 때
             child: RaisedButton(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(15),
               ),
               color: Theme.of(context).primaryColor,
               elevation: 0,
@@ -172,9 +174,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
               onPressed: (){
                 userDBFNC.followUser(currentUser.uid, targetUserUid);
                 userDBFNC.getUserInfo(targetUserUid).then((data) {
-                    setState(() {
-                      userInfo = data;
-                    });
+                  setState(() {
+                    userInfo = data;
+                  });
                 });
               },
             ),
@@ -350,7 +352,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ),
                     onTap: (){
                       Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => FollowListPage(listCase: 0, targetUserInfo: userInfo,)
+                          builder: (context) => FollowListPage(listCase: 0, targetUserInfo: userInfo,)
                       ));
                     },
                   ),
@@ -567,7 +569,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 },
               );
             },
-          );
+          ).postCard(context);
         }
 
       },

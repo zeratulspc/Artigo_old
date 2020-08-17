@@ -1,12 +1,9 @@
-import 'dart:io';
-import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:nextor/page/comment/commentList.dart';
-import 'package:nextor/fnc/emotion.dart';
-import 'package:nextor/fnc/comment.dart';
-import 'package:nextor/page/emotion/emotionInput.dart';
+import 'package:Artigo/page/comment/commentList.dart';
+import 'package:Artigo/fnc/emotion.dart';
+import 'package:Artigo/fnc/comment.dart';
 
 class EmotionBoard extends StatelessWidget {
   final String postKey;

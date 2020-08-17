@@ -6,8 +6,8 @@ import 'package:flutter/services.dart' ;
 
 import 'package:image_picker/image_picker.dart';
 
-import 'package:nextor/fnc/postDB.dart';
-import 'package:nextor/page/basicDialogs.dart';
+import 'package:Artigo/fnc/postDB.dart';
+import 'package:Artigo/page/basicDialogs.dart';
 
 class EditPostAttach extends StatefulWidget {
   final int imageUploadQuality;
