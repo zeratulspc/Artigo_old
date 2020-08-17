@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:Artigo/fnc/user.dart';
 import 'package:Artigo/fnc/preferencesData.dart';
 import 'package:Artigo/fnc/versionCheck.dart';
@@ -36,8 +38,16 @@ class SplashScreenState extends State<SplashScreen> {
           }
         });
       } else { //TODO 버전이 맞지 않을 경우
-        basicDialogs.dialogWithYes(context, "버전이 올바르지 않습니다",
-            "앱을 업데이트 해주세요, 현재 사용가능한 버전은 [${isValidVersion.versionName}] 입니다.");
+        versionCheck.getCurrentFileUrl().then((url) {
+          basicDialogs.dialogWithFunction(
+              context,
+              "버전이 올바르지 않습니다",
+              "앱을 업데이트 해주세요, 현재 사용가능한 버전은 [${isValidVersion.versionName}] 입니다.", () async {
+                Navigator.pop(context);
+                await launch(url);
+              }
+          );
+        });
       }
     });
 

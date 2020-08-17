@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   int currentIndex = 0;
   bool isPageCanChanged = true;
   bool showFab = false;
-  List<Widget> _children;
+
   //Auth
   UserDBFNC authDBFNC = UserDBFNC();
   FirebaseUser currentUser;

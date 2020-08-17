@@ -8,6 +8,11 @@ class VersionCheck {
     final PackageInfo info = await PackageInfo.fromPlatform();
     return Version(versionName: info.version, updateDate: DateTime.now().toIso8601String());
   }
+  
+  Future<String> getCurrentFileUrl() async {
+    DataSnapshot snapshot = await versionDBRef.child("CurrentFileUrl").child("url").once();
+    return snapshot.value.toString();
+  }
 
   updateVersion() async {
     Version version = await getVersion();
