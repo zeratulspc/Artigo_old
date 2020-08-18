@@ -49,8 +49,7 @@ class _PostDetailState extends State<PostDetail> {
   }
   dislikeToPost() {
     DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key);
-    EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(widget.currentUser.uid);
-    refreshPost();
+    EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(widget.currentUser.uid).then((value) => refreshPost());
   }
   likeToAttach(String key) {
     DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key).child("attach").child(key);
@@ -59,8 +58,7 @@ class _PostDetailState extends State<PostDetail> {
   }
   dislikeToAttach(String key) {
     DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key).child("attach").child(key);
-    EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(widget.currentUser.uid);
-    refreshPost();
+    EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(widget.currentUser.uid).then((value) => refreshPost());
   }
   refreshPost() {
     postDBFNC.getPost(widget.item.key).then((data){

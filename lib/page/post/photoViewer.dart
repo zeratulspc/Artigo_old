@@ -61,17 +61,17 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
 
   likeToAttach(String key) {
     emotionDBRef = postDBFNC.postDBRef.child(widget.postKey).child("attach").child(key);
-    EmotionInput(emotionDBRef, widget.currentUser.uid, widget.uploader.key, widget.getPost).showEmotionPicker(context);
-    refreshPost(widget.postKey);
+    EmotionInput(emotionDBRef, widget.currentUser.uid, widget.uploader.key, refreshPost).showEmotionPicker(context);
   }
   dislikeToAttach(String key) {
     emotionDBRef = postDBFNC.postDBRef.child(widget.postKey).child("attach").child(key);
-    EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(widget.currentUser.uid);
-    refreshPost(widget.postKey);
+    EmotionDBFNC(emotionDBRef: emotionDBRef).dislike(widget.currentUser.uid).then((data){
+      refreshPost();
+    });
   }
 
-  refreshPost(String key) {
-    postDBFNC.getPost(key).then((data) {
+  refreshPost() {
+    postDBFNC.getPost(widget.postKey).then((data) {
       setState(() {
         items = data.attach;
       });
@@ -219,28 +219,39 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Container(
-                            width: screenSize.width/2.5,
+                            width: screenSize.width/2,
                             child: FlatButton(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
                                   Icon(items[currentIndex].emotion != null ?
-                                  items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: null) != null ?
+                                  items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: ()=> null) != null ?
                                   Icons.favorite : // 좋아요가 존재할 때
-                                  Icons.favorite_border : // 좋아요 목록에 현재 유저 아이디가 없을 때
-                                  Icons.favorite_border, // 좋아요 목록이 존재하지 않을 때
+                                  Icons.insert_emoticon : // 좋아요 목록에 현재 유저 아이디가 없을 때
+                                  Icons.insert_emoticon, // 좋아요 목록이 존재하지 않을 때
                                     color: items[currentIndex].emotion != null ?
-                                    items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: null) != null ?
-                                    Colors.red[600] : // 좋아요가 존재할 때
+                                    items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: () => null) != null ?
+                                    Colors.transparent: // 좋아요가 존재할 때
                                     Colors.grey[600] : // 좋아요 목록에 현재 유저 아이디가 없을 때
                                     Colors.grey[600], // 좋아요 목록이 존재하지 않을 때
                                   ),
                                   SizedBox(width: 5,),
-                                  Text("좋아요", style: TextStyle(color: Colors.white),)
+                                  Text("${
+                                      items[currentIndex].emotion != null ?
+                                      items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: ()=> null) != null ?
+                                      items[currentIndex].emotion[items[currentIndex].emotion.indexOf(items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: ()=> null))].emotionCode :
+                                      "공감하기" :
+                                      "공감하기"}",
+                                    style: items[currentIndex].emotion != null ?
+                                    items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: ()=> null) != null ?
+                                    Theme.of(context).textTheme.headline5 :
+                                    TextStyle(color: Colors.white) :
+                                    TextStyle(color: Colors.white),
+                                  ),
                                 ],
                               ),
                               onPressed: items[currentIndex].emotion != null ?
-                              items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse: null) != null ?
+                              items[currentIndex].emotion.singleWhere((e) => e.userUID == widget.currentUser.uid, orElse:()=> null) != null ?
                                   ()=>dislikeToAttach(items[currentIndex].key) : // 좋아요가 존재할 때
                                   ()=>likeToAttach(items[currentIndex].key) : // 좋아요 목록에 현재 유저 아이디가 없을 때
                                   ()=>likeToAttach(items[currentIndex].key), // 좋아요 목록이 존재하지 않을 때
@@ -265,7 +276,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
                                   builder: (context) {
                                     return CommentList(
                                       getPost: (){
-                                        refreshPost(widget.postKey);
+                                        refreshPost();
                                       },
                                       postKey: widget.postKey,
                                       currentUser: widget.currentUser,

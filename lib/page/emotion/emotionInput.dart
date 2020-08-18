@@ -40,7 +40,9 @@ class EmotionInput extends StatelessWidget {
                 return InkWell(
                   onTap: () async {
                     await EmotionDBFNC(emotionDBRef: emotionRef).like(userUid, targetUserUid, emotion[index]);
-                    refreshPost();
+                    if(refreshPost != null) {
+                      refreshPost();
+                    }
                     Navigator.pop(context);
                   },
                   child: Container(
