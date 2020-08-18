@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 import 'package:Artigo/fnc/user.dart';
 import 'package:Artigo/fnc/postDB.dart';
@@ -139,42 +139,6 @@ class EditPostState extends State<EditPost> {
     Navigator.pop(context); // 로딩 다이알로그 pop
     Navigator.pop(context); // 페이지 pop
 
-  }
-
-  List<StaggeredTile> tileForm(int imageCount) { // 타일
-    switch(imageCount){
-      case 1:
-        return [
-          StaggeredTile.count(3, 2),
-        ];
-      break;
-      case 2:
-        return [
-          StaggeredTile.count(3, 1),
-          StaggeredTile.count(3, 1),
-        ];
-        break;
-      case 3:
-        return [
-          StaggeredTile.count(2, 2),
-          StaggeredTile.count(1, 1),
-          StaggeredTile.count(1, 1),
-        ];
-        break;
-      default:
-        if(imageCount >= 3) {
-          return [
-            StaggeredTile.count(2, 2),
-            StaggeredTile.count(1, 1),
-            StaggeredTile.count(1, 1),
-          ];
-        } else {
-          return [
-            StaggeredTile.count(3, 2),
-          ];
-        }
-        break;
-    }
   }
 
   void pickImageSheet(context) {
@@ -389,7 +353,6 @@ class EditPostState extends State<EditPost> {
             ),
             attach.length != 0 ? Container(
               width: screenSize.width,
-              height: screenSize.height/2.75,
               margin: EdgeInsets.symmetric(vertical: 20),
               child: InkWell(
                 splashColor: Colors.transparent,
@@ -413,44 +376,46 @@ class EditPostState extends State<EditPost> {
                         attach.clear();
                         attach.addAll(editedAttach.attach);
                         photoItems.clear();
-                        generateItems(attach.length); //TODO 재 생성된 tile 이 화면에 적용되지 읺는 문제 해결
+                        generateItems(attach.length);
                       });
 
                     }
                   }
                 },
-                child: Stack(
-                  children: <Widget>[
-                    StaggeredGridView.count(
-                      padding: EdgeInsets.all(0),
-                      physics: NeverScrollableScrollPhysics(),
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 4.0,
-                      crossAxisSpacing: 4.0,
-                      staggeredTiles:tileForm(attach.length),
-                      children: photoItems,
-                    ),
-                    attach.length > 3 ?
-                    StaggeredGridView.count(
-                      physics: NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.all(0),
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 4.0,
-                      crossAxisSpacing: 4.0,
-                      staggeredTiles:tileForm(attach.length),
-                      children: <Widget>[
-                        Container(),
-                        Container(),
-                        Container(
-                          color: Colors.black.withOpacity(0.6),
-                          child: Center(
-                            child: Text("+${attach.length - 3}",
-                              style: TextStyle(color: Colors.white, fontSize: 24),),
+                child: CarouselSlider.builder(
+                  options: CarouselOptions(
+                    initialPage: 0,
+                    aspectRatio: 1/1,
+                    viewportFraction: 1,
+                    enableInfiniteScroll: false,
+                    disableCenter: true,
+                  ),
+                  itemCount: photoItems.length,
+                  itemBuilder: (context, index) { //TODO 남은 사진 갯수 표기
+                    return Container(
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: <Widget>[
+                          Container(
+                            color: Colors.grey[200],
+                            child: photoItems[index]
                           ),
-                        ),
-                      ],
-                    ) : null,
-                  ].where(notNull).toList(),
+                          attach.length > 1 ? Align(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(30)
+                              ),
+                              margin: EdgeInsets.all(10),
+                              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                              child: Text("${index+1}/${attach.length}", style: TextStyle(color: Colors.white),),
+                            ),
+                          ) : null,
+                        ].where(notNull).toList(),
+                      ),
+                    );
+                  },
                 ),
               )
             ) : null,

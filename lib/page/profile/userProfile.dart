@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:Artigo/fnc/user.dart';
 import 'package:Artigo/fnc/postDB.dart';
 import 'package:Artigo/fnc/emotion.dart';
+import 'package:Artigo/fnc/dateTimeParser.dart';
 import 'package:Artigo/page/basicDialogs.dart';
 import 'package:Artigo/page/post/postCard.dart';
 import 'package:Artigo/page/post/editPost.dart';
@@ -300,8 +301,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ),
               ),
             ),
-            margin: EdgeInsets.only(bottom: 10),
             width: screenSize.width/1.5,
+          ),
+          Container(
+            child: Center(
+              child: Text(
+                "최근 접속 : ${userInfo.recentLoginDate != null ? DateTimeParser().defaultParse(DateTime.parse(userInfo.recentLoginDate)) : "정보없음"}",
+                maxLines: 1,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black38),
+              ),
+            ),
+            height: 20, // 길이는 Expand 위젯 사용
+            width: screenSize.width/1.8,
           ),
           Container(
             width: screenSize.width - 80,

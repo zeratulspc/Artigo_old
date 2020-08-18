@@ -152,7 +152,7 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
               ListTile(
-                title: Text("이메일 주소"),
+                title: Text("이메일주소"),
                 trailing: Container(
                   width: screenSize.width / 1.5,
                   child: Text("${email??"없음"}", overflow: TextOverflow.ellipsis, maxLines: 1, textAlign: TextAlign.right,),

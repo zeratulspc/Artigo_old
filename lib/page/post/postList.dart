@@ -1,7 +1,6 @@
 import 'dart:core';
 import 'dart:collection';
 
-import 'package:Artigo/page/post/postCardTest.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -263,7 +262,7 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
             }
             if(frontPosts.length != 0) {
               Post post = frontPosts[index];
-              return PostCardTest(
+              return PostCard(
                 screenSize: screenSize,
                 item: post,
                 navigateToMyProfile: this.widget.navigateToMyProfile,

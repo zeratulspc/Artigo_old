@@ -42,7 +42,7 @@ class _PostDetailState extends State<PostDetail> {
 
   _PostDetailState(this.item);
   bool notNull(Object o) => o != null;
-  likeToPost() { //TODO Emotion pick 완료된 이후에 refresh
+  likeToPost() {
     DatabaseReference emotionDBRef = FirebaseDatabase.instance.reference().child("Posts").child(widget.item.key);
     EmotionInput(emotionDBRef, widget.currentUser.uid, item.uploaderUID, refreshPost).showEmotionPicker(context);
     refreshPost();
@@ -261,7 +261,7 @@ class _PostDetailState extends State<PostDetail> {
                       ),
                     ),
                     Container(
-                      child: Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      child: Padding(padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Column(
                           children: <Widget>[
                             Row(
@@ -383,7 +383,7 @@ class _PostDetailState extends State<PostDetail> {
                         ),
                         item.attach[index].description != null ?
                         Container(
-                          child: Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                          child: Padding(padding: EdgeInsets.symmetric(horizontal: 10),
                             child: Column(
                               children: <Widget>[
                                 Row(
@@ -431,9 +431,8 @@ class _PostDetailState extends State<PostDetail> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             item.attach[index].emotion != null ? Container(
+                              alignment: Alignment.centerLeft,
                               margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
-                              height: 30,
-                              width: 80,
                               child: InkWell(
                                 onTap:() {
                                   showModalBottomSheet(
@@ -457,8 +456,6 @@ class _PostDetailState extends State<PostDetail> {
                             ) : null,
                             item.attach[index].comment != null ? Container(
                               margin: EdgeInsets.only(left: 10, right: 10, top: 10,),
-                              height: 30,
-                              width: 80,
                               child: InkWell(
                                 onTap: (){
                                   showModalBottomSheet(

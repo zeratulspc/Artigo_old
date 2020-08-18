@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:Artigo/fnc/postDB.dart';
@@ -42,43 +42,6 @@ class PostCard {
   final FirebaseUser currentUser;
 
   bool notNull(Object o) => o != null;
-
-  List<StaggeredTile> tileForm(int imageCount) {
-    switch(imageCount){
-      case 1:
-        return [
-          StaggeredTile.count(3, 2),
-        ];
-        break;
-      case 2:
-        return [
-          StaggeredTile.count(3, 1),
-          StaggeredTile.count(3, 1),
-        ];
-        break;
-      case 3:
-        return [
-          StaggeredTile.count(2, 2),
-          StaggeredTile.count(1, 1),
-          StaggeredTile.count(1, 1),
-        ];
-        break;
-      default:
-        if(imageCount >= 3) {
-          return [
-            StaggeredTile.count(2, 2),
-            StaggeredTile.count(1, 1),
-            StaggeredTile.count(1, 1),
-          ];
-        } else {
-          return [
-            StaggeredTile.count(3, 2),
-          ];
-        }
-        break;
-
-    }
-  }
 
   String emotionCount(List<Emotion> list) {
     String _emotions = "";
@@ -229,7 +192,7 @@ class PostCard {
                             children: <Widget>[
                               Expanded(
                                 child: Text(item.body, maxLines: 7,
-                                  style: TextStyle(fontSize: item.body.length>=250?14:16),
+                                  style: TextStyle(fontSize: item.body.length>=250?14:18),
                                   textAlign: TextAlign.left,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -249,11 +212,9 @@ class PostCard {
                   ),
                 ),
                 item.attach != null? Container(
-                  color: Colors.green,
                   padding: EdgeInsets.only(top: 10),
                   alignment: Alignment.center,
                   width: screenSize.width,
-                  height: screenSize.width < screenSize.height ? 270  : screenSize.width/1.5,
                   child: InkWell(
                     onTap: uploader != null ?(){
                       Navigator.push(context,
@@ -262,62 +223,60 @@ class PostCard {
                             child: PostDetail(item: item, uploader: uploader, currentUser: currentUser,),)
                       );
                     } : (){},
-                    child: Stack(
-                      children: <Widget>[
-                        StaggeredGridView.count(
-                          physics: NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.all(0),
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 4.0,
-                          crossAxisSpacing: 4.0,
-                          staggeredTiles:tileForm(item.attach.length),
-                          children: List<Widget>.generate(item.attach.length, (index){
-                            return Container(
-                              child: CachedNetworkImage(
-                                filterQuality: FilterQuality.none,
-                                imageUrl: item.attach[index].filePath,
-                                fit: BoxFit.cover,
-                                progressIndicatorBuilder: (context, url, downloadProgress) {
-                                  return Container(
-                                    color: Colors.grey[200],
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        backgroundColor: Colors.grey[200],
-                                        value: downloadProgress.progress,
+                    child: CarouselSlider.builder(
+                      options: CarouselOptions(
+                        initialPage: 0,
+                        aspectRatio: 1/1,
+                        viewportFraction: 1,
+                        enableInfiniteScroll: false,
+                        disableCenter: true,
+                      ),
+                      itemCount: item.attach.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: <Widget>[
+                              Container(
+                                color: Colors.grey[200],
+                                child: CachedNetworkImage(
+                                  filterQuality: FilterQuality.none,
+                                  imageUrl: item.attach[index].filePath,
+                                  fit: BoxFit.cover,
+                                  progressIndicatorBuilder: (context, url, downloadProgress) {
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          backgroundColor: Colors.grey[200],
+                                          value: downloadProgress.progress,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
-                            );
-                          }),
-                        ),
-                        item.attach.length > 3 ?
-                        StaggeredGridView.count(
-                          physics: NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.all(0),
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 4.0,
-                          crossAxisSpacing: 4.0,
-                          staggeredTiles:tileForm(item.attach.length),
-                          children: <Widget>[
-                            Container(),
-                            Container(),
-                            Container(
-                              color: Colors.black.withOpacity(0.6),
-                              child: Center(
-                                child: Text("+${item.attach.length -3}",
-                                  style: TextStyle(color: Colors.white, fontSize: 24),),
-                              ),
-                            ),
-                          ],
-                        ) : null,
-                      ].where(notNull).toList(),
+                              item.attach.length > 1 ? Align(
+                                alignment: Alignment.topRight,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(30)
+                                  ),
+                                  margin: EdgeInsets.all(10),
+                                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                                  child: Text("${index+1}/${item.attach.length}", style: TextStyle(color: Colors.white),),
+                                ),
+                              ) : null,
+                            ].where(notNull).toList(),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ) : null,
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 10),
+                  margin: EdgeInsets.only(bottom: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[

@@ -136,15 +136,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           PostList(
             navigateToMyProfile: () {
               Navigator.popUntil(context, ModalRoute.withName('/home'));
-              onPageChange(3);
+              onPageChange(1); //TODO 아래 기능 추가되면 요거 바꾸기
             },
           ),
-          TodoBoard(),
-          DataBoard(),
+          //TodoBoard(),
+          //DataBoard(),
           UserProfilePage(
             navigateToMyProfile: () {
               Navigator.popUntil(context, ModalRoute.withName('/home'));
-              onPageChange(3);
+              onPageChange(1); //TODO 아래 기능 추가되면 요거 바꾸기
             },
           ),
           Settings(),
@@ -163,6 +163,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             icon: Icon(Icons.home),
             title: Container(height: 0,),
           ),
+          /*
           BottomNavigationBarItem(
             icon: Icon(Icons.check_box),
             title: Container(height: 0,),
@@ -171,6 +172,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             icon: Icon(Icons.dashboard),
             title: Container(height: 0,),
           ),
+           */
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             title: Container(height: 0,),
