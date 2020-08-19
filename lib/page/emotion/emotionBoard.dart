@@ -90,7 +90,7 @@ class EmotionBoard extends StatelessWidget {
                 builder: (context) {
                   return CommentList(
                     postKey: postKey,
-                    attachKey: attachKey, //TODO Attach comment 가 아닌상황 테스트
+                    attachKey: attachKey,
                     currentUser: currentUser,
                     navigateToMyProfile: navigateToMyProfile,
                   );

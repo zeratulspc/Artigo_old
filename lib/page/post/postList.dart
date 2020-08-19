@@ -165,7 +165,7 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
     }
   }
 
-  loadMore() { //TODO 예외 찾기
+  loadMore() {
     setState(() {
       try {
         if(!allLoaded) {

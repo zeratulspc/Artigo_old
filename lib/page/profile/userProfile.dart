@@ -238,7 +238,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         height: profileImgHeight,
                         width: profileImgWidth,
                         child: CachedNetworkImage(
-                          imageUrl: userInfo.profileImageURL, //TODO 사진 자세히보기
+                          imageUrl: userInfo.profileImageURL,
                         ),
                       ),
                       onTap: () => Navigator.push(

@@ -391,7 +391,7 @@ class EditPostState extends State<EditPost> {
                     disableCenter: true,
                   ),
                   itemCount: photoItems.length,
-                  itemBuilder: (context, index) { //TODO 남은 사진 갯수 표기
+                  itemBuilder: (context, index) {
                     return Container(
                       child: Stack(
                         fit: StackFit.expand,

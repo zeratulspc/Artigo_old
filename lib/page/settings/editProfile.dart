@@ -23,9 +23,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   String description;
   String email;
 
-  //TODO 커버 사진
   String profileImageURL;
-  //File coverImage;
 
   @override
   void initState() {
@@ -79,13 +77,13 @@ class EditProfilePageState extends State<EditProfilePage> {
                 return true;
               }
           );
-        } else { //TODO 업로드에 실패했을 경우
+        } else { // 업로드에 실패했을 경우
           return false;
         }
-      } else { //TODO 이미지 자르기에서 되돌아간 경우
+      } else { // 이미지 자르기에서 되돌아간 경우
         return false;
       }
-    } else { //TODO 파일을 선택하지 않았을 경우.
+    } else { // 파일을 선택하지 않았을 경우.
       return false;
     }
   }

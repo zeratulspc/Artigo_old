@@ -37,7 +37,7 @@ class SplashScreenState extends State<SplashScreen> {
             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
           }
         });
-      } else { //TODO 버전이 맞지 않을 경우
+      } else {
         versionCheck.getCurrentFileUrl().then((url) {
           basicDialogs.dialogWithFunction(
               context,
