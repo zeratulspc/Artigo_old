@@ -189,18 +189,54 @@ class User {
   User({this.key,this.userName, this.description, this.profileImageURL, this.following, this.follower,
     this.email, this.registerDate, this.recentLoginDate, this.role, this.token});
 
+  fromLinkedHashMap(LinkedHashMap linkedHashMap, String key) {
+    LinkedHashMap<dynamic, dynamic> _followerList = linkedHashMap["follower"];
+    List<Follower> followerList;
+    if(_followerList != null){
+      followerList = List();
+      _followerList.forEach((k, v) {
+        followerList.add(Follower().fromLinkedHashMap(v));
+      });
+    }
+
+    LinkedHashMap<dynamic, dynamic> _followingList = linkedHashMap["following"];
+    List<Following> followingList;
+    if(_followingList != null){
+      followingList = List();
+      _followingList.forEach((k, v) {
+        followingList.add(Following().fromLinkedHashMap(v));
+      });
+    }
+
+    return User(
+      key : key,
+      userName : linkedHashMap["userName"],
+      email : linkedHashMap["email"],
+      description : linkedHashMap["description"],
+      registerDate : linkedHashMap["registerDate"],
+      recentLoginDate : linkedHashMap["recentLoginDate"],
+      profileImageURL : linkedHashMap["profileImageURL"],
+      role : linkedHashMap["role"],
+      token : linkedHashMap["token"],
+      follower : followerList,
+      following : followingList,
+    );
+  }
+
   fromSnapShot(DataSnapshot snapshot) {
     LinkedHashMap<dynamic, dynamic> _followerList = snapshot.value["follower"];
-    List<Follower> followerList = List();
+    List<Follower> followerList;
     if(_followerList != null){
+      followerList = List();
       _followerList.forEach((k, v) {
         followerList.add(Follower().fromLinkedHashMap(v));
       });
     }
 
     LinkedHashMap<dynamic, dynamic> _followingList = snapshot.value["following"];
-    List<Following> followingList = List();
+    List<Following> followingList;
     if(_followingList != null){
+      followingList = List();
       _followingList.forEach((k, v) {
         followingList.add(Following().fromLinkedHashMap(v));
       });

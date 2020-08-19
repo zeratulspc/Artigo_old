@@ -112,7 +112,12 @@ class _PostDetailState extends State<PostDetail> {
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>
-                          EditPost(postCase: 2, initialPost: post, uploader: widget.uploader, currentUser: widget.currentUser,)));
+                          EditPost(
+                            postCase: 2,
+                            initialPost: post,
+                            uploader: widget.uploader,
+                            currentUser: widget.currentUser,
+                          )));
                     }
                 ),
                 ListTile(

@@ -21,7 +21,8 @@ class PostList extends StatefulWidget {
   final VoidCallback navigateToMyProfile;
   PostList({
     Key key ,
-    this.navigateToMyProfile,}) : super(key: key);
+    this.navigateToMyProfile,
+  }) : super(key: key);
 
   @override
   PostListState createState() => PostListState();
@@ -42,9 +43,10 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
   ScrollController scrollController;
 
   // 현재 유저 정보
-  UserDBFNC authDBFNC = UserDBFNC();
+  UserDBFNC userDBFNC = UserDBFNC();
   FirebaseUser currentUser;
   User user;
+
 
   @override
   final bool wantKeepAlive = true;
@@ -54,13 +56,13 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
     super.initState();
     scrollController = ScrollController();
     if(this.mounted) {
-      authDBFNC.getUser().then((_currentUser){
+      userDBFNC.getUser().then((_currentUser){
         if(this.mounted) {
           setState(() {
             currentUser = _currentUser;
           });
         }
-        authDBFNC.getUserInfo(currentUser.uid).then((userInfo){
+        userDBFNC.getUserInfo(currentUser.uid).then((userInfo){
           if(this.mounted) {
             setState(() {
               user = userInfo;
@@ -72,7 +74,7 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
         LinkedHashMap<dynamic, dynamic>linkedHashMap = snapshot.value;
         linkedHashMap.forEach((key, value) async {
           Post post = Post().fromLinkedHashMap(value, key);
-          User data = await authDBFNC.getUserInfo(post.uploaderUID);
+          User data = await userDBFNC.getUserInfo(post.uploaderUID);
           post.uploader = data;
           backPosts.add(post);
           setState(() {
@@ -107,7 +109,7 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
     if(this.mounted){
       bool isContained = true;
       Post _post = Post().fromSnapShot(event.snapshot);
-      authDBFNC.getUserInfo(_post.uploaderUID).then((userInfo) {
+      userDBFNC.getUserInfo(_post.uploaderUID).then((userInfo) {
         _post.uploader = userInfo;
         backPosts.forEach((element) {
           if(element.key == _post.key) { // contain 확인
@@ -131,7 +133,7 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
   _onEntryChanged(Event event) {
     if(this.mounted){
       Post _post = Post().fromSnapShot(event.snapshot);
-      authDBFNC.getUserInfo(_post.uploaderUID).then((userInfo) {
+      userDBFNC.getUserInfo(_post.uploaderUID).then((userInfo) {
         _post.uploader = userInfo;
         setState(() {
           Post oldEntryBack = backPosts.singleWhere((entry) {

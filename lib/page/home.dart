@@ -23,6 +23,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   //UI
   GlobalKey<ScaffoldState> homeScaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<PostListState> postListKey = GlobalKey<PostListState>();
   PageController pageController = PageController(
     initialPage: 0,
     keepPage: true,
@@ -118,6 +119,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       postCase: 1,
                       currentUser: currentUser,
                       uploader: currentUserInfo,
+                      refreshPostList: () {
+                        Future.delayed(Duration(seconds: 1), () {
+                          postListKey.currentState.handleRefresh();
+                        });
+                      },
                     ),
                   )
               );
@@ -134,6 +140,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         },
         children: <Widget> [
           PostList(
+            key: postListKey,
             navigateToMyProfile: () {
               Navigator.popUntil(context, ModalRoute.withName('/home'));
               onPageChange(1); //TODO 아래 기능 추가되면 요거 바꾸기

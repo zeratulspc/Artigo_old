@@ -17,7 +17,14 @@ class EditPost extends StatefulWidget {
   final Post initialPost;
   final User uploader;
   final FirebaseUser currentUser;
-  EditPost({this.postCase, this.uploader, this.currentUser, this.initialPost}); // 1: POST 2: EDIT
+  final VoidCallback refreshPostList;
+  EditPost({
+    this.postCase,
+    this.uploader,
+    this.currentUser,
+    this.initialPost,
+    this.refreshPostList,
+  }); // 1: POST 2: EDIT
   @override
   EditPostState createState() => EditPostState();
 }
@@ -52,7 +59,7 @@ class EditPostState extends State<EditPost> {
         textEditingController.text = widget.initialPost.body;
       });
     }
-    if(this.mounted){
+    if(this.mounted) {
       textEditingController.addListener(() {
         if(this.mounted){
           setState(() {
@@ -97,6 +104,7 @@ class EditPostState extends State<EditPost> {
         body: textEditingController.text,
       );
       Navigator.pop(context); // 로딩 다이알로그 pop
+      widget.refreshPostList();
       Navigator.pop(context); // 페이지 pop
     } else {
       Navigator.pop(context);
