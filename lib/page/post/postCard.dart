@@ -317,6 +317,7 @@ class PostCard {
                   likeToPost: likeToPost,
                   dislikeToPost: dislikeToPost,
                 ),
+                //TODO 댓글 목록 보여주는거 만들기
               ].where(notNull).toList(),
             )
         ),

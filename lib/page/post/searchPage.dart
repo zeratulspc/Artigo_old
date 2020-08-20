@@ -1,8 +1,11 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 
+
+
 import 'package:Artigo/fnc/postDB.dart';
 import 'package:Artigo/fnc/user.dart';
+import 'package:Artigo/page/post/postCard.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -47,10 +50,9 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  searchPost(String keyword) {
+  searchPost(String keyword, Size screenSize) {
     if(posts.length != 0 && users.length != 0) {
       setState(() {
-
         // 유저 검색
         users.forEach((e) {
           if(e.userName == keyword) {
@@ -62,9 +64,14 @@ class _SearchPageState extends State<SearchPage> {
         // 게시글 검색
         posts.forEach((e) {
           if(e.body.contains(keyword)) {
-            // 이 오브젝트를 프론트 위젯에 추가
-            // 향테 : postCard()
-            print(e.body);
+            frontWidgets.add(
+                PostCard(
+                  item: e,
+                  uploader: e.uploader,
+                  screenSize: screenSize,
+                ).postCard(context),
+            );
+          print(e.body);
           }
         });
       });
@@ -76,6 +83,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -116,7 +124,7 @@ class _SearchPageState extends State<SearchPage> {
               String keyword = textController.value.text;
               if(keyword.length != 0) {
                 //검색 진행
-                searchPost(keyword);
+                searchPost(keyword, screenSize);
               } else {
                 // 인증실패 신호 보내기
               }

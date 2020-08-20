@@ -268,7 +268,7 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
                 screenSize: screenSize,
                 item: post,
                 navigateToMyProfile: this.widget.navigateToMyProfile,
-                uploader: frontPosts[index].uploader,
+                uploader: frontPosts[index].uploader, // delete this
                 currentUser: currentUser,
                 moreOption: (){
                   if(currentUser.uid == post.uploaderUID || user.role == "ADMIN")
