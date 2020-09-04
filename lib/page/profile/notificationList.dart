@@ -17,7 +17,7 @@ class NotificationList extends StatefulWidget {
 
 class NotificationListState extends State<NotificationList> with SingleTickerProviderStateMixin{
   Notifications notifications = Notifications(receivedNotifications: List(), sentNotifications: List());
-  User currentUserInfo;
+  UserAdditionalInfo currentUserInfo;
   Query receivedQuery;
   Query sentQuery;
 

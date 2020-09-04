@@ -30,9 +30,9 @@ class CommentItem extends StatelessWidget {
   final Function dislikeToComment;
   final Function replyComment;
   final Comment item;
-  final User uploader;
+  final UserAdditionalInfo uploader;
   final Size screenSize;
-  final FirebaseUser currentUser;
+  final User currentUser;
 
   bool notNull(Object o) => o != null;
 

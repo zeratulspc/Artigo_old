@@ -39,8 +39,8 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
   final PageController pageController;
   final List<Attach> galleryItems;
   final Axis scrollDirection;
-  final FirebaseUser currentUser;
-  final User uploader;
+  final User currentUser;
+  final UserAdditionalInfo uploader;
   final String postKey;
 
   @override

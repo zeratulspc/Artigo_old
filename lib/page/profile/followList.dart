@@ -4,7 +4,7 @@ import 'package:Artigo/fnc/user.dart';
 import 'package:Artigo/fnc/dateTimeParser.dart';
 
 class FollowListPage extends StatefulWidget {
-  final User targetUserInfo;
+  final UserAdditionalInfo targetUserInfo;
   final int listCase;
   FollowListPage({@required this.targetUserInfo, @required this.listCase});
 
@@ -14,10 +14,10 @@ class FollowListPage extends StatefulWidget {
 
 class _FollowListPageState extends State<FollowListPage> {
   UserDBFNC userDBFNC = UserDBFNC();
-  User targetUserInfo;
+  UserAdditionalInfo targetUserInfo;
   int listCase = 0;
 
-  List<User> followList = List();
+  List<UserAdditionalInfo> followList = List();
 
   _FollowListPageState(this.targetUserInfo, this.listCase);
 
@@ -71,7 +71,7 @@ class _FollowListPageState extends State<FollowListPage> {
       body: ListView.builder(
         itemCount: followList.length,
         itemBuilder: (context, index) {
-          User followInfo = followList[index];
+          UserAdditionalInfo followInfo = followList[index];
           DateTime date;
           if(listCase == 0) {
             date = DateTime.parse(targetUserInfo.follower[index].followDate);

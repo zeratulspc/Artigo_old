@@ -65,7 +65,7 @@ class Post {
   String body;
   String uploaderUID;
   String uploadDate;
-  User uploader;
+  UserAdditionalInfo uploader;
   bool isEdited;
 
   List<Attach> attach;

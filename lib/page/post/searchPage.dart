@@ -17,7 +17,7 @@ class _SearchPageState extends State<SearchPage> {
   UserDBFNC userDBFNC = UserDBFNC();
 
   List<Post> posts = List();
-  List<User> users = List();
+  List<UserAdditionalInfo> users = List();
   List<Widget> frontWidgets = List();
 
   TextEditingController textController = TextEditingController();
@@ -29,7 +29,7 @@ class _SearchPageState extends State<SearchPage> {
       LinkedHashMap<dynamic, dynamic>linkedHashMap = snapshot.value;
       linkedHashMap.forEach((key, value) async {
         Post post = Post().fromLinkedHashMap(value, key);
-        User data = await userDBFNC.getUserInfo(post.uploaderUID);
+        UserAdditionalInfo data = await userDBFNC.getUserInfo(post.uploaderUID);
         post.uploader = data;
         posts.add(post);
         setState(() {
@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
     userDBFNC.userDBRef.once().then((snapshot){
       LinkedHashMap<dynamic, dynamic>linkedHashMap = snapshot.value;
       linkedHashMap.forEach((key, value) async{
-        User user = User().fromLinkedHashMap(value, key); //
+        UserAdditionalInfo user = UserAdditionalInfo().fromLinkedHashMap(value, key); //
         users.add(user);
       });
     });

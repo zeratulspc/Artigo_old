@@ -37,7 +37,7 @@ class Comment {
   List<Emotion> emotion;
   List<Comment> reply;
 
-  User uploaderInfo;
+  UserAdditionalInfo uploaderInfo;
 
   Comment({this.key, this.body, this.uploaderUID, this.uploadDate, this.attach, this.emotion, this.reply});
 

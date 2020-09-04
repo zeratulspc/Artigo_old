@@ -27,21 +27,17 @@ class _SettingsState extends State<Settings> {
   @override
   void initState() {
     super.initState();
-    authDBFNC.getUser().then(
+    currentUser = authDBFNC.getUser();
+    authDBFNC.getUserInfo(currentUser.uid).then(
             (data) {
-          currentUser = data;
-          authDBFNC.getUserInfo(currentUser.uid).then(
-                  (data) {
-                if(this.mounted) {
-                  setState(() {
-                    userName = data.userName;
-                    description = data.description;
-                    userRole = data.role;
-                    email = data.email;
-                  });
-                }
-              }
-          );
+          if(this.mounted) {
+            setState(() {
+              userName = data.userName;
+              description = data.description;
+              userRole = data.role;
+              email = data.email;
+            });
+          }
         }
     );
     getVersion().then((data) {

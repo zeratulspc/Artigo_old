@@ -21,8 +21,8 @@ import 'package:Artigo/page/profile/userProfile.dart';
 
 class PostDetail extends StatefulWidget {
   final Post item;
-  final User uploader;
-  final FirebaseUser currentUser;
+  final UserAdditionalInfo uploader;
+  final User currentUser;
   final VoidCallback navigateToMyProfile;
 
   PostDetail({this.item, this.uploader, this.currentUser, this.navigateToMyProfile});

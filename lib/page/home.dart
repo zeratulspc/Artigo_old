@@ -34,8 +34,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   //Auth
   UserDBFNC authDBFNC = UserDBFNC();
-  FirebaseUser currentUser;
-  User currentUserInfo;
+  User currentUser;
+  UserAdditionalInfo currentUserInfo;
 
   //FCM
   FirebaseMessaging firebaseMessaging = FirebaseMessaging();
@@ -43,12 +43,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     if(this.mounted) {
-      authDBFNC.getUser().then((_currentUser){
-        if(this.mounted) {
-          setState(() {
-            currentUser = _currentUser;
-          });
-        }
+      setState(() {
+        currentUser = authDBFNC.getUser();
+      });
         firebaseMessaging.getToken().then((token){
           authDBFNC.updateUserToken(uid: currentUser.uid, token: token);
         });
@@ -59,7 +56,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             });
           }
         });
-      });
     }
     firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) => NotificationFCMFnc.onMessage(context, message),

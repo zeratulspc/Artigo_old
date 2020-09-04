@@ -44,11 +44,11 @@ dependencies:
   cached_network_image: 2.2.0+1 # 이미지 캐싱 https://pub.dev/packages/cached_network_image
   carousel_slider: 2.2.1 # carousel 이미지 슬라이더 https://pub.dev/packages/carousel_slider
 
-  firebase_core: 0.4.5 # https://pub.dev/packages/firebase_core
-  firebase_auth: 0.16.1 # https://pub.dev/packages/firebase_auth
-  firebase_database: 3.1.6 # https://pub.dev/packages/firebase_database
-  firebase_storage: 3.1.6 # https://pub.dev/packages/firebase_storage
-  firebase_messaging: 6.0.16 # https://pub.dev/packages/firebase_messaging
+  firebase_core: 0.5.0 # https://pub.dev/packages/firebase_core
+  firebase_auth: 0.18.0+1 # https://pub.dev/packages/firebase_auth
+  firebase_database: 4.0.0 # https://pub.dev/packages/firebase_database
+  firebase_storage: 4.0.0 # https://pub.dev/packages/firebase_storage
+  firebase_messaging: 7.0.0 # https://pub.dev/packages/firebase_messaging
 
 dev_dependencies:
   flutter_test:

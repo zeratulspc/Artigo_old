@@ -44,8 +44,8 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
 
   // 현재 유저 정보
   UserDBFNC userDBFNC = UserDBFNC();
-  FirebaseUser currentUser;
-  User user;
+  User currentUser;
+  UserAdditionalInfo user;
 
 
   @override
@@ -56,12 +56,9 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
     super.initState();
     scrollController = ScrollController();
     if(this.mounted) {
-      userDBFNC.getUser().then((_currentUser){
-        if(this.mounted) {
-          setState(() {
-            currentUser = _currentUser;
-          });
-        }
+      setState(() {
+        currentUser = userDBFNC.getUser();
+      });
         userDBFNC.getUserInfo(currentUser.uid).then((userInfo){
           if(this.mounted) {
             setState(() {
@@ -69,12 +66,12 @@ class PostListState extends State<PostList> with AutomaticKeepAliveClientMixin {
             });
           }
         });
-      });
+
       postDBFNC.postDBRef.once().then((snapshot) {
         LinkedHashMap<dynamic, dynamic>linkedHashMap = snapshot.value;
         linkedHashMap.forEach((key, value) async {
           Post post = Post().fromLinkedHashMap(value, key);
-          User data = await userDBFNC.getUserInfo(post.uploaderUID);
+          UserAdditionalInfo data = await userDBFNC.getUserInfo(post.uploaderUID);
           post.uploader = data;
           backPosts.add(post);
           setState(() {

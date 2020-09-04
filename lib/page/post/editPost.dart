@@ -15,8 +15,8 @@ import 'package:Artigo/page/post/editPostAttach.dart';
 class EditPost extends StatefulWidget {
   final int postCase; // 1: POST 2: EDIT
   final Post initialPost;
-  final User uploader;
-  final FirebaseUser currentUser;
+  final UserAdditionalInfo uploader;
+  final User currentUser;
   final VoidCallback refreshPostList;
   EditPost({
     this.postCase,

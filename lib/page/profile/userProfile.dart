@@ -28,8 +28,8 @@ class UserProfilePage extends StatefulWidget { // 내 프로필 페이지
 
 class _UserProfilePageState extends State<UserProfilePage> {
   UserDBFNC userDBFNC = UserDBFNC();
-  FirebaseUser currentUser;
-  User userInfo = User();
+  User currentUser;
+  UserAdditionalInfo userInfo = UserAdditionalInfo();
   String targetUserUid;
 
 
@@ -46,22 +46,24 @@ class _UserProfilePageState extends State<UserProfilePage> {
   void initState() {
     super.initState();
     postQuery = postDBFNC.postDBRef;
-    userDBFNC.getUser().then((data) {
-      currentUser = data;
-      if(targetUserUid == null)
-        targetUserUid = currentUser.uid;
-      userDBFNC.getUserInfo(targetUserUid).then((data) {
-        if(this.mounted) {
-          postQuery.onChildAdded.listen(_onEntryAdded);
-          postQuery.onChildChanged.listen(_onEntryChanged);
-          postQuery.onChildRemoved.listen(_onEntryRemoved);
-          setState(() {
-            userInfo = data;
-          });
-        }
+    if(this.mounted) {
+      setState(() {
+        currentUser = userDBFNC.getUser();
+      });
+    }
+    if(targetUserUid == null)
+      targetUserUid = currentUser.uid;
+    userDBFNC.getUserInfo(targetUserUid).then((data) {
+      if(this.mounted) {
+        postQuery.onChildAdded.listen(_onEntryAdded);
+        postQuery.onChildChanged.listen(_onEntryChanged);
+        postQuery.onChildRemoved.listen(_onEntryRemoved);
+        setState(() {
+          userInfo = data;
+        });
       }
+    }
       );
-    });
   }
 
   _onEntryAdded(Event event) {

@@ -18,7 +18,7 @@ class EditProfilePage extends StatefulWidget {
 class EditProfilePageState extends State<EditProfilePage> {
   BasicDialogs basicDialogs = BasicDialogs();
   UserDBFNC authDBFNC = UserDBFNC();
-  FirebaseUser currentUser;
+  User currentUser;
   String userName;
   String description;
   String email;
@@ -28,21 +28,17 @@ class EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    authDBFNC.getUser().then(
-            (data) {
-          currentUser = data;
-          authDBFNC.getUserInfo(currentUser.uid).then(
-                  (data) {
-                setState(() {
-                  userName = data.userName;
-                  description = data.description;
-                  email = data.email;
-                  profileImageURL = data.profileImageURL;
-                });
-              }
-          );
-        }
-    );
+    setState(() {
+      currentUser = authDBFNC.getUser();
+    });
+    authDBFNC.getUserInfo(currentUser.uid).then((data) {
+      setState(() {
+        userName = data.userName;
+        description = data.description;
+        email = data.email;
+        profileImageURL = data.profileImageURL;
+      });
+    });
   }
 
   Future<bool> changeProfileImage(ImageSource source) async {

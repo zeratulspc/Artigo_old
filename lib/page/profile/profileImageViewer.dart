@@ -22,8 +22,8 @@ class GalleryPhotoViewWrapper extends StatefulWidget {
   final dynamic minScale;
   final dynamic maxScale;
   final Axis scrollDirection;
-  final FirebaseUser currentUser;
-  final User userInfo;
+  final User currentUser;
+  final UserAdditionalInfo userInfo;
 
   @override
   State<StatefulWidget> createState() {

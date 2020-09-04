@@ -26,8 +26,8 @@ class NotificationFCMFnc {
     String body,
     String title,
   }) async {
-    User receiver = await UserDBFNC().getUserInfo(receiverUid);
-    User sender = await UserDBFNC().getUserInfo(senderUid);
+    UserAdditionalInfo receiver = await UserDBFNC().getUserInfo(receiverUid);
+    UserAdditionalInfo sender = await UserDBFNC().getUserInfo(senderUid);
     serverToken = await getServerToken();
     String key = notificationDBFnc.sendNotification(NotificationUnit(
       title: title,
@@ -86,13 +86,13 @@ class NotificationFCMFnc {
     String body,
     String title,
   }) async {
-    User sender = await UserDBFNC().getUserInfo(senderUid);
+    UserAdditionalInfo sender = await UserDBFNC().getUserInfo(senderUid);
     serverToken = await getServerToken();
     for(int i = 0; i < sender.follower.length; i++) {
       String _followerToken;
       _followerToken = sender.follower[i].followerToken;
       if(_followerToken == null) {
-        User receiverInfo = await UserDBFNC().getUserInfo(sender.follower[i].followerUid);
+        UserAdditionalInfo receiverInfo = await UserDBFNC().getUserInfo(sender.follower[i].followerUid);
         _followerToken = receiverInfo.token;
       }
       String key = notificationDBFnc.sendNotification(NotificationUnit(
@@ -233,8 +233,8 @@ class NotificationUnit {
   bool isChecked; // 송수신자의 알림 확인 여부
   bool isSent; // FCM 전달이 성공했는지
 
-  User senderInfo;
-  User receiverInfo;
+  UserAdditionalInfo senderInfo;
+  UserAdditionalInfo receiverInfo;
 
   NotificationUnit({this.key, this.receiverUid, this.senderUid,this.title, this.body, this.date, this.isChecked, this.isSent});
 

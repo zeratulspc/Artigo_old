@@ -37,9 +37,9 @@ class PostCard {
   final Function showProfileSheet;
   final Function showLikeSheet;
   final Post item;
-  final User uploader;
+  final UserAdditionalInfo uploader;
   final Size screenSize;
-  final FirebaseUser currentUser;
+  final User currentUser;
 
   bool notNull(Object o) => o != null;
 

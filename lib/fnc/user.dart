@@ -67,19 +67,17 @@ class UserDBFNC {
   }
 
   // 생성하기
-  Future<AuthResult> createUser({String email, String password}) async {
+  Future<UserCredential> createUser({String email, String password}) async {
     try {
       return await auth.createUserWithEmailAndPassword(email: email, password: password);
     } catch (e) {
-      throw AuthException(e.code, e.message);
+      throw FirebaseAuthException(code: e.code, message: e.message, credential: e.credential);
     }
   }
 
 
-  Future createUserInfo({FirebaseUser user, String username, String description, String registerDate, String role}) async {
-    UserUpdateInfo updateInfo = UserUpdateInfo();
-    updateInfo.displayName = username;
-    await user.updateProfile(updateInfo);
+  Future createUserInfo({User user, String username, String description, String registerDate, String role}) async {
+    await user.updateProfile(displayName: username);
     await userDBRef.child(user.uid).set({
       "email": user.email,
       "uid": user.uid,
@@ -130,7 +128,7 @@ class UserDBFNC {
   }
 
   // 삭제
-  Future deleteUser({FirebaseUser currentUser}) async {
+  Future deleteUser({User currentUser}) async {
     await currentUser.delete();
   }
 
@@ -146,23 +144,22 @@ class UserDBFNC {
   }
 
   // 인증
-  Future<AuthResult> loginUser({String email, String password, String loginDate}) async {
+  Future<UserCredential> loginUser({String email, String password, String loginDate}) async {
     try {
-      AuthResult result = await auth.signInWithEmailAndPassword(email: email, password: password);
-      return result;
+      return await auth.signInWithEmailAndPassword(email: email, password: password);
     }  catch (e) {
-      throw AuthException(e.code, e.message);
+      throw FirebaseAuthException(code: e.code, message: e.message);
     }
   }
 
 
   // 가져오기
-  Future<FirebaseUser> getUser() async { // 현재 유저의 FireBaseUser 정보 가져오기
-    return await auth.currentUser();
+  User getUser() { // 현재 유저의 FireBaseUser 정보 가져오기
+    return auth.currentUser;
   }
 
-  Future<User> getUserInfo(String uid) async { // uid 를 입력한 유저의 정보 가져오기
-    User user = User().fromSnapShot(await userDBRef.child(uid).once());
+  Future<UserAdditionalInfo> getUserInfo(String uid) async { // uid 를 입력한 유저의 정보 가져오기
+    UserAdditionalInfo user = UserAdditionalInfo().fromSnapShot(await userDBRef.child(uid).once());
     return user;
   }
 
@@ -172,7 +169,7 @@ class UserDBFNC {
 
 }
 
-class User {
+class UserAdditionalInfo {
   String key; // KEY == UID
   String userName; // 닉네임
   String email; // 로그인 할때 이용, 변경불가
@@ -186,7 +183,7 @@ class User {
   List<Follower> follower = List(); // 팔로워
   List<Following> following = List(); // 팔로잉
 
-  User({this.key,this.userName, this.description, this.profileImageURL, this.following, this.follower,
+  UserAdditionalInfo({this.key,this.userName, this.description, this.profileImageURL, this.following, this.follower,
     this.email, this.registerDate, this.recentLoginDate, this.role, this.token});
 
   fromLinkedHashMap(LinkedHashMap linkedHashMap, String key) {
@@ -208,7 +205,7 @@ class User {
       });
     }
 
-    return User(
+    return UserAdditionalInfo(
       key : key,
       userName : linkedHashMap["userName"],
       email : linkedHashMap["email"],
@@ -242,7 +239,7 @@ class User {
       });
     }
 
-    return User(
+    return UserAdditionalInfo(
         key : snapshot.key,
         userName : snapshot.value["userName"],
         email : snapshot.value["email"],

@@ -33,7 +33,7 @@ class Emotion {
   String date;
   String emotionCode;
   String key;
-  User uploaderInfo;
+  UserAdditionalInfo uploaderInfo;
 
   Emotion({this.userUID, this.emotionCode, this.date});
 
