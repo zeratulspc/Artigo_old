@@ -8,7 +8,7 @@ import 'package:Artigo/fnc/comment.dart';
 class EmotionBoard extends StatelessWidget {
   final String postKey;
   final String attachKey;
-  final FirebaseUser currentUser;
+  final User currentUser;
   final VoidCallback navigateToMyProfile;
   final VoidCallback likeToPost;
   final VoidCallback dislikeToPost;

@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:Artigo/fnc/postDB.dart';
 import 'package:Artigo/fnc/user.dart';
@@ -20,11 +20,14 @@ class _SearchPageState extends State<SearchPage> {
   List<UserAdditionalInfo> users = List();
   List<Widget> frontWidgets = List();
 
+  User currentUser;
+
   TextEditingController textController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    currentUser = userDBFNC.getUser();
     postDBFNC.postDBRef.once().then((snapshot) {
       LinkedHashMap<dynamic, dynamic>linkedHashMap = snapshot.value;
       linkedHashMap.forEach((key, value) async {
@@ -69,6 +72,7 @@ class _SearchPageState extends State<SearchPage> {
                   item: e,
                   uploader: e.uploader,
                   screenSize: screenSize,
+                  currentUser: currentUser
                 ).postCard(context),
             );
           print(e.body);

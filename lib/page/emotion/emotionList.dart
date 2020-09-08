@@ -12,7 +12,7 @@ import 'package:Artigo/page/profile/userProfile.dart';
 class EmotionList extends StatefulWidget {
   final VoidCallback navigateToMyProfile;
   final String postKey;
-  final FirebaseUser currentUser;
+  final User currentUser;
   final String attachKey;
   final String commentKey;
   final String replyKey;

@@ -17,7 +17,7 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   VersionCheck versionCheck = VersionCheck();
   UserDBFNC authDBFNC = UserDBFNC();
-  FirebaseUser currentUser;
+  User currentUser;
   String userName;
   String description;
   String email;

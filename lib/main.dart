@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+
 import 'package:Artigo/page/auth/login.dart';
 import 'package:Artigo/page/home.dart';
 import 'package:Artigo/page/splash.dart';
@@ -7,7 +9,11 @@ import 'package:Artigo/page/settings/settings.dart';
 import 'package:Artigo/page/settings/editProfile.dart';
 
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
 
 final routes = {
   '/login': (BuildContext context) => LoginPage(),

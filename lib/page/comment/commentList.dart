@@ -17,7 +17,7 @@ class CommentList extends StatefulWidget {
   final String postKey;
   final String commentKey;
   final String attachKey;
-  final FirebaseUser currentUser;
+  final User currentUser;
   final VoidCallback getPost;
   final VoidCallback navigateToMyProfile;
 
