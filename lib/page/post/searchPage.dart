@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:Artigo/fnc/user.dart';
 import 'package:Artigo/fnc/postDB.dart';
 import 'package:Artigo/fnc/emotion.dart';
+import 'package:Artigo/page/profile/userCard.dart';
 import 'package:Artigo/page/basicDialogs.dart';
 import 'package:Artigo/page/emotion/emotionInput.dart';
 import 'package:Artigo/page/post/postCard.dart';
@@ -63,9 +64,9 @@ class _SearchPageState extends State<SearchPage> {
         });
       });
     });
-    userDBFNC.userDBRef.once().then((snapshot){
+    userDBFNC.userDBRef.once().then((snapshot) {
       LinkedHashMap<dynamic, dynamic>linkedHashMap = snapshot.value;
-      linkedHashMap.forEach((key, value) async{
+      linkedHashMap.forEach((key, value) async {
         UserAdditionalInfo user = UserAdditionalInfo().fromLinkedHashMap(value, key); //
         users.add(user);
       });
@@ -78,8 +79,14 @@ class _SearchPageState extends State<SearchPage> {
         // 유저 검색
         users.forEach((e) {
           if(e.userName == keyword) {
-            // 이 오브젝트를 프론트 위젯에 추가
-            // 형태 : TODO 새로 만들기....
+            frontWidgets.add(
+              UserCard(
+                navigateToMyProfile: widget.navigateToMyProfile,
+                userInfo: e,
+                screenSize: screenSize,
+                currentUser:  currentUser,
+              ).userCard(context),
+            );
           }
         });
         // 게시글 검색

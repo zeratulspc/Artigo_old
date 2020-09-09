@@ -13,8 +13,7 @@ import 'package:Artigo/page/profile/userProfile.dart';
 import 'package:Artigo/page/emotion/emotionBoard.dart';
 
 class PostCard {
-  PostCard(
-      {Key key,
+  PostCard({Key key,
         this.navigateToMyProfile,
         this.currentUser,
         this.uploader,
