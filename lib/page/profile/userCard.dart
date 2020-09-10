@@ -93,7 +93,50 @@ class UserCard {
                     ),
                   ],
                 ),
-                // 유저 이름 란
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      userInfo != null ?
+                      Container( // 업로더 정보가 있을 때
+                        width: screenSize.width / 1.7,
+                        child: InkWell(
+                          child: Text(userInfo.userName??"", maxLines: 1, overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),),
+                          onTap: currentUser.uid == userInfo.key ? navigateToMyProfile : (){
+                            Navigator.popUntil(context, ModalRoute.withName('/home'));
+                            showModalBottomSheet(
+                              backgroundColor: Colors.grey[300],
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (context) {
+                                return Container(
+                                  height: screenSize.height-50,
+                                  child: UserProfilePage(targetUserUid: userInfo.key, navigateToMyProfile: navigateToMyProfile,),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ) :
+                      Container( // 업로더 정보가 없을 때
+                        width: screenSize.width / 1.7,
+                        child: InkWell(
+                          child: Text("", maxLines: 1, overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),),
+                          onTap:(){},
+                        ),
+                      ),
+                      Container(
+                        child: Text(
+                          userInfo.description,
+                          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
