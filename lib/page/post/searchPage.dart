@@ -250,6 +250,7 @@ class _SearchPageState extends State<SearchPage> {
       ),
       body: ListView.builder(
         itemCount: frontWidgets.length,
+        padding: EdgeInsets.only(top: 3),
         itemBuilder: (context, index){
           return frontWidgets[index];
         },
