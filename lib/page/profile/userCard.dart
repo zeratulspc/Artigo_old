@@ -16,11 +16,13 @@ class UserCard {
     this.navigateToMyProfile,
     this.userInfo,
     this.screenSize,
-    this.currentUser
+    this.currentUser,
+    this.onTap,
   });
 
   final VoidCallback navigateToMyProfile;
   final UserAdditionalInfo userInfo;
+  final Function onTap;
   final User currentUser;
   final Size screenSize;
 
@@ -28,6 +30,7 @@ class UserCard {
     return Padding(
       padding: EdgeInsets.only(bottom: 6),
       child: GestureDetector(
+        onTap: currentUser.uid == userInfo.key ? navigateToMyProfile : onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
           color: Colors.white,
@@ -139,6 +142,13 @@ class UserCard {
                 ),
               ],
             ),
+            trailing: Container(
+              margin: EdgeInsets.only(right: 10),
+              child: Text(
+                DateTimeParser().defaultParse(DateTime.parse(userInfo.recentLoginDate)),
+                style: TextStyle(color: Colors.grey[600], ),
+              ),
+            )
           ),
         ),
       ),

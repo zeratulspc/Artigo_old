@@ -14,6 +14,7 @@ import 'package:Artigo/page/post/postCard.dart';
 import 'package:Artigo/page/post/editPost.dart';
 import 'package:Artigo/page/comment/commentList.dart';
 import 'package:Artigo/page/emotion/emotionList.dart';
+import 'package:Artigo/page/profile/userProfile.dart';
 
 class SearchPage extends StatefulWidget {
   final VoidCallback navigateToMyProfile;
@@ -82,6 +83,20 @@ class _SearchPageState extends State<SearchPage> {
             frontWidgets.add(
               UserCard(
                 navigateToMyProfile: widget.navigateToMyProfile,
+                onTap: (){
+                  Navigator.popUntil(context, ModalRoute.withName('/home'));
+                  showModalBottomSheet(
+                    backgroundColor: Colors.grey[300],
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (context) {
+                      return Container(
+                        height: screenSize.height-50,
+                        child: UserProfilePage(targetUserUid: e.key, navigateToMyProfile: widget.navigateToMyProfile,),
+                      );
+                    },
+                  );
+                },
                 userInfo: e,
                 screenSize: screenSize,
                 currentUser:  currentUser,

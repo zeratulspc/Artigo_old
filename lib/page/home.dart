@@ -87,7 +87,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             color: Colors.black87,
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => SearchPage()
+                  builder: (context) => SearchPage(
+                    navigateToMyProfile: (){
+                      Navigator.popUntil(context, ModalRoute.withName('/home'));
+                      onPageChange(1);
+                    },
+                  )
               ));
             },
           ),
@@ -139,7 +144,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             key: postListKey,
             navigateToMyProfile: () {
               Navigator.popUntil(context, ModalRoute.withName('/home'));
-              onPageChange(1); //TODO 아래 기능 추가되면 요거 바꾸기
+              onPageChange(1);
             },
           ),
           //TodoBoard(),
@@ -147,7 +152,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           UserProfilePage(
             navigateToMyProfile: () {
               Navigator.popUntil(context, ModalRoute.withName('/home'));
-              onPageChange(1); //TODO 아래 기능 추가되면 요거 바꾸기
+              onPageChange(1);
             },
           ),
           Settings(),
