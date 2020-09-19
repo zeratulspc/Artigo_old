@@ -75,6 +75,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   searchPost(String keyword, Size screenSize) {
+    setState(() {
+      frontWidgets.clear();
+    });
     if(posts.length != 0 && users.length != 0) {
       setState(() {
         // 유저 검색
@@ -163,9 +166,19 @@ class _SearchPageState extends State<SearchPage> {
             );
           }
         });
+
+        if(frontWidgets.length == 0) {
+          frontWidgets.add(Container(
+            height: screenSize.height,
+            width: screenSize.width,
+            child: Center(
+              child: Text("검색 결과가 없습니다"),
+            ),
+          ));
+        }
       });
     } else {
-      // 다시 시도해주세요! OR 게시글이 없습니다
+
     }
   }
 
