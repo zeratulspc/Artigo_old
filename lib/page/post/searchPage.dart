@@ -80,7 +80,7 @@ class _SearchPageState extends State<SearchPage> {
     });
     if(posts.length != 0 && users.length != 0) {
       setState(() {
-        // 유저 검색
+
         users.forEach((e) {
           if(e.userName == keyword) {
             frontWidgets.add(
@@ -166,7 +166,6 @@ class _SearchPageState extends State<SearchPage> {
             );
           }
         });
-
         if(frontWidgets.length == 0) {
           frontWidgets.add(Container(
             height: screenSize.height,
@@ -178,7 +177,13 @@ class _SearchPageState extends State<SearchPage> {
         }
       });
     } else {
-
+      frontWidgets.add(Container(
+        height: screenSize.height,
+        width: screenSize.width,
+        child: Center(
+          child: Text("작성된 게시글이 없습니다"),
+        ),
+      ));
     }
   }
 
