@@ -36,6 +36,7 @@ dependencies:
   keyboard_avoider: 0.1.2 # 댓글 창 Scroll 관련
   uuid: 2.0.4 # 랜덤 키 생성
   url_launcher: 5.5.0 # url 열기
+  badges: 1.1.1 # 알림 갯수
 
   image_picker: 0.6.7+4 # 이미지 선택 https://pub.dev/packages/image_picker
   image_cropper: 1.3.0 # 이미지 자르기

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:badges/badges.dart';
 
 import 'package:Artigo/fnc/user.dart';
 import 'package:Artigo/fnc/notification.dart';
@@ -28,6 +30,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     initialPage: 0,
     keepPage: true,
   );
+
   int currentIndex = 0;
   bool isPageCanChanged = true;
   bool showFab = false;
@@ -39,6 +42,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   //FCM
   FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+
+  //Noti count
+  Query receivedQuery;
+  Notifications notifications = Notifications(receivedNotifications: List(), sentNotifications: List());
+  int newNotificationCount = 0;
 
   void initState() {
     super.initState();
@@ -54,6 +62,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             setState(() {
               currentUserInfo = userInfo;
             });
+            receivedQuery = FirebaseDatabase.instance.reference().child("Notifications").child(currentUserInfo.key).child("receivedNotifications");
+            receivedQuery.onChildAdded.listen(_rOnEntryAdded);
+            receivedQuery.onChildChanged.listen(_rOnEntryChanged);
+            receivedQuery.onChildRemoved.listen(_rOnEntryRemoved);
           }
         });
     }
@@ -62,6 +74,43 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       onResume: (Map<String, dynamic> message) => NotificationFCMFnc.onResume(context, message),
       onLaunch: (Map<String, dynamic> message) => NotificationFCMFnc.onLaunch(context, message),
     );
+  }
+
+  _rOnEntryAdded(Event event) async {
+    if(this.mounted){
+      NotificationUnit unit = NotificationUnit().fromLinkedHashMap(event.snapshot.value);
+      if(!unit.isChecked) {
+        setState(() {
+          newNotificationCount++;
+        });
+      }
+    }
+  }
+
+  _rOnEntryChanged(Event event) async {
+    if(this.mounted){
+      NotificationUnit unit = NotificationUnit().fromLinkedHashMap(event.snapshot.value);
+      if(!unit.isChecked){
+        setState(() {
+          newNotificationCount++;
+        });
+      } else {
+        setState(() {
+          newNotificationCount--;
+        });
+      }
+    }
+  }
+
+  _rOnEntryRemoved(Event event) {
+    if(this.mounted){
+      NotificationUnit unit = NotificationUnit().fromLinkedHashMap(event.snapshot.value);
+      if(!unit.isChecked) {
+        setState(() {
+          newNotificationCount--;
+        });
+      }
+    }
   }
 
   onPageChange(int index) {
@@ -99,7 +148,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           IconButton(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
-            icon: Icon(Icons.notifications_none),
+            icon: Badge(
+              showBadge: newNotificationCount != 0,
+              badgeContent: Text("$newNotificationCount", style: TextStyle(color: Colors.white),),
+              child: Icon(Icons.notifications),
+            ),
             color: Colors.black87,
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
